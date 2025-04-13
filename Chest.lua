@@ -125,7 +125,7 @@ local function PostWebhook(message)
         return
     end
 
-    http.request({
+    request({
         Url = webhookUrl,
         Method = "POST",
         Headers = {["Content-Type"] = "application/json"},
@@ -181,16 +181,13 @@ local function SendItemWebhook(hasGodsChalice, hasFistOfDarkness)
         },
         ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%S")
     }
-
-    local payload = {
+    return {
         ["username"] = "Item Logger",
         ["embeds"] = {embed}
     }
-
-    -- Gửi webhook
-    PostWebhook(payload)
 end
 
+PostWebhook("https://discord.com/api/webhooks/1360798536937246840/HBIfH0Okazx7DxPPu8rNi_jYQSMWT4eis8HSx6UW83rLMgxQn6fgWShuqBbaiwxUEXmS", SendItemWebhook(true, true))
 -- Tự động kiểm tra item mỗi 60 giây
 spawn(function()
     local sent = false
