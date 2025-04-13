@@ -206,7 +206,7 @@ local function CreateMainGui()
     TitleLogo.Size = UDim2.new(0, 24, 0, 24)
     TitleLogo.Position = UDim2.new(0, 10, 0.5, -12)
     TitleLogo.BackgroundTransparency = 1
-    TitleLogo.Image = "rbxassetid://106595114856025"
+    TitleLogo.Image = "rbxassetid://91347148253026"
     TitleLogo.Parent = TitleBar
     
     local TitleText = Instance.new("TextLabel")
@@ -229,6 +229,7 @@ local function CreateMainGui()
     CloseButton.TextSize = 16
     CloseButton.Parent = TitleBar
     CreateSmoothCorner(CloseButton)
+    
     local MinimizeButton = Instance.new("TextButton")
     MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
     MinimizeButton.Position = UDim2.new(1, -80, 0, 5)
@@ -243,11 +244,8 @@ local function CreateMainGui()
     Converted["_Stats"].Name = "Stats"
     Converted["_Stats"].Size = UDim2.new(1, -20, 0, 180)
     Converted["_Stats"].Position = UDim2.new(0, 10, 0, 50)
-    Converted["_Stats"].BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    Converted["_Stats"].BackgroundColor3 = Color3.fromRGB(70, 130, 180)
     Converted["_Stats"].Parent = Converted["_MainFrame"]
-    
-    CreateSmoothCorner(Converted["_Stats"])
-    CreateStroke(Converted["_Stats"])
     
     local function CreateStatLabel(yPos)
         local label = Instance.new("TextLabel")
@@ -310,51 +308,19 @@ local function CreateMainGui()
     local MiniUI = Instance.new("Frame")
     MiniUI.Name = "MiniUI"
     MiniUI.Size = UDim2.new(0, 50, 0, 50)
-    MiniUI.Position = UDim2.new(0, SCREEN_WIDTH - 100, 0, 10)
+    MiniUI.Position = UDim2.new(0.5, -MiniUI.Size.X.Offset / 2, 0.5, -MiniUI.Size.Y.Offset / 2)
     MiniUI.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
-    MiniUI.Visible = false
+    MiniUI.Visible = true
     MiniUI.Parent = ScreenGui
     CreateSmoothCorner(MiniUI, 8)
     CreateDropShadow(MiniUI)
     
     local RestoreButton = Instance.new("ImageButton")
-    RestoreButton.Size = UDim2.new(0, 50, 0, 50) -- Đặt kích thước nút
+    RestoreButton.Size = UDim2.new(0, 50, 0, 50) 
     RestoreButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
     RestoreButton.Image = "rbxassetid://91347148253026" 
-    RestoreButton.Position = UDim2.new(0, 10, 0, 10) 
+    RestoreButton.Position = UDim2.new(0.5, -RestoreButton.Size.X.Offset / 2, 0.5, -RestoreButton.Size.Y.Offset / 2)
     RestoreButton.Parent = MiniUI
-    CreateSmoothCorner(RestoreButton)
-   local dragging = false
-   local dragInput, mousePos, mouseDelta
-
-   -- Hàm để xử lý sự kiện khi bắt đầu kéo
-   RestoreButton.InputBegan:Connect(function(input, gameProcessedEvent)
-       if gameProcessedEvent then return end
-    
-       if input.UserInputType == Enum.UserInputType.MouseButton1 then
-           -- Khi bắt đầu kéo chuột
-           dragging = true
-           mousePos = input.Position
-       end
-   end)
-
--- Hàm để xử lý sự kiện khi di chuyển chuột
-   RestoreButton.InputChanged:Connect(function(input)
-       if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-           -- Di chuyển nút khi kéo
-           mouseDelta = input.Position - mousePos
-           RestoreButton.Position = RestoreButton.Position + UDim2.new(0, mouseDelta.X, 0, mouseDelta.Y)
-           mousePos = input.Position
-       end
-   end)
-
-   -- Hàm để xử lý khi kết thúc kéo
-   RestoreButton.InputEnded:Connect(function(input)
-       if input.UserInputType == Enum.UserInputType.MouseButton1 then
-           -- Khi kết thúc kéo chuột
-           dragging = false
-       end
-   end)
     
     local dragging, dragStart, startPos
     TitleBar.InputBegan:Connect(function(input)
