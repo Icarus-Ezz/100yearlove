@@ -45,7 +45,7 @@ if game:GetService("Players").LocalPlayer.PlayerGui.Main:FindFirstChild("ChooseT
 end
     spawn(function()
         while wait() do
-                if getgenv().config.Setting["Boots FPS"] then
+            if getgenv().config.Setting["Boots FPS"] then
             game.Players.LocalPlayer.Character.Pants:Destroy()
             game.Players.LocalPlayer.Character.Animate.Disabled = true
             wait()
@@ -105,7 +105,7 @@ local Converted = {}
 local isMinimized = true
 local isDragging = true
 
-local function SendItemWebhook(itemName)
+local function SendItemWebhook(itemName, hasGodsChalice, hasFistOfDarkness)
     if getgenv().config.Webhook["Send Webhook"] ~= true then return end
 
     local username = LocalPlayer.Name
@@ -114,9 +114,17 @@ local function SendItemWebhook(itemName)
     local time = os.date("%H:%M:%S")
     local place = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
 
+    local godsChaliceStatus = hasGodsChalice and "✅" or "❌"
+    local fistStatus = hasFistOfDarkness and "✅" or "❌"
+
     local content = string.format(
-        "**📦 Found %s!**\n👤 User: `%s`\n🆔 Job ID: `%s`\n💰 Beli: `%s`\n🏝️ Map: `%s`\n⏰ Time: `%s`",
-        itemName, username, jobId, beli, place, time
+        "**📦 Inventory Check!**\n" ..
+        "👤 User: `%s`\n🆔 Job ID: `%s`\n💰 Beli: `%s`\n🏝️ Map: `%s`\n⏰ Time: `%s`\n\n" ..
+        "**🔑 Key Items:**\n" ..
+        "- God's Chalice: %s\n" ..
+        "- Fist of Darkness: %s",
+        username, jobId, beli, place, time,
+        godsChaliceStatus, fistStatus
     )
 
     local data = {
@@ -136,16 +144,28 @@ local function SendItemWebhook(itemName)
     end
 end
 
--- Check Inventory
 spawn(function()
-    local sent = {}
+    local sent = false
 
-    while task.wait(10) do
+    while task.wait(60) do
+        local hasGodsChalice = false
+        local hasFistOfDarkness = false
+
         for _, item in pairs(LocalPlayer.Backpack:GetChildren()) do
-            if (item.Name == "God's Chalice" or item.Name == "Fist of Darkness") and not sent[item.Name] then
-                sent[item.Name] = true
-                SendItemWebhook(item.Name)
+            if item.Name == "God's Chalice" then
+                hasGodsChalice = true
+            elseif item.Name == "Fist of Darkness" then
+                hasFistOfDarkness = true
             end
+        end
+
+        -- Gửi chỉ một lần khi có lần đầu hoặc thay đổi
+        if (hasGodsChalice or hasFistOfDarkness) and not sent then
+            SendItemWebhook("Inventory", hasGodsChalice, hasFistOfDarkness)
+            sent = true
+        elseif not hasGodsChalice and not hasFistOfDarkness then
+            SendItemWebhook("Inventory", false, false)
+            sent = false
         end
     end
 end)
@@ -291,7 +311,7 @@ local function CreateMainGui()
     Converted["_Stats"].Name = "Stats"
     Converted["_Stats"].Size = UDim2.new(1, -20, 0, 180)
     Converted["_Stats"].Position = UDim2.new(0, 10, 0, 50)
-    Converted["_Stats"].BackgroundColor3 = Color3.fromRGB(255, 140, 0)
+    Converted["_Stats"].BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     Converted["_Stats"].Parent = Converted["_MainFrame"]
     
     local function CreateStatLabel(yPos)
@@ -360,7 +380,6 @@ local function CreateMainGui()
     MiniUI.Visible = true
     MiniUI.Parent = ScreenGui
     CreateSmoothCorner(MiniUI, 8)
-    CreateDropShadow(MiniUI)
     
     local RestoreButton = Instance.new("ImageButton")
     RestoreButton.Size = UDim2.new(0, 50, 0, 50) 
