@@ -243,6 +243,29 @@ if pcall(function() game:HttpGet("https://games.roblox.com/v1/games/"..game.Plac
     HopServer = SmartServerHop
 end
 
+local function AutoJump(hasGodsChalice, hasFistOfDarkness)
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+
+    while wait(math.random(15, 20)) do  -- Wait random time between 15-20s
+        pcall(function()
+            if _G.AutoJump and humanoid and humanoid.Health > 0 then 
+                -- Nếu có God's Chalice hoặc Fist of Darkness, thực hiện nhảy nhiều lần hoặc click
+                if hasGodsChalice or hasFistOfDarkness then
+                    -- Click detector multiple times for notification
+                    clickDetectorForNotification()
+                    wait(1)
+                    clickDetectorForNotification()
+                else
+                    -- Nhảy bình thường
+                    humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                end
+            end
+        end)
+    end
+end
+
 local function AntiKick()
     while true do
         wait(1)
@@ -263,7 +286,6 @@ local function AntiKick()
                 v1524.BackgroundTransparency = 1;
                 v1524.TextStrokeTransparency = 0.5;
                 v1524.TextColor3 = Color3.fromRGB(80, 245, 245);
-                v1524.Text = "taphoamizu";
             end
             if game.Players.LocalPlayer.Character.HumanoidRootPart.Velocity.Magnitude < 0.1 then
                 game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame + Vector3.new(0, 0, 0.01)
@@ -272,7 +294,6 @@ local function AntiKick()
     end
 end
 
--- Call AntiKick function
 spawn(AntiKick)
 
 -- Automatic rejoin on kick
@@ -630,6 +651,7 @@ end)
 --//Farm Chest Code
 spawn(function()
     while true do
+        -- Kiểm tra nếu Auto Chest đã bật
         if getgenv().config.ChestFarm["Start Farm Chest"] then
             game:GetService("StarterGui"):SetCore("SendNotification", {
                 Title = "Auto Chest",
@@ -642,19 +664,20 @@ spawn(function()
 
             local function GetChest()
                 local distance = math.huge
-                local a
+                local closestChest
                 for _, v in pairs(workspace.Map:GetDescendants()) do
                     if string.find(v.Name:lower(), "chest") and v:FindFirstChild("TouchInterest") then
                         local d = (v.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
                         if d < distance then
                             distance = d
-                            a = v
+                            closestChest = v
                         end
                     end
                 end
-                return a
+                return closestChest
             end
 
+            -- Hàm thu thập Chest tự động
             local function AutoChestCollect()
                 local chest = GetChest()
                 if chest then
@@ -667,24 +690,28 @@ spawn(function()
                 end
             end
 
-            -- Auto Jump xử lý trong lúc farm
+            -- Auto Jump khi đang farm
             spawn(function()
                 local player = game.Players.LocalPlayer
                 local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+
                 while getgenv().config.ChestFarm["Start Farm Chest"] do
-                    wait(math.random(15, 20))
+                    wait(math.random(15, 20))  -- Đợi ngẫu nhiên giữa các lần nhảy
+
                     pcall(function()
                         if humanoid and humanoid.Health > 0 then
                             local hasGodsChalice = player.Backpack:FindFirstChild("God's Chalice") or player.Character:FindFirstChild("God's Chalice")
                             local hasFistOfDarkness = player.Backpack:FindFirstChild("Fist of Darkness") or player.Character:FindFirstChild("Fist of Darkness")
 
+                            -- Nếu có God's Chalice hoặc Fist of Darkness, sử dụng click detector
                             if hasGodsChalice or hasFistOfDarkness then
                                 if typeof(clickDetectorForNotification) == "function" then
                                     clickDetectorForNotification()
                                     wait(1)
-                                    clickDetectorForNotification()
+                                    clickDetectorForNotification()  -- Click thêm lần nữa nếu có item đặc biệt
                                 end
                             else
+                                -- Nếu không có các item trên, nhảy
                                 humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
                             end
                         end
@@ -692,9 +719,9 @@ spawn(function()
                 end
             end)
 
-            -- Bắt đầu farm
+            -- Bắt đầu farm chest
             AutoChestCollect()
         end
-        wait(1)
+        wait(1)  -- Chờ một giây trước khi lặp lại
     end
 end)
