@@ -618,16 +618,27 @@ spawn(function()
     end
 end)
 
---//Farm Chest Code
-local sea = CFrame.new(-4998.47021484375, 314.7247009277344, -3018.09326171875) --Castle
+local seaThirdSea = CFrame.new(-4998.47021484375, 314.7247009277344, -3018.09326171875)  -- Tọa độ Third Sea (Castle)
+local seaSecondSea = CFrame.new(-411.2250061035156, 73.31524658203125, 371.2820129394531)  -- Tọa độ Second Sea (Cafe)
+
+-- Kiểm tra game.PlaceId để xác định biển hiện tại
+local function GetSeaCoordinates()
+    if game.PlaceId == 4442272183 then  
+        return seaThirdSea
+    elseif game.PlaceId == 7449423635 then  
+        return seaSecondSea
+    else
+        return nil
+    end
+end
 
 spawn(function()
     while true do
-        -- Checking if Auto Chest is enabled
+        -- Kiểm tra nếu Auto Chest đã bật
         if getgenv().config.ChestFarm["Start Farm Chest"] then
             game:GetService("StarterGui"):SetCore("SendNotification", {
                 Title = "Auto Chest",
-                Text = "+1 Chest ",
+                Text = "Ez",
                 Duration = 5
             })
 
@@ -683,7 +694,10 @@ spawn(function()
         end
 
         if getgenv().config.Webhook["Send Webhook"] then
-            Tween2(sea)    
+            local seaCoordinates = GetSeaCoordinates()  -- Lấy tọa độ đúng
+            if seaCoordinates then
+                Tween2(seaCoordinates)  -- Dịch chuyển đến tọa độ đúng
+            end
             PostWebhook(getgenv().config.Webhook["Webhook Url"], AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness))
         end
 
