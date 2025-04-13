@@ -90,7 +90,6 @@ local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
 local StarterGui = game:GetService("StarterGui")
 local HttpService = game:GetService("HttpService")
-local LocalPlayer = Players.LocalPlayer
 local Players = game:GetService("Players")
 local TWEEN_TIME = 0.6
 local TWEEN_STYLE = Enum.EasingStyle.Quart
@@ -104,10 +103,6 @@ local Converted = {}
 
 local isMinimized = true
 local isDragging = true
-
-local function FormatNumber(number)
-    return tostring(number):reverse():gsub("(%d%d%d)", "%1,"):reverse():gsub("^,", "")
-end
 
 local function SendItemWebhook(itemName)
     if getgenv().config.Webhook["Send Webhook"] ~= true then return end
@@ -153,6 +148,10 @@ spawn(function()
         end
     end
 end)
+
+local function FormatNumber(number)
+    return tostring(number):reverse():gsub("(%d%d%d)", "%1,"):reverse():gsub("^,", "")
+end
 
 local function CreateSmoothCorner(instance, radius)
     local corner = Instance.new("UICorner")
