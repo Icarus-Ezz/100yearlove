@@ -114,24 +114,25 @@ local function PostWebhook(message)
         return
     end
 
+    -- Lấy phương thức gửi request (sử dụng các phương thức khác nhau tùy môi trường)
     local request = (http_request and http_request) 
                   or (syn and syn.request) 
                   or (request and request) 
                   or (http and http.request)
+
     if typeof(request) ~= "function" then
         warn("Không tìm thấy phương thức gửi HTTP.")
         return
     end
 
     request({
-        Url = Webhook["Webhook Url"],
+        Url = webhookUrl,
         Method = "POST",
         Headers = {["Content-Type"] = "application/json"},
         Body = HttpService:JSONEncode(message)
     })
 end
 
--- Hàm gửi webhook khi có item
 local function SendItemWebhook(hasGodsChalice, hasFistOfDarkness)
     local embed = {
         ["title"] = "**📦 Inventory Check!**",
@@ -186,6 +187,7 @@ local function SendItemWebhook(hasGodsChalice, hasFistOfDarkness)
         ["embeds"] = {embed}
     }
 
+    -- Gửi webhook
     PostWebhook(payload)
 end
 
