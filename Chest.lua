@@ -178,7 +178,6 @@ spawn(function()
         if getgenv().config.Webhook["Send Webhook"] then
 
             local message = AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
-            print("Message to send:", message)  -- Debugging: In thông điệp gửi đi
             PostWebhook(getgenv().config.Webhook["Webhook Url"], message)
         else
             print("Webhook not enabled.")
@@ -225,26 +224,6 @@ end
 
 if pcall(function() game:HttpGet("https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Asc&limit=100") end) then
     HopServer = SmartServerHop
-end
-
-local function AutoJump(hasGodsChalice, hasFistOfDarkness)
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local humanoid = character:FindFirstChildOfClass("Humanoid")
-
-    while wait(math.random(15, 20)) do  -- Wait random time between 15-20s
-        pcall(function()
-            if _G.AutoJump and humanoid and humanoid.Health > 0 then 
-                if hasGodsChalice or hasFistOfDarkness then
-                    clickDetectorForNotification()
-                    wait(1)
-                    clickDetectorForNotification()
-                else
-                    humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-                end
-            end
-        end)
-    end
 end
 
 local function AntiKick()
