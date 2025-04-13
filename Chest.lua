@@ -187,9 +187,12 @@ spawn(function()
         end
 
         if getgenv().config.Webhook["Send Webhook"] then
-                PostWebhook(getgenv().config.Webhook["Webhook Url"], AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness))
+            PostWebhook(getgenv().config.Webhook["Webhook Url"], AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness))
+        else
+            print("Webhook not enabled.")
         end
-        -- Send 60s/1
+
+        -- Chờ 60 giây trước khi gửi lần tiếp theo
         task.wait(60)
     end
 end)
