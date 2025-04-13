@@ -195,8 +195,8 @@ local function CreateMainGui()
     local mainFrameGradient = Instance.new("UIGradient")
     mainFrameGradient.Parent = Converted["_MainFrame"]
     mainFrameGradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(35, 35, 40)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(60, 60, 65))
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(50, 50, 55)),  -- Darker blue tone
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(85, 85, 90))   -- Lighter blue tone
     }
     mainFrameGradient.Rotation = 45  -- Angle of the gradient
     
@@ -211,8 +211,8 @@ local function CreateMainGui()
     local titleBarGradient = Instance.new("UIGradient")
     titleBarGradient.Parent = TitleBar
     titleBarGradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(45, 45, 50)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(70, 70, 75))
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(100, 100, 110)),  -- Soft purple
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(150, 150, 160))   -- Light purple
     }
     titleBarGradient.Rotation = 45  -- Angle of the gradient
     
@@ -247,7 +247,6 @@ local function CreateMainGui()
     CloseButton.Parent = TitleBar
     CreateSmoothCorner(CloseButton)
     
-    -- Minimize Button
     local MinimizeButton = Instance.new("TextButton")
     MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
     MinimizeButton.Position = UDim2.new(1, -80, 0, 5)
