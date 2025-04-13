@@ -543,7 +543,8 @@ local function UpdateStats()
 
     local chestCount = 0
     for _, v in pairs(workspace:GetDescendants()) do
-        if string.find(v.Name:lower(), "chest") and v:IsA("BasePart") then
+        -- Kiểm tra đối tượng có tên chứa từ "chest" và là BasePart hoặc có "TouchInterest"
+        if string.find(v.Name:lower(), "chest") and v:IsA("BasePart") and v:FindFirstChild("TouchInterest") then
             chestCount = chestCount + 1
         end
     end
