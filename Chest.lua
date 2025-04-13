@@ -337,17 +337,19 @@ local function CreateMainGui()
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "VxezeHubUI"
     ScreenGui.ResetOnSpawn = false
-    
+
+    -- Main
     Converted["_MainFrame"] = Instance.new("Frame")
     Converted["_MainFrame"].Name = "MainFrame"
     Converted["_MainFrame"].Size = UDim2.new(0, 350, 0, 300)
-    Converted["_MainFrame"].Position = UDim2.new(0, SCREEN_WIDTH - 400, 0, 50)
+    Converted["_MainFrame"].Position = UDim2.new(0.5, -Converted["_MainFrame"].Size.X.Offset / 2, 0.5, -Converted["_MainFrame"].Size.Y.Offset / 2)  -- Căn giữa và dịch xuống một chút
     Converted["_MainFrame"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     Converted["_MainFrame"].Parent = ScreenGui
     
     CreateDropShadow(Converted["_MainFrame"])
     CreateSmoothCorner(Converted["_MainFrame"], 12)
-    
+
+    -- Title Bar
     local TitleBar = Instance.new("Frame")
     TitleBar.Name = "TitleBar"
     TitleBar.Size = UDim2.new(1, 0, 0, 40)
@@ -355,14 +357,16 @@ local function CreateMainGui()
     TitleBar.Position = UDim2.new(0, 0, 0, 0)
     TitleBar.Parent = Converted["_MainFrame"]
     CreateSmoothCorner(TitleBar, 12)
-    
+
+    -- Title Logo
     local TitleLogo = Instance.new("ImageLabel")
     TitleLogo.Size = UDim2.new(0, 24, 0, 24)
     TitleLogo.Position = UDim2.new(0, 10, 0.5, -12)
     TitleLogo.BackgroundTransparency = 1
     TitleLogo.Image = "rbxassetid://91347148253026"
     TitleLogo.Parent = TitleBar
-    
+
+    -- Title Text
     local TitleText = Instance.new("TextLabel")
     TitleText.Size = UDim2.new(1, -100, 1, 0)
     TitleText.Position = UDim2.new(0, 40, 0, 0)
@@ -373,7 +377,8 @@ local function CreateMainGui()
     TitleText.TextSize = 16
     TitleText.TextXAlignment = Enum.TextXAlignment.Left
     TitleText.Parent = TitleBar
-    
+
+    -- Close Button
     local CloseButton = Instance.new("TextButton")
     CloseButton.Size = UDim2.new(0, 30, 0, 30)
     CloseButton.Position = UDim2.new(1, -40, 0, 5)
@@ -383,7 +388,8 @@ local function CreateMainGui()
     CloseButton.TextSize = 16
     CloseButton.Parent = TitleBar
     CreateSmoothCorner(CloseButton)
-    
+
+    -- Minimize Button
     local MinimizeButton = Instance.new("TextButton")
     MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
     MinimizeButton.Position = UDim2.new(1, -80, 0, 5)
@@ -394,6 +400,7 @@ local function CreateMainGui()
     MinimizeButton.Parent = TitleBar
     CreateSmoothCorner(MinimizeButton)
 
+    -- Stats Section
     Converted["_Stats"] = Instance.new("Frame")
     Converted["_Stats"].Name = "Stats"
     Converted["_Stats"].Size = UDim2.new(1, -20, 0, 180)
