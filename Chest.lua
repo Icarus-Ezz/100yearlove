@@ -157,7 +157,7 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
                         ["name"] = "📜Join Code",
                         ["value"] = "```lua" .. "\n" .. "game.ReplicatedStorage['__ServerBrowser']:InvokeServer('teleport','" .. game.JobId .. "')" .. "```",
                         ["inline"] = false
-                    }                    
+                    },
                     {
                         ["name"] = "️🏆God's Chalice",
                         ["value"] = hasGodsChalice and "✅" or "❌",
@@ -168,7 +168,7 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
                         ["value"] = hasFistOfDarkness and "✅" or "❌",
                         ["inline"] = true
                     },
-                },                
+                },
                 ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%S")
             }
         }
