@@ -21,7 +21,6 @@ getgenv().config = {
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Icarus-Ezz/phatyeuem/refs/heads/main/Chest.lua"))()
 ]]--
 
---//Config
 if game:GetService("Players").LocalPlayer.PlayerGui.Main:FindFirstChild("ChooseTeam") then
     repeat task.wait()
         if game:GetService("Players").LocalPlayer.PlayerGui:WaitForChild("Main").ChooseTeam.Visible == true then
@@ -115,8 +114,11 @@ local function PostWebhook(message)
         return
     end
 
-    local request = http_request or request or syn.request or http.request
-    if not request then
+    local request = (http_request and http_request) 
+                  or (syn and syn.request) 
+                  or (request and request) 
+                  or (http and http.request)
+    if typeof(request) ~= "function" then
         warn("Không tìm thấy phương thức gửi HTTP.")
         return
     end
