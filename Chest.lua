@@ -622,44 +622,66 @@ spawn(function()
         if getgenv().config.ChestFarm["Start Farm Chest"] then
             game:GetService("StarterGui"):SetCore("SendNotification", {
                 Title = "Auto Chest",
-                Text = "Setup For Farm Chest",
+                Text = "+1 Chest ",
                 Duration = 5
             })
-                
+
             _G.AutoCollectChest = true
             _G.IsChestFarming = true
 
-            -- Hàm tìm Chest gần nhất
             local function GetChest()
                 local distance = math.huge
-                local nearestChest
+                local a
                 for _, v in pairs(workspace.Map:GetDescendants()) do
                     if string.find(v.Name:lower(), "chest") and v:FindFirstChild("TouchInterest") then
                         local d = (v.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
                         if d < distance then
                             distance = d
-                            nearestChest = v
+                            a = v
                         end
                     end
                 end
-                return nearestChest
+                return a
             end
 
-            -- Hàm thu thập chest
             local function AutoChestCollect()
                 local chest = GetChest()
                 if chest then
-                    -- Giả sử Tween2 là một hàm di chuyển đến vị trí chest
                     Tween2(chest.CFrame)
                     pcall(function()
                         _G.LastChestCollectedTime = tick()
                     end)
                 elseif tick() - (_G.LastChestCollectedTime or 0) > 60 then
-                    -- Nếu không có chest trong vòng 60 giây, gọi hàm Hop (có thể là nhảy server hoặc một hành động khác)
                     Hop()
                 end
             end
 
+            -- Auto Jump xử lý trong lúc farm
+            spawn(function()
+                local player = game.Players.LocalPlayer
+                local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+                while getgenv().config.ChestFarm["Start Farm Chest"] do
+                    wait(math.random(15, 20))
+                    pcall(function()
+                        if humanoid and humanoid.Health > 0 then
+                            local hasGodsChalice = player.Backpack:FindFirstChild("God's Chalice") or player.Character:FindFirstChild("God's Chalice")
+                            local hasFistOfDarkness = player.Backpack:FindFirstChild("Fist of Darkness") or player.Character:FindFirstChild("Fist of Darkness")
+
+                            if hasGodsChalice or hasFistOfDarkness then
+                                if typeof(clickDetectorForNotification) == "function" then
+                                    clickDetectorForNotification()
+                                    wait(1)
+                                    clickDetectorForNotification()
+                                end
+                            else
+                                humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                            end
+                        end
+                    end)
+                end
+            end)
+
+            -- Bắt đầu farm
             AutoChestCollect()
         end
         wait(1)
