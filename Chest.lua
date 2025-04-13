@@ -92,6 +92,45 @@ local function CreateSmoothCorner(instance, radius)
     return corner
 end
 
+function Tween2(targetCFrame)
+    -- Đảm bảo NoClip và anti-gravity được kích hoạt
+    EnableNoClipAndAntiGravity()
+    
+    -- Tạo tween mới
+    pcall(function()
+        local character = game.Players.LocalPlayer.Character
+        if not character or not character:FindFirstChild("HumanoidRootPart") then return end
+        
+        local distance = (targetCFrame.Position - character.HumanoidRootPart.Position).Magnitude
+        local speed = 350 -- Tốc độ bay
+        
+        -- Tạo tween info với easing style smooth
+        local tweenInfo = TweenInfo.new(
+            distance / speed,
+            Enum.EasingStyle.Linear,
+            Enum.EasingDirection.InOut,
+            0, -- Số lần lặp lại (0 = không lặp)
+            false, -- Đảo ngược
+            0 -- Delay trước khi bắt đầu
+        )
+        
+        -- Tạo và chạy tween
+        local tween = game:GetService("TweenService"):Create(
+            character.HumanoidRootPart,
+            tweenInfo,
+            {CFrame = targetCFrame}
+        )
+        
+        tween.Completed:Connect(function()
+            -- Kích hoạt lại NoClip và anti-gravity sau khi tween hoàn thành
+            EnableNoClipAndAntiGravity()
+        end)
+        
+        tween:Play()
+        
+        wait(distance / speed + 0.1)
+    end)
+end
 local function CreateStroke(parent, color, thickness)
     local stroke = Instance.new("UIStroke")
     stroke.Color = color or Color3.fromRGB(65, 65, 65)
@@ -384,35 +423,73 @@ InitializeScript()
             end
         end
     end)
-    --//Chest
-task.spawn(function()
+
+--//Code Farm Chest
+spawn(function()
     while true do
+        -- Kiểm tra điều kiện bắt đầu farm chest
         if getgenv().config.ChestFarm["Start Farm Chest"] then
-        
-            local hasChar = game.Players.LocalPlayer:FindFirstChild("Character")
-            if not game.Players.LocalPlayer.Character then
-                -- Character not loaded
-            else
-                local hasCrewTag = game.Players.LocalPlayer.Character:FindFirstChild("CrewBBG", true)
-                if hasCrewTag then hasCrewTag:Destroy() end
-                
-                local hasHumanoid = game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
-                if hasHumanoid then
-                    local Chest = game.Workspace:FindFirstChild("Chest4") 
-                        or game.Workspace:FindFirstChild("Chest3") 
-                        or game.Workspace:FindFirstChild("Chest2") 
-                        or game.Workspace:FindFirstChild("Chest1") 
-                        or game.Workspace:FindFirstChild("Chest")
-                    
-                    if Chest then
-                        game.Players.LocalPlayer.Character:PivotTo(Chest:GetPivot())
-                        firesignal(Chest.Touched, game.Players.LocalPlayer.Character.HumanoidRootPart)
-                    else
-                        Hop()
+            -- Hiển thị thông báo khi bắt đầu farm chest
+            game:GetService("StarterGui"):SetCore("SendNotification", {
+                Title = "Auto Chest",
+                Text = "Enabling auto chest farming to find Fist of Darkness...",
+                Duration = 5
+            })
+            
+            -- Thiết lập các biến để bật chế độ tự động thu thập chest
+            _G.AutoCollectChest = true
+            _G.IsChestFarming = true
+
+            -- Cải tiến hàm AutoChestCollect
+            GetChest = function()
+                local distance = math.huge -- Bắt đầu với khoảng cách vô cùng lớn
+                local a -- Biến lưu chest gần nhất
+
+                -- Lặp qua tất cả các đối tượng con của Workspace.Map
+                for r, v in pairs(workspace.Map:GetDescendants()) do
+                    -- Kiểm tra xem tên của đối tượng có chứa "chest"
+                    if string.find(v.Name:lower(), "chest") then
+                        -- Kiểm tra đối tượng có TouchInterest (điều này cho thấy đối tượng có thể tương tác)
+                        if v:FindFirstChild("TouchInterest") then
+                            -- Tính toán khoảng cách giữa chest và người chơi
+                            local chestDistance = (v.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+                            
+                            -- Nếu khoảng cách nhỏ hơn khoảng cách gần nhất hiện tại
+                            if chestDistance < distance then
+                                distance = chestDistance
+                                a = v -- Lưu lại chest gần nhất
+                            end
+                        end
                     end
                 end
+
+                return a -- Trả về chest gần nhất (nếu có)
+            end
+
+            -- Kiểm tra và thu thập chest
+            local chest = GetChest()
+            if chest then
+                -- Tween đến chest gần nhất
+                Tween2(chest.CFrame)
+
+                -- Kiểm tra và xử lý các trường hợp đặc biệt như Key, Fist of Darkness, Core Brain
+                pcall(function()
+                    -- Kiểm tra xem Key có xuất hiện và nếu chưa phát hiện thì xử lý
+                    if workspace:FindFirstChild("Key") and not _G.KeyDetected then
+                        _G.KeyDetected = true
+                        _G.AutoJump = false -- Tắt chế độ nhảy khi phát hiện Key
+                    end
+                    
+                    -- Kiểm tra Fist of Darkness và Core Brain
+                    hasFistOfDarkness()  -- Hàm kiểm tra Fist of Darkness
+                    hasCoreBrain()  -- Hàm kiểm tra Core Brain
+                end)
+            elseif tick() - _G.LastChestCollectedTime > 60 then
+                -- Nếu không tìm thấy chest trong 60 giây, chuyển sang server khác
+                HopServer()
             end
         end
-        task.wait()
+        -- Đợi một thời gian trước khi lặp lại
+        wait(1) 
     end
 end)
