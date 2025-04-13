@@ -432,7 +432,7 @@ spawn(function()
             -- Hiển thị thông báo khi bắt đầu farm chest
             game:GetService("StarterGui"):SetCore("SendNotification", {
                 Title = "Auto Chest",
-                Text = "Enabling auto chest farming to find Fist of Darkness...",
+                Text = "Setup For Farm Chest",
                 Duration = 5
             })
             
@@ -471,19 +471,6 @@ spawn(function()
             if chest then
                 -- Tween đến chest gần nhất
                 Tween2(chest.CFrame)
-
-                -- Kiểm tra và xử lý các trường hợp đặc biệt như Key, Fist of Darkness, Core Brain
-                pcall(function()
-                    -- Kiểm tra xem Key có xuất hiện và nếu chưa phát hiện thì xử lý
-                    if workspace:FindFirstChild("Key") and not _G.KeyDetected then
-                        _G.KeyDetected = true
-                        _G.AutoJump = false -- Tắt chế độ nhảy khi phát hiện Key
-                    end
-                    
-                    -- Kiểm tra Fist of Darkness và Core Brain
-                    hasFistOfDarkness()  -- Hàm kiểm tra Fist of Darkness
-                    hasCoreBrain()  -- Hàm kiểm tra Core Brain
-                end)
             elseif tick() - _G.LastChestCollectedTime > 60 then
                 -- Nếu không tìm thấy chest trong 60 giây, chuyển sang server khác
                 HopServer()
