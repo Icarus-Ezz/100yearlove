@@ -17,7 +17,6 @@ getgenv().config = {
         ["Send Webhook"] = true,      
     },
 }
-
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Icarus-Ezz/phatyeuem/refs/heads/main/Chest.lua"))()
 ]]--
 
@@ -251,14 +250,11 @@ local function AutoJump(hasGodsChalice, hasFistOfDarkness)
     while wait(math.random(15, 20)) do  -- Wait random time between 15-20s
         pcall(function()
             if _G.AutoJump and humanoid and humanoid.Health > 0 then 
-                -- Nếu có God's Chalice hoặc Fist of Darkness, thực hiện nhảy nhiều lần hoặc click
                 if hasGodsChalice or hasFistOfDarkness then
-                    -- Click detector multiple times for notification
                     clickDetectorForNotification()
                     wait(1)
                     clickDetectorForNotification()
                 else
-                    -- Nhảy bình thường
                     humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
                 end
             end
@@ -331,7 +327,6 @@ local function Tween2(targetCFrame)
             0
         )
 
-        -- Tạo và play tween
         local tween = game:GetService("TweenService"):Create(
             hrp,
             tweenInfo,
@@ -649,9 +644,11 @@ spawn(function()
 end)
 
 --//Farm Chest Code
+local sea = CFrame.new(-4998.47021484375, 314.7247009277344, -3018.09326171875) --Castle
+
 spawn(function()
     while true do
-        -- Kiểm tra nếu Auto Chest đã bật
+        -- Checking if Auto Chest is enabled
         if getgenv().config.ChestFarm["Start Farm Chest"] then
             game:GetService("StarterGui"):SetCore("SendNotification", {
                 Title = "Auto Chest",
@@ -677,7 +674,6 @@ spawn(function()
                 return closestChest
             end
 
-            -- Hàm thu thập Chest tự động
             local function AutoChestCollect()
                 local chest = GetChest()
                 if chest then
@@ -686,42 +682,36 @@ spawn(function()
                         _G.LastChestCollectedTime = tick()
                     end)
                 elseif tick() - (_G.LastChestCollectedTime or 0) > 60 then
-                    Hop()
+                    Hop()  -- Hop to a new server if no chest is found
                 end
             end
 
-            -- Auto Jump khi đang farm
-            spawn(function()
-                local player = game.Players.LocalPlayer
-                local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-
-                while getgenv().config.ChestFarm["Start Farm Chest"] do
-                    wait(math.random(15, 20))  -- Đợi ngẫu nhiên giữa các lần nhảy
-
-                    pcall(function()
-                        if humanoid and humanoid.Health > 0 then
-                            local hasGodsChalice = player.Backpack:FindFirstChild("God's Chalice") or player.Character:FindFirstChild("God's Chalice")
-                            local hasFistOfDarkness = player.Backpack:FindFirstChild("Fist of Darkness") or player.Character:FindFirstChild("Fist of Darkness")
-
-                            -- Nếu có God's Chalice hoặc Fist of Darkness, sử dụng click detector
-                            if hasGodsChalice or hasFistOfDarkness then
-                                if typeof(clickDetectorForNotification) == "function" then
-                                    clickDetectorForNotification()
-                                    wait(1)
-                                    clickDetectorForNotification()  -- Click thêm lần nữa nếu có item đặc biệt
-                                end
-                            else
-                                -- Nếu không có các item trên, nhảy
-                                humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-                            end
-                        end
-                    end)
-                end
-            end)
-
-            -- Bắt đầu farm chest
+            -- Start Farm
             AutoChestCollect()
         end
-        wait(1)  -- Chờ một giây trước khi lặp lại
+        wait(1)  
+    end
+end)
+
+spawn(function()
+    while true do
+        local hasGodsChalice = false
+        local hasFistOfDarkness = false
+
+        -- Check inventory
+        for _, item in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+            if item.Name == "God's Chalice" then
+                hasGodsChalice = true
+            elseif item.Name == "Fist of Darkness" then
+                hasFistOfDarkness = true
+            end
+        end
+
+        if getgenv().config.Webhook["Send Webhook"] then
+            Tween2(sea)    
+            PostWebhook(getgenv().config.Webhook["Webhook Url"], AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness))
+        end
+
+        task.wait(60)
     end
 end)
