@@ -184,24 +184,39 @@ local function CreateMainGui()
     ScreenGui.Name = "VxezeHubUI"
     ScreenGui.ResetOnSpawn = false
     
+    -- Main Frame
     Converted["_MainFrame"] = Instance.new("Frame")
     Converted["_MainFrame"].Name = "MainFrame"
     Converted["_MainFrame"].Size = UDim2.new(0, 350, 0, 300)
     Converted["_MainFrame"].Position = UDim2.new(0, SCREEN_WIDTH - 400, 0, 50)
-    Converted["_MainFrame"].BackgroundColor3 = Color3.fromRGB(35, 35, 40)
     Converted["_MainFrame"].Parent = ScreenGui
     
-    CreateDropShadow(Converted["_MainFrame"])
-    CreateSmoothCorner(Converted["_MainFrame"], 12)
+    -- UIGradient for MainFrame
+    local mainFrameGradient = Instance.new("UIGradient")
+    mainFrameGradient.Parent = Converted["_MainFrame"]
+    mainFrameGradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(35, 35, 40)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(60, 60, 65))
+    }
+    mainFrameGradient.Rotation = 45  -- Angle of the gradient
     
+    -- TitleBar
     local TitleBar = Instance.new("Frame")
     TitleBar.Name = "TitleBar"
     TitleBar.Size = UDim2.new(1, 0, 0, 40)
-    TitleBar.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
     TitleBar.Position = UDim2.new(0, 0, 0, 0)
     TitleBar.Parent = Converted["_MainFrame"]
-    CreateSmoothCorner(TitleBar, 12)
     
+    -- UIGradient for TitleBar
+    local titleBarGradient = Instance.new("UIGradient")
+    titleBarGradient.Parent = TitleBar
+    titleBarGradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(45, 45, 50)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(70, 70, 75))
+    }
+    titleBarGradient.Rotation = 45  -- Angle of the gradient
+    
+    -- TitleLogo
     local TitleLogo = Instance.new("ImageLabel")
     TitleLogo.Size = UDim2.new(0, 24, 0, 24)
     TitleLogo.Position = UDim2.new(0, 10, 0.5, -12)
@@ -209,6 +224,7 @@ local function CreateMainGui()
     TitleLogo.Image = "rbxassetid://106595114856025"
     TitleLogo.Parent = TitleBar
     
+    -- TitleText
     local TitleText = Instance.new("TextLabel")
     TitleText.Size = UDim2.new(1, -100, 1, 0)
     TitleText.Position = UDim2.new(0, 40, 0, 0)
@@ -220,6 +236,7 @@ local function CreateMainGui()
     TitleText.TextXAlignment = Enum.TextXAlignment.Left
     TitleText.Parent = TitleBar
     
+    -- Close Button
     local CloseButton = Instance.new("TextButton")
     CloseButton.Size = UDim2.new(0, 30, 0, 30)
     CloseButton.Position = UDim2.new(1, -40, 0, 5)
@@ -229,6 +246,8 @@ local function CreateMainGui()
     CloseButton.TextSize = 16
     CloseButton.Parent = TitleBar
     CreateSmoothCorner(CloseButton)
+    
+    -- Minimize Button
     local MinimizeButton = Instance.new("TextButton")
     MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
     MinimizeButton.Position = UDim2.new(1, -80, 0, 5)
@@ -238,16 +257,6 @@ local function CreateMainGui()
     MinimizeButton.TextSize = 16
     MinimizeButton.Parent = TitleBar
     CreateSmoothCorner(MinimizeButton)
-
-    Converted["_Stats"] = Instance.new("Frame")
-    Converted["_Stats"].Name = "Stats"
-    Converted["_Stats"].Size = UDim2.new(1, -20, 0, 180)
-    Converted["_Stats"].Position = UDim2.new(0, 10, 0, 50)
-    Converted["_Stats"].BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    Converted["_Stats"].Parent = Converted["_MainFrame"]
-    
-    CreateSmoothCorner(Converted["_Stats"])
-    CreateStroke(Converted["_Stats"])
     
     local function CreateStatLabel(yPos)
         local label = Instance.new("TextLabel")
