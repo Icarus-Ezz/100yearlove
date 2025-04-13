@@ -124,7 +124,7 @@ local function PostWebhook(message)
     end
 
     request({
-        Url = webhookUrl,
+        Url = Webhook["Webhook Url"],
         Method = "POST",
         Headers = {["Content-Type"] = "application/json"},
         Body = HttpService:JSONEncode(message)
