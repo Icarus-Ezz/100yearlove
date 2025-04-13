@@ -244,7 +244,7 @@ local function CreateMainGui()
     Converted["_Stats"].Name = "Stats"
     Converted["_Stats"].Size = UDim2.new(1, -20, 0, 180)
     Converted["_Stats"].Position = UDim2.new(0, 10, 0, 50)
-    Converted["_Stats"].BackgroundColor3 = Color3.fromRGB(70, 130, 180)
+    Converted["_Stats"].BackgroundColor3 = Color3.fromRGB(255, 140, 0)
     Converted["_Stats"].Parent = Converted["_MainFrame"]
     
     local function CreateStatLabel(yPos)
