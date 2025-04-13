@@ -1,4 +1,3 @@
-
 --//Config
 if game:GetService("Players").LocalPlayer.PlayerGui.Main:FindFirstChild("ChooseTeam") then
     repeat task.wait()
@@ -92,45 +91,49 @@ local function CreateSmoothCorner(instance, radius)
     return corner
 end
 
-function Tween2(targetCFrame)
-    -- Đảm bảo NoClip và anti-gravity được kích hoạt
-    EnableNoClipAndAntiGravity()
-    
-    -- Tạo tween mới
+local function Tween2(targetCFrame)
+
     pcall(function()
         local character = game.Players.LocalPlayer.Character
-        if not character or not character:FindFirstChild("HumanoidRootPart") then return end
-        
-        local distance = (targetCFrame.Position - character.HumanoidRootPart.Position).Magnitude
+        if not character then return end
+
+        local hrp = character:FindFirstChild("HumanoidRootPart")
+        if not hrp then return end
+
+        local distance = (targetCFrame.Position - hrp.Position).Magnitude
         local speed = 350 -- Tốc độ bay
-        
-        -- Tạo tween info với easing style smooth
+        local travelTime = distance / speed
+
+        -- Tạo tween info mượt mà
         local tweenInfo = TweenInfo.new(
-            distance / speed,
+            travelTime,
             Enum.EasingStyle.Linear,
             Enum.EasingDirection.InOut,
-            0, -- Số lần lặp lại (0 = không lặp)
-            false, -- Đảo ngược
-            0 -- Delay trước khi bắt đầu
+            0,
+            false,
+            0
         )
-        
-        -- Tạo và chạy tween
+
+        -- Tạo và play tween
         local tween = game:GetService("TweenService"):Create(
-            character.HumanoidRootPart,
+            hrp,
             tweenInfo,
             {CFrame = targetCFrame}
         )
-        
-        tween.Completed:Connect(function()
-            -- Kích hoạt lại NoClip và anti-gravity sau khi tween hoàn thành
+
+        local connection
+        connection = tween.Completed:Connect(function()
             EnableNoClipAndAntiGravity()
+            if connection then connection:Disconnect() end
         end)
-        
+
         tween:Play()
-        
-        wait(distance / speed + 0.1)
+
+        -- Đợi tween kết thúc
+        task.wait(travelTime + 0.1)
     end)
 end
+
 local function CreateStroke(parent, color, thickness)
     local stroke = Instance.new("UIStroke")
     stroke.Color = color or Color3.fromRGB(65, 65, 65)
