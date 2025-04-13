@@ -175,7 +175,7 @@ end
 
 local function CreateMainGui()
     local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "CatTaiHubUI"
+    ScreenGui.Name = "VxezeHubUI"
     ScreenGui.ResetOnSpawn = false
     
     Converted["_MainFrame"] = Instance.new("Frame")
