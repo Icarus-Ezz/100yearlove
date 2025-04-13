@@ -446,12 +446,8 @@ InitializeScript()
 
 --//Code Farm Chest
 spawn(function()
-    local isNotified = false
-        
     while true do
-        -- Kiểm tra điều kiện bắt đầu farm chest
         if getgenv().config.ChestFarm["Start Farm Chest"] then
-           if not isNotified then
             game:GetService("StarterGui"):SetCore("SendNotification", {
                 Title = "Auto Chest",
                 Text = "Setup For Farm Chest",
