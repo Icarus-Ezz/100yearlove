@@ -113,7 +113,6 @@ function PostWebhook(Url, message)
         Headers = {["Content-Type"] = "application/json"},
         Body = game:GetService("HttpService"):JSONEncode(message)
     })
-    print("Webhook sent:", data)
     return data
 end
 
@@ -178,7 +177,7 @@ spawn(function()
         local hasGodsChalice = false
         local hasFistOfDarkness = false
 
-        -- Kiểm tra trong ba lô
+        -- Check Invntory
         for _, item in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
             if item.Name == "God's Chalice" then
                 hasGodsChalice = true
@@ -188,7 +187,7 @@ spawn(function()
         end
 
         if getgenv().config.Webhook["Send Webhook"] then
-            print("Sending webhook...")
+
             local message = AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
             print("Message to send:", message)  -- Debugging: In thông điệp gửi đi
             PostWebhook(getgenv().config.Webhook["Webhook Url"], message)
@@ -196,7 +195,7 @@ spawn(function()
             print("Webhook not enabled.")
         end
 
-        -- Chờ 60 giây trước khi gửi lần tiếp theo
+        -- Check 60s/1
         task.wait(60)
     end
 end)
@@ -603,18 +602,21 @@ end
 InitializeScript()
 
 
---//Chets code
-    spawn(function()
-        while wait() do
-        if getgenv().config.getgenv().config["Stop When Have God's Chaile or Dark Key"] then
-            if game.Players.LocalPlayer.Backpack:FindFirstChild("Fist of Darkness") or game.Players.LocalPlayer.Character:FindFirstChild("Fist of Darkness") or game.Players.LocalPlayer.Backpack:FindFirstChild("God's Chalice") or game.Players.LocalPlayer.Character:FindFirstChild("God's Chalice") then
+--//Chest Stop Check
+spawn(function()
+    while wait() do
+        if getgenv().config.ChestFarm["Stop When Have God's Chalice or Dark Key"] then
+            local hasGodsChalice = game.Players.LocalPlayer.Backpack:FindFirstChild("God's Chalice") or game.Players.LocalPlayer.Character:FindFirstChild("God's Chalice")
+            local hasFistOfDarkness = game.Players.LocalPlayer.Backpack:FindFirstChild("Fist of Darkness") or game.Players.LocalPlayer.Character:FindFirstChild("Fist of Darkness")
+
+            if hasGodsChalice or hasFistOfDarkness then
                 getgenv().config.ChestFarm["Start Farm Chest"] = false
-                end
             end
         end
-    end)
+    end
+end)
 
---//Code Farm Chest
+--//Farm Chest Code
 spawn(function()
     while true do
         if getgenv().config.ChestFarm["Start Farm Chest"] then
@@ -627,34 +629,37 @@ spawn(function()
             _G.AutoCollectChest = true
             _G.IsChestFarming = true
 
+            -- Hàm tìm Chest gần nhất
             local function GetChest()
                 local distance = math.huge
-                local a
+                local nearestChest
                 for _, v in pairs(workspace.Map:GetDescendants()) do
                     if string.find(v.Name:lower(), "chest") and v:FindFirstChild("TouchInterest") then
                         local d = (v.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
                         if d < distance then
                             distance = d
-                            a = v
+                            nearestChest = v
                         end
                     end
                 end
-                return a
+                return nearestChest
             end
 
-            -- Hàm tự động thu thập chest
+            -- Hàm thu thập chest
             local function AutoChestCollect()
                 local chest = GetChest()
                 if chest then
+                    -- Giả sử Tween2 là một hàm di chuyển đến vị trí chest
                     Tween2(chest.CFrame)
                     pcall(function()
                         _G.LastChestCollectedTime = tick()
                     end)
                 elseif tick() - (_G.LastChestCollectedTime or 0) > 60 then
-                    HopServer()
+                    -- Nếu không có chest trong vòng 60 giây, gọi hàm Hop (có thể là nhảy server hoặc một hành động khác)
+                    Hop()
                 end
             end
-                    
+
             AutoChestCollect()
         end
         wait(1)
