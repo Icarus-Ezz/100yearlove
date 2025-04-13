@@ -121,7 +121,7 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
             {
                 ["title"] = "**📦 Inventory Check!**",
                 ["description"] = "",
-                ["color"] = tonumber(0xf93dff),
+                ["color"] = tonumber(0xffffff),
                 ["fields"] = {
                     {
                         ["name"] = "**👤 Username**",
