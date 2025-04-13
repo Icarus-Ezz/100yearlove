@@ -317,17 +317,46 @@ local function CreateMainGui()
     CreateSmoothCorner(MiniUI, 8)
     CreateDropShadow(MiniUI)
     
-    local RestoreButton = Instance.new("TextButton")
-    RestoreButton.Size = UDim2.new(1.2, 0, 1.2, 0)
+    local RestoreButton = Instance.new("ImageButton")
+    RestoreButton.Size = UDim2.new(0, 50, 0, 50) -- Đặt kích thước nút
     RestoreButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    RestoreButton.Text = "Vxeze"
-    RestoreButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    RestoreButton.TextSize = 16
+    RestoreButton.Image = "rbxassetid://91347148253026" 
+    RestoreButton.Position = UDim2.new(0, 10, 0, 10) 
     RestoreButton.Parent = MiniUI
     CreateSmoothCorner(RestoreButton)
-   
-    local dragging, dragStart, startPos
+   local dragging = false
+   local dragInput, mousePos, mouseDelta
+
+   -- Hàm để xử lý sự kiện khi bắt đầu kéo
+   RestoreButton.InputBegan:Connect(function(input, gameProcessedEvent)
+       if gameProcessedEvent then return end
     
+       if input.UserInputType == Enum.UserInputType.MouseButton1 then
+           -- Khi bắt đầu kéo chuột
+           dragging = true
+           mousePos = input.Position
+       end
+   end)
+
+-- Hàm để xử lý sự kiện khi di chuyển chuột
+   RestoreButton.InputChanged:Connect(function(input)
+       if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+           -- Di chuyển nút khi kéo
+           mouseDelta = input.Position - mousePos
+           RestoreButton.Position = RestoreButton.Position + UDim2.new(0, mouseDelta.X, 0, mouseDelta.Y)
+           mousePos = input.Position
+       end
+   end)
+
+   -- Hàm để xử lý khi kết thúc kéo
+   RestoreButton.InputEnded:Connect(function(input)
+       if input.UserInputType == Enum.UserInputType.MouseButton1 then
+           -- Khi kết thúc kéo chuột
+           dragging = false
+       end
+   end)
+    
+    local dragging, dragStart, startPos
     TitleBar.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             dragging = true
