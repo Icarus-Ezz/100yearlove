@@ -152,10 +152,22 @@ function TryBuyBoat()
     end
 end
 
+-- Dọn đảo khi AutoFind bật
+local IslandFound = false
+local IslandNames = {
+    "ShipwreckIsland",
+    "SandIsland",
+    "TreeIsland",
+    "TinyIsland",
+    "MysticIsland",
+    "KitsuneIsland",
+    "FrozenDimension"
+}
+
 -- Auto Drive
 RunService.RenderStepped:Connect(function()
     if not getgenv().AutoFindPrehistoric then
-        VirtualInput:SendKeyEvent(false, Enum.KeyCode.W, false, game)
+        VirtualInput:SendKeyEvent(false, "W", false, game)
         return
     end
 
@@ -172,13 +184,39 @@ RunService.RenderStepped:Connect(function()
         return
     end
 
-
+    -- Khi đã ngồi lên thuyền
     local boat = GetSpawnedBoat()
     if boat then
         local seat = boat:FindFirstChild("VehicleSeat")
         if seat and seat.Occupant == LocalPlayer.Character:FindFirstChild("Humanoid") then
             seat.MaxSpeed = getgenv().BoatSpeed
-            VirtualInput:SendKeyEvent(true, Enum.KeyCode.W, false, game)
+
+            -- Dọn các đảo không cần
+            for _, islandName in ipairs(IslandNames) do
+                local Island = Workspace.Map:FindFirstChild(islandName)
+                if Island and Island:IsA("Model") then
+                    Island:Destroy()
+                end
+            end
+
+            -- Nếu đảo cổ đại xuất hiện
+            local PrehistoricIsland = Workspace.Map:FindFirstChild("PrehistoricIsland")
+            if PrehistoricIsland then
+                VirtualInput:SendKeyEvent(false, "W", false, game)
+                getgenv().AutoFindPrehistoric = false
+
+                if not IslandFound then
+                    Fluent:Notify({
+                        Title = "🦖 Prehistoric Island Spawned!!",
+                        Content = "Boat Stop",
+                        Duration = 10
+                    })
+                    IslandFound = true
+                end
+                return
+            end
+                
+            VirtualInput:SendKeyEvent(true, "W", false, game)
         end
     end
 end)
