@@ -89,6 +89,8 @@ local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
 local StarterGui = game:GetService("StarterGui")
+local HttpService = game:GetService("HttpService")
+local LocalPlayer = Players.LocalPlayer
 local Players = game:GetService("Players")
 local TWEEN_TIME = 0.6
 local TWEEN_STYLE = Enum.EasingStyle.Quart
@@ -106,6 +108,51 @@ local isDragging = true
 local function FormatNumber(number)
     return tostring(number):reverse():gsub("(%d%d%d)", "%1,"):reverse():gsub("^,", "")
 end
+
+local function SendItemWebhook(itemName)
+    if getgenv().config.Webhook["Send Webhook"] ~= true then return end
+
+    local username = LocalPlayer.Name
+    local jobId = game.JobId
+    local beli = LocalPlayer.Data.Beli.Value
+    local time = os.date("%H:%M:%S")
+    local place = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
+
+    local content = string.format(
+        "**📦 Found %s!**\n👤 User: `%s`\n🆔 Job ID: `%s`\n💰 Beli: `%s`\n🏝️ Map: `%s`\n⏰ Time: `%s`",
+        itemName, username, jobId, beli, place, time
+    )
+
+    local data = {
+        ["content"] = content
+    }
+
+    local success, err = pcall(function()
+        HttpService:PostAsync(
+            getgenv().config.Webhook["Webhook Url"],
+            HttpService:JSONEncode(data),
+            Enum.HttpContentType.ApplicationJson
+        )
+    end)
+
+    if not success then
+        warn("[Webhook Error]:", err)
+    end
+end
+
+-- Check Inventory
+spawn(function()
+    local sent = {}
+
+    while task.wait(10) do
+        for _, item in pairs(LocalPlayer.Backpack:GetChildren()) do
+            if (item.Name == "God's Chalice" or item.Name == "Fist of Darkness") and not sent[item.Name] then
+                sent[item.Name] = true
+                SendItemWebhook(item.Name)
+            end
+        end
+    end
+end)
 
 local function CreateSmoothCorner(instance, radius)
     local corner = Instance.new("UICorner")
