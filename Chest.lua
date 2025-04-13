@@ -19,6 +19,7 @@ getgenv().config = {
 }
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Icarus-Ezz/phatyeuem/refs/heads/main/Chest.lua"))()
 ]]--
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 if getgenv().config.Setting["Team"] == "Marines" then
     ReplicatedStorage.Remotes.CommF_:InvokeServer("SetTeam", "Marines")
@@ -28,7 +29,6 @@ elseif getgenv().config.Setting["Team"] == "Pirates" then
 spawn(function()
     while wait() do
         if getgenv().config.Setting["Boots FPS"] then
-            -- Kiểm tra và xóa Pants nếu có
             if game.Players.LocalPlayer.Character:FindFirstChild("Pants") then
                 game.Players.LocalPlayer.Character.Pants:Destroy()
             end
