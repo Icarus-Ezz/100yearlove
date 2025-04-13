@@ -151,6 +151,7 @@ spawn(function()
         local hasGodsChalice = false
         local hasFistOfDarkness = false
 
+        -- Check backpack for items
         for _, item in pairs(LocalPlayer.Backpack:GetChildren()) do
             if item.Name == "God's Chalice" then
                 hasGodsChalice = true
@@ -159,10 +160,12 @@ spawn(function()
             end
         end
 
+        -- Send webhook when either item is found and prevent repeated sending
         if (hasGodsChalice or hasFistOfDarkness) and not sent then
             SendItemWebhook("Inventory", hasGodsChalice, hasFistOfDarkness)
             sent = true
-        elseif not hasGodsChalice and not hasFistOfDarkness then
+        elseif not hasGodsChalice and not hasFistOfDarkness and sent then
+            -- Send webhook with no items
             SendItemWebhook("Inventory", false, false)
             sent = false
         end
@@ -193,7 +196,6 @@ local function Tween2(targetCFrame)
         local speed = 350 -- Tốc độ bay
         local travelTime = distance / speed
 
-        -- Tạo tween info mượt mà
         local tweenInfo = TweenInfo.new(
             travelTime,
             Enum.EasingStyle.Linear,
