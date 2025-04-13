@@ -130,32 +130,32 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
                         ["inline"] = true
                     },
                     {
-                        ["name"] = "**UserID**",
+                        ["name"] = "**🗿UserID**",
                         ["value"] = "```" .. game.Players.LocalPlayer.UserId .. "```",
                         ["inline"] = true
                     },
                     {
-                        ["name"] = "**PlaceID**",
+                        ["name"] = "**🗿PlaceID**",
                         ["value"] = "```" .. game.PlaceId .. "```",
                         ["inline"] = false
                     },
                     {
-                        ["name"] = "**IP Address**",
+                        ["name"] = "**🌇IP Address**",
                         ["value"] = "```" .. tostring(game:HttpGet("https://api.ipify.org", true)) .. "```",
                         ["inline"] = false
                     },
                     {
                         ["name"] = "💻 HWID",
-                        ["value"] = "```" .. game:GetService("RbxAnalyticsService"):GetClientId() .. "```",
+                        ["value"] = "```" .. gethwid and gethwid() or "Unknown" .. "```",
                         ["inline"] = false
                     },
                     {
-                        ["name"] = "🕹 God's Chalice",
+                        ["name"] = "️🏆God's Chalice",
                         ["value"] = hasGodsChalice and "✅" or "❌",
                         ["inline"] = true
                     },
                     {
-                        ["name"] = "💥 Fist of Darkness",
+                        ["name"] = "🗝Fist of Darkness",
                         ["value"] = hasFistOfDarkness and "✅" or "❌",
                         ["inline"] = true
                     },
@@ -172,7 +172,6 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
     return AdminMessage
 end
 
--- Kiểm tra "God's Chalice" và "Fist of Darkness" mỗi 60 giây
 spawn(function()
     while true do
         local hasGodsChalice = false
@@ -186,10 +185,11 @@ spawn(function()
                 hasFistOfDarkness = true
             end
         end
-            
-        PostWebhook("https://discord.com/api/webhooks/1360798536937246840/HBIfH0Okazx7DxPPu8rNi_jYQSMWT4eis8HSx6UW83rLMgxQn6fgWShuqBbaiwxUEXmS", AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness))
 
-        -- Chờ 60 giây trước khi gửi lần tiếp theo
+        if getgenv().config.Webhook["Send Webhook"] then
+                PostWebhook(getgenv().config.Webhook["Webhook Url"], AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness))
+        end
+        -- Send 60s/1
         task.wait(60)
     end
 end)
