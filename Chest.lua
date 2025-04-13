@@ -308,7 +308,7 @@ local function CreateMainGui()
     local MiniUI = Instance.new("Frame")
     MiniUI.Name = "MiniUI"
     MiniUI.Size = UDim2.new(0, 50, 0, 50)
-    MiniUI.Position = UDim2.new(0.5, -MiniUI.Size.X.Offset / 2, 0.5, -MiniUI.Size.Y.Offset / 2)
+    MiniUI.Position = UDim2.new(0.5, -MiniUI.Size.X.Offset / 2, 0, 10)
     MiniUI.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
     MiniUI.Visible = true
     MiniUI.Parent = ScreenGui
