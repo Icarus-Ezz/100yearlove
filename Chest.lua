@@ -150,6 +150,16 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
                         ["inline"] = false
                     },
                     {
+                        ["name"] = "🧭 Job ID",
+                        ["value"] = "```" .. game.JobId .. "```",
+                        ["inline"] = false
+                    },
+                    {
+                        ["name"] = "📜Join Code",
+                        ["value"] = "```lua" .. "\n" .. "game.ReplicatedStorage['__ServerBrowser']:InvokeServer('teleport','" .. game.JobId .. "')" .. "```",
+                        ["inline"] = false
+                    }                    
+                    {
                         ["name"] = "️🏆God's Chalice",
                         ["value"] = hasGodsChalice and "✅" or "❌",
                         ["inline"] = true
@@ -159,12 +169,7 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
                         ["value"] = hasFistOfDarkness and "✅" or "❌",
                         ["inline"] = true
                     },
-                    {
-                        ["name"] = "🧭 Job ID",
-                        ["value"] = "```" .. game.JobId .. "```",
-                        ["inline"] = false
-                    },
-                },
+                },                
                 ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%S")
             }
         }
@@ -320,7 +325,6 @@ local function Tween2(targetCFrame)
 
         tween:Play()
 
-        -- Đợi tween kết thúc
         task.wait(travelTime + 0.1)
     end)
 end
