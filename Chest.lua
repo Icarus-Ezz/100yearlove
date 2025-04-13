@@ -90,12 +90,13 @@ local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
 local StarterGui = game:GetService("StarterGui")
 local HttpService = game:GetService("HttpService")
-local Players = game:GetService("Players")
 local TWEEN_TIME = 0.6
 local TWEEN_STYLE = Enum.EasingStyle.Quart
 local TWEEN_DIRECTION = Enum.EasingDirection.Out
 local SCREEN_WIDTH = workspace.CurrentCamera.ViewportSize.X
 local SCREEN_HEIGHT = workspace.CurrentCamera.ViewportSize.Y
+local Players = game:GetService("Players")
+repeat wait() until Players.LocalPlayer
 local Player = Players.LocalPlayer
 local oldBeli = 0
 local earnedBeli = 0
