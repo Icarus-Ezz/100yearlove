@@ -95,6 +95,7 @@ local TWEEN_STYLE = Enum.EasingStyle.Quart
 local TWEEN_DIRECTION = Enum.EasingDirection.Out
 local SCREEN_WIDTH = workspace.CurrentCamera.ViewportSize.X
 local SCREEN_HEIGHT = workspace.CurrentCamera.ViewportSize.Y
+local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
 repeat wait() until Players.LocalPlayer
 local Player = Players.LocalPlayer
@@ -105,25 +106,32 @@ local Converted = {}
 local isMinimized = true
 local isDragging = true
 
-local function SendItemWebhook(itemName, hasGodsChalice, hasFistOfDarkness)
-    if getgenv().config.Webhook["Send Webhook"] ~= true then return end
+local function SendItemWebhook(hasGodsChalice, hasFistOfDarkness)
+    if not getgenv().config or not getgenv().config.Webhook or not getgenv().config.Webhook["Send Webhook"] then return end
 
     local username = LocalPlayer.Name
     local jobId = game.JobId
-    local beli = LocalPlayer.Data.Beli.Value
+    local beli = LocalPlayer:FindFirstChild("Data") and LocalPlayer.Data:FindFirstChild("Beli") and LocalPlayer.Data.Beli.Value or "Unknown"
     local time = os.date("%H:%M:%S")
-    local place = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
+    local placeName = "Unknown"
 
+    -- Lấy tên map từ MarketplaceService
+    pcall(function()
+        placeName = MarketplaceService:GetProductInfo(game.PlaceId).Name
+    end)
+
+    -- Biểu tượng trạng thái item
     local godsChaliceStatus = hasGodsChalice and "✅" or "❌"
     local fistStatus = hasFistOfDarkness and "✅" or "❌"
 
+    -- Nội dung Webhook
     local content = string.format(
         "**📦 Inventory Check!**\n" ..
         "👤 User: `%s`\n🆔 Job ID: `%s`\n💰 Beli: `%s`\n🏝️ Map: `%s`\n⏰ Time: `%s`\n\n" ..
         "**🔑 Key Items:**\n" ..
         "- God's Chalice: %s\n" ..
         "- Fist of Darkness: %s",
-        username, jobId, beli, place, time,
+        username, jobId, beli, placeName, time,
         godsChaliceStatus, fistStatus
     )
 
@@ -131,6 +139,7 @@ local function SendItemWebhook(itemName, hasGodsChalice, hasFistOfDarkness)
         ["content"] = content
     }
 
+    -- Gửi Webhook bằng PostAsync
     local success, err = pcall(function()
         HttpService:PostAsync(
             getgenv().config.Webhook["Webhook Url"],
@@ -144,14 +153,20 @@ local function SendItemWebhook(itemName, hasGodsChalice, hasFistOfDarkness)
     end
 end
 
+-- Vòng lặp kiểm tra định kỳ
 spawn(function()
-    local sent = false
+    local lastStatus = {
+        hasGodsChalice = false,
+        hasFistOfDarkness = false
+    }
 
-    while wait(60) do
+    while true do
+        wait(60) -- Kiểm tra mỗi 60 giây
+
         local hasGodsChalice = false
         local hasFistOfDarkness = false
 
-        -- Check backpack for items
+        -- Kiểm tra trong Backpack
         for _, item in pairs(LocalPlayer.Backpack:GetChildren()) do
             if item.Name == "God's Chalice" then
                 hasGodsChalice = true
@@ -160,14 +175,13 @@ spawn(function()
             end
         end
 
-        -- Send webhook when either item is found and prevent repeated sending
-        if (hasGodsChalice or hasFistOfDarkness) and not sent then
-            SendItemWebhook("Inventory", hasGodsChalice, hasFistOfDarkness)
-            sent = true
-        elseif not hasGodsChalice and not hasFistOfDarkness and sent then
-            -- Send webhook with no items
-            SendItemWebhook("Inventory", false, false)
-            sent = false
+        -- Gửi Webhook nếu trạng thái thay đổi
+        if hasGodsChalice ~= lastStatus.hasGodsChalice or hasFistOfDarkness ~= lastStatus.hasFistOfDarkness then
+            SendItemWebhook(hasGodsChalice, hasFistOfDarkness)
+
+            -- Cập nhật trạng thái
+            lastStatus.hasGodsChalice = hasGodsChalice
+            lastStatus.hasFistOfDarkness = hasFistOfDarkness
         end
     end
 end)
