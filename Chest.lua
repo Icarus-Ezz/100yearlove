@@ -188,7 +188,7 @@ local function CreateMainGui()
     Converted["_MainFrame"].Name = "MainFrame"
     Converted["_MainFrame"].Size = UDim2.new(0, 350, 0, 300)
     Converted["_MainFrame"].Position = UDim2.new(0, SCREEN_WIDTH - 400, 0, 50)
-    Converted["_MainFrame"].BackgroundColor3 = Color3.fromRGB(35, 35, 40)
+    Converted["_MainFrame"].BackgroundColor3 = Color3.fromRGB(0, 128, 128)
     Converted["_MainFrame"].Parent = ScreenGui
     
     CreateDropShadow(Converted["_MainFrame"])
@@ -215,7 +215,7 @@ local function CreateMainGui()
     TitleText.BackgroundTransparency = 1
     TitleText.Font = Enum.Font.GothamBold
     TitleText.Text = "Vxeze Hub Auto Chest"
-    TitleText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TitleText.TextColor3 = Color3.fromRGB(45, 45, 50)
     TitleText.TextSize = 16
     TitleText.TextXAlignment = Enum.TextXAlignment.Left
     TitleText.Parent = TitleBar
