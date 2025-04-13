@@ -125,7 +125,7 @@ local function PostWebhook(message)
         return
     end
 
-    request({
+    http.request({
         Url = webhookUrl,
         Method = "POST",
         Headers = {["Content-Type"] = "application/json"},
