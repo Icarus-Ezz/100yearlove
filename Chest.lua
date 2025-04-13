@@ -25,7 +25,8 @@ if getgenv().config.Setting["Team"] == "Marines" then
     ReplicatedStorage.Remotes.CommF_:InvokeServer("SetTeam", "Marines")
 elseif getgenv().config.Setting["Team"] == "Pirates" then
     ReplicatedStorage.Remotes.CommF_:InvokeServer("SetTeam", "Pirates")
-end    
+end   
+wait(3)
 ------------------------------------------------------------------------------------
 spawn(function()
     while wait() do
