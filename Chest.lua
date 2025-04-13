@@ -1,3 +1,20 @@
+--[[
+getgenv().config = {
+    Setting = {
+        ["Team"] = "Pirates",         
+        ["Disabled Notify"] = false,  
+        ["Boots FPS"] = false,         
+        ["White Screen"] = false,      
+    },
+
+    ChestFarm = {
+        ["Start Farm Chest"] = true,   
+        ["Stop When Have God's Chaile or Dark Key"] = true, 
+    },
+}
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Icarus-Ezz/phatyeuem/refs/heads/main/Chest.lua"))()
+]]--
+
 --//Config
 if game:GetService("Players").LocalPlayer.PlayerGui.Main:FindFirstChild("ChooseTeam") then
     repeat task.wait()
@@ -77,8 +94,8 @@ local oldBeli = 0
 local earnedBeli = 0
 local Converted = {}
 
-local isMinimized = false
-local isDragging = false
+local isMinimized = true
+local isDragging = true
 
 local function FormatNumber(number)
     return tostring(number):reverse():gsub("(%d%d%d)", "%1,"):reverse():gsub("^,", "")
@@ -183,7 +200,7 @@ local function CreateMainGui()
     TitleLogo.Size = UDim2.new(0, 24, 0, 24)
     TitleLogo.Position = UDim2.new(0, 10, 0.5, -12)
     TitleLogo.BackgroundTransparency = 1
-    TitleLogo.Image = "rbxassetid://icon"
+    TitleLogo.Image = "rbxassetid://106595114856025"
     TitleLogo.Parent = TitleBar
     
     local TitleText = Instance.new("TextLabel")
@@ -191,7 +208,7 @@ local function CreateMainGui()
     TitleText.Position = UDim2.new(0, 40, 0, 0)
     TitleText.BackgroundTransparency = 1
     TitleText.Font = Enum.Font.GothamBold
-    TitleText.Text = "Cắt Tai Hub Auto Chest"
+    TitleText.Text = "Vxeze Hub Auto Chest"
     TitleText.TextColor3 = Color3.fromRGB(255, 255, 255)
     TitleText.TextSize = 16
     TitleText.TextXAlignment = Enum.TextXAlignment.Left
@@ -297,7 +314,7 @@ local function CreateMainGui()
     local RestoreButton = Instance.new("TextButton")
     RestoreButton.Size = UDim2.new(1.2, 0, 1.2, 0)
     RestoreButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    RestoreButton.Text = "Open"
+    RestoreButton.Text = "Vxeze"
     RestoreButton.TextColor3 = Color3.fromRGB(255, 255, 255)
     RestoreButton.TextSize = 16
     RestoreButton.Parent = MiniUI
@@ -389,7 +406,7 @@ local function InitializeScript()
 Converted["_StartButton"].MouseButton1Click:Connect(function()
         getgenv().config.ChestFarm["Start Farm Chest"] = true
         game:GetService("StarterGui"):SetCore("SendNotification", {
-            Title = "Cắt Tai  Hub",
+            Title = "Vxeze Hub Auto Chest",
             Text = "Auto Chest Started!",
             Duration = 2
         })
@@ -398,7 +415,7 @@ Converted["_StartButton"].MouseButton1Click:Connect(function()
     Converted["_StopButton"].MouseButton1Click:Connect(function()
         getgenv().config.ChestFarm["Start Farm Chest"] = false
         game:GetService("StarterGui"):SetCore("SendNotification", {
-            Title = "Cắt Tai  Hub",
+            Title = "Vxeze Hub Auto Chest",
             Text = "Auto Chest Stopped!",
             Duration = 2
         })
@@ -429,21 +446,21 @@ InitializeScript()
 
 --//Code Farm Chest
 spawn(function()
+    local isNotified = false
+        
     while true do
         -- Kiểm tra điều kiện bắt đầu farm chest
         if getgenv().config.ChestFarm["Start Farm Chest"] then
-            -- Hiển thị thông báo khi bắt đầu farm chest
+           if not isNotified then
             game:GetService("StarterGui"):SetCore("SendNotification", {
                 Title = "Auto Chest",
                 Text = "Setup For Farm Chest",
                 Duration = 5
             })
-
-            -- Thiết lập các biến để bật chế độ tự động thu thập chest
+                
             _G.AutoCollectChest = true
             _G.IsChestFarming = true
 
-            -- Hàm tìm chest gần nhất
             local function GetChest()
                 local distance = math.huge
                 local a
@@ -471,8 +488,7 @@ spawn(function()
                     HopServer()
                 end
             end
-
-            -- Gọi hàm thu thập chest
+                    
             AutoChestCollect()
         end
         wait(1)
