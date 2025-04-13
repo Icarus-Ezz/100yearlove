@@ -113,6 +113,7 @@ function PostWebhook(Url, message)
         Headers = {["Content-Type"] = "application/json"},
         Body = game:GetService("HttpService"):JSONEncode(message)
     })
+    print("Webhook sent:", data)
     return data
 end
 
@@ -146,7 +147,7 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
                     },
                     {
                         ["name"] = "💻 HWID",
-                        ["value"] = "```" .. gethwid and gethwid() or "Unknown" .. "```",
+                        ["value"] = "```" .. (gethwid and gethwid() or "Unknown") .. "```",
                         ["inline"] = false
                     },
                     {
@@ -187,7 +188,10 @@ spawn(function()
         end
 
         if getgenv().config.Webhook["Send Webhook"] then
-            PostWebhook(getgenv().config.Webhook["Webhook Url"], AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness))
+            print("Sending webhook...")
+            local message = AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
+            print("Message to send:", message)  -- Debugging: In thông điệp gửi đi
+            PostWebhook(getgenv().config.Webhook["Webhook Url"], message)
         else
             print("Webhook not enabled.")
         end
