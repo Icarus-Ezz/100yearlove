@@ -20,44 +20,29 @@ getgenv().config = {
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Icarus-Ezz/phatyeuem/refs/heads/main/Chest.lua"))()
 ]]--
 
-if game:GetService("Players").LocalPlayer.PlayerGui.Main:FindFirstChild("ChooseTeam") then
-    repeat task.wait()
-        if game:GetService("Players").LocalPlayer.PlayerGui:WaitForChild("Main").ChooseTeam.Visible == true then
-            if getgenv().config.Setting["Team"] == "Marines" then
-                for i, v in pairs(getconnections(game:GetService("Players").LocalPlayer.PlayerGui.Main.ChooseTeam.Container["Marines"].Frame.TextButton.Activated)) do
-                    for a, b in pairs(getconnections(game:GetService("UserInputService").TouchTapInWorld)) do
-                       b:Fire() 
-                    end
-                    v.Function()
-                end 
-            else
-                for i, v in pairs(getconnections(game:GetService("Players").LocalPlayer.PlayerGui.Main.ChooseTeam.Container["Pirates"].Frame.TextButton.Activated)) do
-                    for a, b in pairs(getconnections(game:GetService("UserInputService").TouchTapInWorld)) do
-                       b:Fire() 
-                    end
-                    v.Function()
-                end 
+if getgenv().config.Setting["Team"] == "Marines" then
+    ReplicatedStorage.Remotes.CommF_:InvokeServer("SetTeam", "Marines")
+elseif getgenv().config.Setting["Team"] == "Pirates" then
+    ReplicatedStorage.Remotes.CommF_:InvokeServer("SetTeam", "Pirates")
+------------------------------------------------------------------------------------
+spawn(function()
+    while wait() do
+        if getgenv().config.Setting["Boots FPS"] then
+            -- Kiểm tra và xóa Pants nếu có
+            if game.Players.LocalPlayer.Character:FindFirstChild("Pants") then
+                game.Players.LocalPlayer.Character.Pants:Destroy()
             end
-        end
-    until game.Players.LocalPlayer.Team ~= nil and game:IsLoaded()
-end
-    spawn(function()
-        while wait() do
-            if getgenv().config.Setting["Boots FPS"] then
-            game.Players.LocalPlayer.Character.Pants:Destroy()
+
             game.Players.LocalPlayer.Character.Animate.Disabled = true
+
             wait()
-            loadstring(
-                Game:HttpGet("https://raw.githubusercontent.com/JewhisKids/NewFreeScript/main/Misc/SuperFpsBoost.lua")
-            )()
-            while wait() do
-                setfpscap(60)
-                wait()
-                setfpscap(59)
-                end
-            end
+
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/JewhisKids/NewFreeScript/main/Misc/SuperFpsBoost.lua"))()
+
+            setfpscap(59)
         end
-    end)
+    end
+end)
 
 spawn(function()
     while wait() do
