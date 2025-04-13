@@ -9,15 +9,15 @@ getgenv().config = {
 
     ChestFarm = {
         ["Start Farm Chest"] = true,   
-        ["Stop When Have God's Chaile or Dark Key"] = true, 
+        ["Stop When Have God's Chalice or Dark Key"] = true, 
     },
 
-    -- Webhook configuration
     Webhook = {
         ["Webhook Url"] = "https://discord.com/api/webhooks/1360798536937246840/HBIfH0Okazx7DxPPu8rNi_jYQSMWT4eis8HSx6UW83rLMgxQn6fgWShuqBbaiwxUEXmS",          
         ["Send Webhook"] = true,      
     },
 }
+
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Icarus-Ezz/phatyeuem/refs/heads/main/Chest.lua"))()
 ]]--
 
