@@ -549,24 +549,31 @@ end
 local function UpdateStats()
     local player = game:GetService("Players").LocalPlayer
     local beli = player.Data.Beli.Value
-    
+
     if oldBeli == 0 then
         oldBeli = beli
     else
         earnedBeli = beli - oldBeli
     end
-    
+
     local chestCount = 0
-    for _, v in pairs(game.workspace:GetChildren()) do
-        if string.find(v.Name, "Chest") and v:IsA("Part") then
+    for _, v in pairs(workspace:GetDescendants()) do
+        if string.find(v.Name:lower(), "chest") and v:IsA("BasePart") then
             chestCount = chestCount + 1
         end
     end
-    
+
     Converted["_BeliLabel"].Text = string.format("💰 Beli: %s", FormatNumber(beli))
     Converted["_EarnedBeliLabel"].Text = string.format("📈 Earned: %s", FormatNumber(earnedBeli))
     Converted["_ChestLabel"].Text = string.format("🎁 Chests: %d", chestCount)
 end
+
+spawn(function()
+    while true do
+        UpdateStats()
+        wait(1)
+    end
+end)
 
 local function InitializeScript()
     local gui = CreateMainGui()
