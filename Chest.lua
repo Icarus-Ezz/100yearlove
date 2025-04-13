@@ -113,7 +113,7 @@ function PostWebhook(Url, message)
         Headers = {["Content-Type"] = "application/json"},
         Body = game:GetService("HttpService"):JSONEncode(message)
     })
-    return ""
+    return data
 end
 
 function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
