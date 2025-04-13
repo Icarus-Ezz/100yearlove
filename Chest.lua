@@ -183,6 +183,78 @@ local function CreateSmoothCorner(instance, radius)
     return corner
 end
 
+function SmartServerHop()
+    if not _G.AutoHopEnabled then return end
+    
+    pcall(function()
+        local servers = {}
+        local req = game:HttpGet("https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Asc&limit=100")
+        local data = game:GetService("HttpService"):JSONDecode(req)
+        
+        for i,v in pairs(data.data) do
+            if v.playing < v.maxPlayers and v.id ~= game.JobId then
+                table.insert(servers, v.id)
+            end
+        end
+        
+        if #servers > 0 then
+            game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)])
+        else
+            wait(30)
+            SmartServerHop()
+        end
+    end)
+end
+
+if pcall(function() game:HttpGet("https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Asc&limit=100") end) then
+    HopServer = SmartServerHop
+end
+
+local function AntiKick()
+    while true do
+        wait(1)
+        pcall(function()
+            if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                local v1518 = Instance.new("BillboardGui", game.Players.LocalPlayer.Character.HumanoidRootPart);
+                v1518.Name = "Esp";
+                v1518.ExtentsOffset = Vector3.new(0, 1, 0);
+                v1518.Size = UDim2.new(1, 300, 1, 50);
+                v1518.Adornee = game.Players.LocalPlayer.Character.HumanoidRootPart;
+                v1518.AlwaysOnTop = true;
+                local v1524 = Instance.new("TextLabel", v1518);
+                v1524.Font = "Code";
+                v1524.FontSize = "Size14";
+                v1524.TextWrapped = true;
+                v1524.Size = UDim2.new(1, 0, 1, 0);
+                v1524.TextYAlignment = "Top";
+                v1524.BackgroundTransparency = 1;
+                v1524.TextStrokeTransparency = 0.5;
+                v1524.TextColor3 = Color3.fromRGB(80, 245, 245);
+                v1524.Text = "taphoamizu";
+            end
+            if game.Players.LocalPlayer.Character.HumanoidRootPart.Velocity.Magnitude < 0.1 then
+                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame + Vector3.new(0, 0, 0.01)
+            end
+        end)
+    end
+end
+
+-- Call AntiKick function
+spawn(AntiKick)
+
+-- Automatic rejoin on kick
+spawn(function()
+    while wait() do
+        if _G.AutoRejoin == true then
+            getgenv().rejoin = game:GetService("CoreGui").RobloxPromptGui.promptOverlay.ChildAdded:Connect(function(child)
+                if child.Name == 'ErrorPrompt' and child:FindFirstChild('MessageArea') and child.MessageArea:FindFirstChild("ErrorFrame") then
+                    game:GetService("TeleportService"):Teleport(game.PlaceId)
+                end
+            end)
+        end
+    end
+end)
+
 local function Tween2(targetCFrame)
 
     pcall(function()
@@ -193,7 +265,7 @@ local function Tween2(targetCFrame)
         if not hrp then return end
 
         local distance = (targetCFrame.Position - hrp.Position).Magnitude
-        local speed = 350 -- Tốc độ bay
+        local speed = 350 
         local travelTime = distance / speed
 
         local tweenInfo = TweenInfo.new(
