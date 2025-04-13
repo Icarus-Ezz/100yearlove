@@ -147,7 +147,7 @@ end
 spawn(function()
     local sent = false
 
-    while task.wait(60) do
+    while wait(60) do
         local hasGodsChalice = false
         local hasFistOfDarkness = false
 
@@ -159,7 +159,6 @@ spawn(function()
             end
         end
 
-        -- Gửi chỉ một lần khi có lần đầu hoặc thay đổi
         if (hasGodsChalice or hasFistOfDarkness) and not sent then
             SendItemWebhook("Inventory", hasGodsChalice, hasFistOfDarkness)
             sent = true
@@ -255,7 +254,7 @@ local function CreateMainGui()
     Converted["_MainFrame"].Name = "MainFrame"
     Converted["_MainFrame"].Size = UDim2.new(0, 350, 0, 300)
     Converted["_MainFrame"].Position = UDim2.new(0, SCREEN_WIDTH - 400, 0, 50)
-    Converted["_MainFrame"].BackgroundColor3 = Color3.fromRGB(0, 128, 128)
+    Converted["_MainFrame"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     Converted["_MainFrame"].Parent = ScreenGui
     
     CreateDropShadow(Converted["_MainFrame"])
@@ -387,6 +386,7 @@ local function CreateMainGui()
     RestoreButton.Image = "rbxassetid://91347148253026" 
     RestoreButton.Position = UDim2.new(0.5, -RestoreButton.Size.X.Offset / 2, 0.5, -RestoreButton.Size.Y.Offset / 2)
     RestoreButton.Parent = MiniUI
+    CreateSmoothCorner(RestoreButton)
     
     local dragging, dragStart, startPos
     TitleBar.InputBegan:Connect(function(input)
