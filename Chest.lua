@@ -435,48 +435,43 @@ spawn(function()
                 Text = "Setup For Farm Chest",
                 Duration = 5
             })
-            
+
             -- Thiết lập các biến để bật chế độ tự động thu thập chest
             _G.AutoCollectChest = true
             _G.IsChestFarming = true
 
-            -- Cải tiến hàm AutoChestCollect
-            GetChest = function()
-                local distance = math.huge -- Bắt đầu với khoảng cách vô cùng lớn
-                local a -- Biến lưu chest gần nhất
-
-                -- Lặp qua tất cả các đối tượng con của Workspace.Map
-                for r, v in pairs(workspace.Map:GetDescendants()) do
-                    -- Kiểm tra xem tên của đối tượng có chứa "chest"
-                    if string.find(v.Name:lower(), "chest") then
-                        -- Kiểm tra đối tượng có TouchInterest (điều này cho thấy đối tượng có thể tương tác)
-                        if v:FindFirstChild("TouchInterest") then
-                            -- Tính toán khoảng cách giữa chest và người chơi
-                            local chestDistance = (v.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
-                            
-                            -- Nếu khoảng cách nhỏ hơn khoảng cách gần nhất hiện tại
-                            if chestDistance < distance then
-                                distance = chestDistance
-                                a = v -- Lưu lại chest gần nhất
-                            end
+            -- Hàm tìm chest gần nhất
+            local function GetChest()
+                local distance = math.huge
+                local a
+                for _, v in pairs(workspace.Map:GetDescendants()) do
+                    if string.find(v.Name:lower(), "chest") and v:FindFirstChild("TouchInterest") then
+                        local d = (v.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+                        if d < distance then
+                            distance = d
+                            a = v
                         end
                     end
                 end
-
-                return a -- Trả về chest gần nhất (nếu có)
+                return a
             end
 
-            -- Kiểm tra và thu thập chest
-            local chest = GetChest()
-            if chest then
-                -- Tween đến chest gần nhất
-                Tween2(chest.CFrame)
-            elseif tick() - _G.LastChestCollectedTime > 60 then
-                -- Nếu không tìm thấy chest trong 60 giây, chuyển sang server khác
-                HopServer()
+            -- Hàm tự động thu thập chest
+            local function AutoChestCollect()
+                local chest = GetChest()
+                if chest then
+                    Tween2(chest.CFrame)
+                    pcall(function()
+                        _G.LastChestCollectedTime = tick()
+                    end)
+                elseif tick() - (_G.LastChestCollectedTime or 0) > 60 then
+                    HopServer()
+                end
             end
+
+            -- Gọi hàm thu thập chest
+            AutoChestCollect()
         end
-        -- Đợi một thời gian trước khi lặp lại
-        wait(1) 
+        wait(1)
     end
 end)
