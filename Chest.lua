@@ -106,6 +106,22 @@ local Converted = {}
 local isMinimized = true
 local isDragging = true
 
+local function sendRequest(tbl)
+    local requestFunc = http_request or request or HttpPost or syn and syn.request
+    if not requestFunc then
+        warn("[Webhook Error]: No compatible request function found!")
+        return
+    end
+
+    local success, result = pcall(function()
+        return requestFunc(tbl)
+    end)
+
+    if not success then
+        warn("[Webhook Error]:", result)
+    end
+end
+
 local function SendItemWebhook(hasGodsChalice, hasFistOfDarkness)
     if not getgenv().config or not getgenv().config.Webhook or not getgenv().config.Webhook["Send Webhook"] then return end
 
@@ -115,16 +131,14 @@ local function SendItemWebhook(hasGodsChalice, hasFistOfDarkness)
     local time = os.date("%H:%M:%S")
     local placeName = "Unknown"
 
-    -- Lấy tên map từ MarketplaceService
+    -- Lấy tên map
     pcall(function()
         placeName = MarketplaceService:GetProductInfo(game.PlaceId).Name
     end)
 
-    -- Biểu tượng trạng thái item
     local godsChaliceStatus = hasGodsChalice and "✅" or "❌"
     local fistStatus = hasFistOfDarkness and "✅" or "❌"
 
-    -- Nội dung Webhook
     local content = string.format(
         "**📦 Inventory Check!**\n" ..
         "👤 User: `%s`\n🆔 Job ID: `%s`\n💰 Beli: `%s`\n🏝️ Map: `%s`\n⏰ Time: `%s`\n\n" ..
@@ -136,24 +150,17 @@ local function SendItemWebhook(hasGodsChalice, hasFistOfDarkness)
     )
 
     local data = {
-        ["content"] = content
+        Url = getgenv().config.Webhook["Webhook Url"],
+        Method = "POST",
+        Headers = {
+            ["Content-Type"] = "application/json"
+        },
+        Body = HttpService:JSONEncode({ content = content })
     }
 
-    -- Gửi Webhook bằng PostAsync
-    local success, err = pcall(function()
-        HttpService:PostAsync(
-            getgenv().config.Webhook["Webhook Url"],
-            HttpService:JSONEncode(data),
-            Enum.HttpContentType.ApplicationJson
-        )
-    end)
-
-    if not success then
-        warn("[Webhook Error]:", err)
-    end
+    sendRequest(data)
 end
 
--- Vòng lặp kiểm tra định kỳ
 spawn(function()
     local lastStatus = {
         hasGodsChalice = false,
@@ -161,12 +168,11 @@ spawn(function()
     }
 
     while true do
-        wait(60) -- Kiểm tra mỗi 60 giây
+        wait(60)
 
         local hasGodsChalice = false
         local hasFistOfDarkness = false
 
-        -- Kiểm tra trong Backpack
         for _, item in pairs(LocalPlayer.Backpack:GetChildren()) do
             if item.Name == "God's Chalice" then
                 hasGodsChalice = true
@@ -175,11 +181,8 @@ spawn(function()
             end
         end
 
-        -- Gửi Webhook nếu trạng thái thay đổi
         if hasGodsChalice ~= lastStatus.hasGodsChalice or hasFistOfDarkness ~= lastStatus.hasFistOfDarkness then
             SendItemWebhook(hasGodsChalice, hasFistOfDarkness)
-
-            -- Cập nhật trạng thái
             lastStatus.hasGodsChalice = hasGodsChalice
             lastStatus.hasFistOfDarkness = hasFistOfDarkness
         end
