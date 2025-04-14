@@ -624,7 +624,7 @@ end)
 local seaThirdSea = CFrame.new(-4998.47021484375, 314.7247009277344, -3018.09326171875)  -- Tọa độ Third Sea (Castle)
 local seaSecondSea = CFrame.new(-411.2250061035156, 73.31524658203125, 371.2820129394531)  -- Tọa độ Second Sea (Cafe)
 
--- Check Placeid
+-- Check PlaceId để lấy tọa độ đúng
 local function GetSeaCoordinates()
     if game.PlaceId == 4442272183 then  
         return seaThirdSea
@@ -635,21 +635,25 @@ local function GetSeaCoordinates()
     end
 end
 
+-- Hàm Auto Jump
 function AutoJump()
     while getgenv().config.Setting["No Stuck Chair"] do
         pcall(function()
             local char = game.Players.LocalPlayer.Character
-            local humanoid = char and char:FindFirstChildOfClass("Humanoid")
-            if humanoid then
-                humanoid.Jump = true
+            if char then
+                local humanoid = char:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid.Jump = true  -- Thực hiện nhảy
+                end
             end
         end)
-        wait(1)
+        wait(1)  -- Tạm dừng 1 giây giữa mỗi lần kiểm tra
     end
 end
 
-spawn(AutoJump)
+spawn(AutoJump)  -- Bắt đầu tự động nhảy
 
+-- Thu thập rương (Auto Chest)
 spawn(function()
     while true do
         -- Kiểm tra nếu Auto Chest đã bật
@@ -663,6 +667,7 @@ spawn(function()
             _G.AutoCollectChest = true
             _G.IsChestFarming = true
 
+            -- Hàm lấy rương gần nhất
             local function GetChest()
                 local distance = math.huge
                 local closestChest
@@ -678,31 +683,35 @@ spawn(function()
                 return closestChest
             end
 
+            -- Hàm thu thập rương
             local function AutoChestCollect()
                 local chest = GetChest()
                 if chest then
+                    -- Di chuyển đến rương và thu thập
                     Tween2(chest.CFrame)
                     pcall(function()
-                        _G.LastChestCollectedTime = tick()
+                        _G.LastChestCollectedTime = tick()  -- Cập nhật thời gian thu thập
                     end)
                 elseif tick() - (_G.LastChestCollectedTime or 0) > 60 then
-                    Hop()  -- Hop to a new server if no chest is found
+                    -- Nếu không tìm thấy rương, dịch chuyển qua server khác
+                    Hop()
                 end
             end
 
-            -- Start Farm
+            -- Bắt đầu thu thập rương
             AutoChestCollect()
         end
-        wait(1)  
+        wait(1)  -- Kiểm tra lại mỗi giây
     end
 end)
 
+-- Kiểm tra vật phẩm và gửi webhook
 spawn(function()
     while true do
         local hasGodsChalice = false
         local hasFistOfDarkness = false
 
-        -- Check inventory
+        -- Kiểm tra trong ba lô
         for _, item in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
             if item.Name == "God's Chalice" then
                 hasGodsChalice = true
@@ -711,6 +720,7 @@ spawn(function()
             end
         end
 
+        -- Gửi webhook nếu cần
         if getgenv().config.Webhook["Send Webhook"] then
             local seaCoordinates = GetSeaCoordinates()  -- Lấy tọa độ đúng
             if seaCoordinates then
@@ -719,6 +729,6 @@ spawn(function()
             PostWebhook(getgenv().config.Webhook["Webhook Url"], AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness))
         end
 
-        task.wait(60)
+        task.wait(60)  -- Kiểm tra mỗi phút
     end
 end)
