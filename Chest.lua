@@ -624,7 +624,7 @@ end)
 local seaThirdSea = CFrame.new(-4998.47021484375, 314.7247009277344, -3018.09326171875)  -- Tọa độ Third Sea (Castle)
 local seaSecondSea = CFrame.new(-411.2250061035156, 73.31524658203125, 371.2820129394531)  -- Tọa độ Second Sea (Cafe)
 
--- Check PlaceId để lấy tọa độ đúng
+-- Check Placeid
 local function GetSeaCoordinates()
     if game.PlaceId == 4442272183 then  
         return seaThirdSea
@@ -635,25 +635,54 @@ local function GetSeaCoordinates()
     end
 end
 
--- Hàm Auto Jump
 function AutoJump()
     while getgenv().config.Setting["No Stuck Chair"] do
         pcall(function()
             local char = game.Players.LocalPlayer.Character
-            if char then
-                local humanoid = char:FindFirstChildOfClass("Humanoid")
-                if humanoid then
-                    humanoid.Jump = true  -- Thực hiện nhảy
-                end
+            local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.Jump = true
             end
         end)
-        wait(1)  -- Tạm dừng 1 giây giữa mỗi lần kiểm tra
+        wait(1)
     end
 end
 
-spawn(AutoJump)  -- Bắt đầu tự động nhảy
+spawn(AutoJump)
 
--- Thu thập rương (Auto Chest)
+-- Hàm tìm rương gần nhất
+local function GetChest()
+    local distance = math.huge
+    local closestChest
+    for _, v in pairs(workspace.Map:GetDescendants()) do
+        if string.find(v.Name:lower(), "chest") and v:FindFirstChild("TouchInterest") then
+            local d = (v.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+            if d < distance then
+                distance = d
+                closestChest = v
+            end
+        end
+    end
+    return closestChest
+end
+
+-- Hàm nhặt rương
+local function AutoChestCollect()
+    local chest = GetChest()
+    if chest then
+        -- Kiểm tra rương có hợp lệ hay không
+        if chest.Parent and chest.Parent:FindFirstChild("TouchInterest") then
+            Tween2(chest.CFrame)
+            pcall(function()
+                _G.LastChestCollectedTime = tick()
+                _G.CollectedChests = (_G.CollectedChests or 0) + 1  -- Tăng số lượng rương đã nhặt
+            end)
+        end
+    elseif tick() - (_G.LastChestCollectedTime or 0) > 60 then
+        Hop()  -- Chuyển sang server khác nếu không tìm thấy rương
+    end
+end
+
 spawn(function()
     while true do
         -- Kiểm tra nếu Auto Chest đã bật
@@ -667,51 +696,119 @@ spawn(function()
             _G.AutoCollectChest = true
             _G.IsChestFarming = true
 
-            -- Hàm lấy rương gần nhất
-            local function GetChest()
-                local distance = math.huge
-                local closestChest
-                for _, v in pairs(workspace.Map:GetDescendants()) do
-                    if string.find(v.Name:lower(), "chest") and v:FindFirstChild("TouchInterest") then
-                        local d = (v.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
-                        if d < distance then
-                            distance = d
-                            closestChest = v
-                        end
-                    end
-                end
-                return closestChest
-            end
-
-            -- Hàm thu thập rương
-            local function AutoChestCollect()
-                local chest = GetChest()
-                if chest then
-                    -- Di chuyển đến rương và thu thập
-                    Tween2(chest.CFrame)
-                    pcall(function()
-                        _G.LastChestCollectedTime = tick()  -- Cập nhật thời gian thu thập
-                    end)
-                elseif tick() - (_G.LastChestCollectedTime or 0) > 60 then
-                    -- Nếu không tìm thấy rương, dịch chuyển qua server khác
-                    Hop()
-                end
-            end
-
-            -- Bắt đầu thu thập rương
+            -- Bắt đầu farm
             AutoChestCollect()
+
+            -- Kiểm tra số lượng rương đã nhặt, nếu >= 60 thì hop server
+            if _G.CollectedChests and _G.CollectedChests >= 60 then
+                game:GetService("StarterGui"):SetCore("SendNotification", {
+                    Title = "Auto Chest",
+                    Text = "Đã nhặt 60 rương, chuyển server",
+                    Duration = 5
+                })
+                Hop()  -- Chuyển sang server khác sau khi nhặt đủ 60 rương
+                _G.CollectedChests = 0  -- Reset lại số lượng rương đã nhặt
+            end
         end
-        wait(1)  -- Kiểm tra lại mỗi giây
+        wait(1)  
     end
 end)
 
--- Kiểm tra vật phẩm và gửi webhook
+function Hop()
+    local PlaceID = game.PlaceId
+    local AllIDs = {}
+    local foundAnything = ""
+    local actualHour = os.date("!*t").hour
+    local Deleted = false
+
+    function TPReturner()
+        local Site
+        if foundAnything == "" then
+            Site =
+                game.HttpService:JSONDecode(
+                game:HttpGet(
+                    "https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100"
+                )
+            )
+        else
+            Site =
+                game.HttpService:JSONDecode(
+                game:HttpGet(
+                    "https://games.roblox.com/v1/games/" ..
+                        PlaceID .. "/servers/Public?sortOrder=Asc&limit=100&cursor=" .. foundAnything
+                )
+            )
+        end
+        local ID = ""
+        if Site.nextPageCursor and Site.nextPageCursor ~= "null" and Site.nextPageCursor ~= nil then
+            foundAnything = Site.nextPageCursor
+        end
+        local num = 0
+        for i, v in pairs(Site.data) do
+            local Possible = true
+            ID = tostring(v.id)
+            if tonumber(v.maxPlayers) > tonumber(v.playing) then
+                for _, Existing in pairs(AllIDs) do
+                    if num ~= 0 then
+                        if ID == tostring(Existing) then
+                            Possible = false
+                        end
+                    else
+                        if tonumber(actualHour) ~= tonumber(Existing) then
+                            local delFile =
+                                pcall(
+                                function()
+                                    AllIDs = {}
+                                    table.insert(AllIDs, actualHour)
+                                end
+                            )
+                        end
+                    end
+                    num = num + 1
+                end
+                if Possible == true then
+                    table.insert(AllIDs, ID)
+                    wait(1)  -- Thêm thời gian chờ nhỏ để tránh gọi API quá nhanh
+                    pcall(
+                        function()
+                            game:GetService("TeleportService"):TeleportToPlaceInstance(
+                                PlaceID,
+                                ID,
+                                game.Players.LocalPlayer
+                            )
+                        end
+                    )
+                    wait(4)  -- Đảm bảo thời gian đủ để teleport
+                    break  -- Thoát khỏi vòng lặp sau khi teleport thành công
+                end
+            end
+        end
+    end
+
+    function Teleport()
+        while true do
+            pcall(
+                function()
+                    TPReturner()
+                    if foundAnything ~= "" then
+                        TPReturner()
+                    end
+                end
+            )
+            task.wait(5)  -- Chờ trước khi tìm lại server mới
+        end
+    end
+
+    Teleport()
+end
+
+-- Hàm gửi webhook với thông tin rương
 spawn(function()
     while true do
         local hasGodsChalice = false
         local hasFistOfDarkness = false
 
-        -- Kiểm tra trong ba lô
+        -- Kiểm tra inventory
         for _, item in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
             if item.Name == "God's Chalice" then
                 hasGodsChalice = true
@@ -720,7 +817,6 @@ spawn(function()
             end
         end
 
-        -- Gửi webhook nếu cần
         if getgenv().config.Webhook["Send Webhook"] then
             local seaCoordinates = GetSeaCoordinates()  -- Lấy tọa độ đúng
             if seaCoordinates then
@@ -729,6 +825,6 @@ spawn(function()
             PostWebhook(getgenv().config.Webhook["Webhook Url"], AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness))
         end
 
-        task.wait(60)  -- Kiểm tra mỗi phút
+        task.wait(60)
     end
 end)
