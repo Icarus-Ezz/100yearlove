@@ -626,6 +626,66 @@ end
 
 InitializeScript()
 
+function StopTween()
+    -- Kiểm tra nếu không có tween
+    if not getgenv().StopTween then
+        getgenv().StopTween = true            
+        -- Dừng tween nếu đang có tween
+        if tween then
+            tween:Cancel()  -- Hủy tween hiện tại
+            tween = nil
+        end            
+
+        -- Lấy HumanoidRootPart của nhân vật
+        local player = game:GetService("Players").LocalPlayer
+        local character = player and player.Character
+        local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
+        
+        if humanoidRootPart then
+            humanoidRootPart.Anchored = true  -- Đảm bảo không bị di chuyển
+            task.wait(0.1)  -- Chờ một chút để đảm bảo dừng lại hoàn toàn
+            humanoidRootPart.CFrame = humanoidRootPart.CFrame  -- Đảm bảo không di chuyển
+            humanoidRootPart.Anchored = false
+        end
+
+        -- Xóa BodyClip nếu có
+        local bodyClip = humanoidRootPart and humanoidRootPart:FindFirstChild("BodyClip")
+        if bodyClip then
+            bodyClip:Destroy()  -- Xóa BodyClip để ngừng no-clip
+        end
+
+        -- Reset trạng thái StopTween và Clip
+        getgenv().StopTween = false
+        getgenv().Clip = false
+    end
+end
+
+spawn(function()
+    while task.wait() do
+        pcall(function()
+            if getgenv().config.ChestFarm["Start Farm Chest"] then
+                local player = game:GetService("Players").LocalPlayer
+                local humanoidRootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                
+                -- Kiểm tra xem BodyClip đã tồn tại chưa, nếu chưa thì tạo mới
+                if humanoidRootPart and not humanoidRootPart:FindFirstChild("BodyClip") then
+                    local Noclip = Instance.new("BodyVelocity")
+                    Noclip.Name = "BodyClip"
+                    Noclip.Parent = humanoidRootPart
+                    Noclip.MaxForce = Vector3.new(100000, 100000, 100000)  -- Force cao để không bị va chạm
+                    Noclip.Velocity = Vector3.new(0, 0, 0)  -- Không chuyển động
+                end
+            else
+                -- Nếu không phải "Start Farm Chest", xóa BodyClip nếu tồn tại
+                local bodyClip = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyClip")
+                if bodyClip then
+                    bodyClip:Destroy()
+                end
+            end
+        end)
+    end
+end)
+
 local seaThirdSea = CFrame.new(-5056.14794921875, 314.68048095703125, -2985.12255859375)  -- Third Sea (Castle)
 local seaSecondSea = CFrame.new(-411.2250061035156, 73.31524658203125, 371.2820129394531)     -- Second Sea (Cafe)
 
@@ -653,6 +713,7 @@ spawn(function()
                 local seaCoordinates = GetSeaCoordinates()
                 if seaCoordinates then
                     Tween2(seaCoordinates)
+                    StopTween()    
                 end
             end
         end
