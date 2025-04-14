@@ -609,23 +609,6 @@ end
 
 InitializeScript()
 
-
---//Chest Stop Check
-spawn(function()
-    while wait() do
-        if getgenv().config.ChestFarm["Stop When Have God's Chalice or Dark Key"] then
-            local hasGodsChalice = game.Players.LocalPlayer.Backpack:FindFirstChild("God's Chalice") or game.Players.LocalPlayer.Character:FindFirstChild("God's Chalice")
-            local hasFistOfDarkness = game.Players.LocalPlayer.Backpack:FindFirstChild("Fist of Darkness") or game.Players.LocalPlayer.Character:FindFirstChild("Fist of Darkness")
-
-            if hasGodsChalice or hasFistOfDarkness then
-                getgenv().config.ChestFarm["Start Farm Chest"] = false
-                getgenv().config.Setting["No Stuck Chair"] = false    
-            end
-        end
-    end
-end)
-
--- ========== Toạ độ vùng ==========
 local seaThirdSea = CFrame.new(-4998.47021484375, 314.7247009277344, -3018.09326171875)  -- Third Sea (Castle)
 local seaSecondSea = CFrame.new(-411.2250061035156, 73.31524658203125, 371.2820129394531)     -- Second Sea (Cafe)
 
@@ -639,6 +622,25 @@ local function GetSeaCoordinates()
         return nil
     end
 end
+
+spawn(function()
+    while wait() do
+        if getgenv().config.ChestFarm["Stop When Have God's Chalice or Dark Key"] then
+            local hasGodsChalice = game.Players.LocalPlayer.Backpack:FindFirstChild("God's Chalice") or game.Players.LocalPlayer.Character:FindFirstChild("God's Chalice")
+            local hasFistOfDarkness = game.Players.LocalPlayer.Backpack:FindFirstChild("Fist of Darkness") or game.Players.LocalPlayer.Character:FindFirstChild("Fist of Darkness")
+
+            if hasGodsChalice or hasFistOfDarkness then
+                getgenv().config.ChestFarm["Start Farm Chest"] = false
+                getgenv().config.Setting["No Stuck Chair"] = false
+
+                local seaCoordinates = GetSeaCoordinates()
+                if seaCoordinates then
+                    Tween2(seaCoordinates)
+                end
+            end
+        end
+    end
+end)
 
 -- ========== Auto Jump nếu kẹt ghế ==========
 function AutoJump()
@@ -812,13 +814,9 @@ spawn(function()
         end
 
         if getgenv().config.Webhook["Send Webhook"] then
-            local seaCoordinates = GetSeaCoordinates()
-            if seaCoordinates then
-                Tween2(seaCoordinates)
-            end
             PostWebhook(getgenv().config.Webhook["Webhook Url"], AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness))
         end
-
+            
         task.wait(60)
     end
 end)
