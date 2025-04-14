@@ -621,11 +621,11 @@ spawn(function()
     end
 end)
 
--- Tọa độ các vùng
-local seaThirdSea = CFrame.new(-4998.47021484375, 314.7247009277344, -3018.09326171875)  -- Tọa độ Third Sea (Castle)
-local seaSecondSea = CFrame.new(-411.2250061035156, 73.31524658203125, 371.2820129394531)  -- Tọa độ Second Sea (Cafe)
+-- ========== Toạ độ vùng ==========
+local seaThirdSea = CFrame.new(-4998.4702, 314.7247, -3018.0932)  -- Third Sea (Castle)
+local seaSecondSea = CFrame.new(-411.2250, 73.3152, 371.2820)     -- Second Sea (Cafe)
 
--- Kiểm tra PlaceId
+-- ========== Tự phát hiện vùng ==========
 local function GetSeaCoordinates()
     if game.PlaceId == 4442272183 then  
         return seaThirdSea
@@ -636,7 +636,7 @@ local function GetSeaCoordinates()
     end
 end
 
--- Hàm tự động nhảy
+-- ========== Auto Jump nếu kẹt ghế ==========
 function AutoJump()
     while getgenv().config.Setting["No Stuck Chair"] do
         pcall(function()
@@ -649,9 +649,9 @@ function AutoJump()
         wait(1)
     end
 end
-
 spawn(AutoJump)
 
+-- ========== Auto Farm Chest ==========
 spawn(function()
     while true do
         if getgenv().config.ChestFarm["Start Farm Chest"] then
@@ -664,11 +664,13 @@ spawn(function()
             _G.AutoCollectChest = true
             _G.IsChestFarming = true
 
+            -- Tìm rương gần nhất
             local function GetChest()
                 local distance = math.huge
-                local closestChest
+                local closestChest = nil
                 for _, v in pairs(workspace.Map:GetDescendants()) do
                     if string.find(v.Name:lower(), "chest") and v:FindFirstChild("TouchInterest") and v:IsA("BasePart") then
+                        if v.Position.Y < -10 then continue end -- Bỏ qua rương dưới map
                         local d = (v.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
                         if d < distance then
                             distance = d
@@ -679,47 +681,60 @@ spawn(function()
                 return closestChest
             end
 
+            -- Auto nhặt rương liên tục
             local function AutoChestCollect()
-                local chest = GetChest()
-                if chest and chest.Parent and chest:IsDescendantOf(workspace) then
-                    -- Di chuyển tới rương
-                    Tween2(chest.CFrame + Vector3.new(0, 2, 0))  -- bay lên cao 1 chút tránh kẹt
+                local timeout = 0
+                while getgenv().config.ChestFarm["Start Farm Chest"] do
+                    local chest = GetChest()
+                    if chest and chest:IsDescendantOf(workspace) then
+                        -- Di chuyển tới rương
+                        Tween2(chest.CFrame)
 
-                    -- Chờ rương biến mất
-                    local start = tick()
-                    repeat
-                        task.wait(0.2)
-                    until not chest:IsDescendantOf(workspace) or tick() - start > 5
+                        -- Chạm rương
+                        pcall(function()
+                            firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, chest, 0)
+                            firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, chest, 1)
+                        end)
 
-                    -- Ghi lại thời gian nhặt thành công
-                    if not chest:IsDescendantOf(workspace) then
-                        _G.LastChestCollectedTime = tick()
-                        _G.CollectedChests = (_G.CollectedChests or 0) + 1
-                        print("[ChestFarm] Nhặt thành công rương #" .. tostring(_G.CollectedChests))
+                        -- Chờ rương biến mất
+                        local start = tick()
+                        repeat task.wait(0.1) until not chest:IsDescendantOf(workspace) or tick() - start > 5
+
+                        if not chest:IsDescendantOf(workspace) then
+                            _G.LastChestCollectedTime = tick()
+                            _G.CollectedChests = (_G.CollectedChests or 0) + 1
+                            timeout = 0
+                        end
+
+                        -- Nếu đã ăn 60 rương → hop
+                        if (_G.CollectedChests or 0) >= 60 then
+                            game:GetService("StarterGui"):SetCore("SendNotification", {
+                                Title = "Vxeze Hub Auto Chest",
+                                Text = "Find New Server",
+                                Duration = 4
+                            })
+                            _G.CollectedChests = 0
+                            Hop()
+                            break
+                        end
+                    else
+                        timeout = timeout + 1
+                        if timeout >= 60 then
+                            Hop()
+                            break
+                        end
+                        wait(1)
                     end
-                elseif tick() - (_G.LastChestCollectedTime or 0) > 60 then
-                    Hop()
                 end
             end
 
             AutoChestCollect()
-
-            -- Nếu đã nhặt >= 60 rương thì hop server
-            if (_G.CollectedChests or 0) >= 60 then
-                game:GetService("StarterGui"):SetCore("SendNotification", {
-                    Title = "Auto Chest",
-                    Text = "Đủ 60 rương! Chuyển server mới...",
-                    Duration = 4
-                })
-                _G.CollectedChests = 0
-                Hop()
-            end
         end
         wait(1)
     end
 end)
 
--- Hàm nhảy server (hop)
+-- ========== HOP Server ==========
 function Hop()
     local PlaceID = game.PlaceId
     local AllIDs = {}
@@ -729,62 +744,35 @@ function Hop()
     function TPReturner()
         local Site
         if foundAnything == "" then
-            Site =
-                game.HttpService:JSONDecode(
-                game:HttpGet(
-                    "https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100"
-                )
-            )
+            Site = game.HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100"))
         else
-            Site =
-                game.HttpService:JSONDecode(
-                game:HttpGet(
-                    "https://games.roblox.com/v1/games/" ..
-                        PlaceID .. "/servers/Public?sortOrder=Asc&limit=100&cursor=" .. foundAnything
-                )
-            )
+            Site = game.HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100&cursor=" .. foundAnything))
         end
-        local ID = ""
+
         if Site.nextPageCursor and Site.nextPageCursor ~= "null" and Site.nextPageCursor ~= nil then
             foundAnything = Site.nextPageCursor
         end
-        local num = 0
-        for i, v in pairs(Site.data) do
+
+        for _, v in pairs(Site.data) do
+            local ID = tostring(v.id)
             local Possible = true
-            ID = tostring(v.id)
+
             if tonumber(v.maxPlayers) > tonumber(v.playing) then
                 for _, Existing in pairs(AllIDs) do
-                    if num ~= 0 then
-                        if ID == tostring(Existing) then
-                            Possible = false
-                        end
-                    else
-                        if tonumber(actualHour) ~= tonumber(Existing) then
-                            local delFile =
-                                pcall(
-                                function()
-                                    AllIDs = {}
-                                    table.insert(AllIDs, actualHour)
-                                end
-                            )
-                        end
+                    if ID == tostring(Existing) then
+                        Possible = false
+                        break
                     end
-                    num = num + 1
                 end
-                if Possible == true then
+
+                if Possible then
                     table.insert(AllIDs, ID)
                     wait(1)
-                    pcall(
-                        function()
-                            game:GetService("TeleportService"):TeleportToPlaceInstance(
-                                PlaceID,
-                                ID,
-                                game.Players.LocalPlayer
-                            )
-                        end
-                    )
+                    pcall(function()
+                        game:GetService("TeleportService"):TeleportToPlaceInstance(PlaceID, ID, game.Players.LocalPlayer)
+                    end)
                     wait(4)
-                    break
+                    return
                 end
             end
         end
@@ -792,14 +780,12 @@ function Hop()
 
     function Teleport()
         while true do
-            pcall(
-                function()
+            pcall(function()
+                TPReturner()
+                if foundAnything ~= "" then
                     TPReturner()
-                    if foundAnything ~= "" then
-                        TPReturner()
-                    end
                 end
-            )
+            end)
             wait(5)
         end
     end
@@ -807,12 +793,12 @@ function Hop()
     Teleport()
 end
 
+-- ========== Webhook + di chuyển về tọa độ ==========
 spawn(function()
     while true do
         local hasGodsChalice = false
         local hasFistOfDarkness = false
 
-        -- Kiểm tra inventory
         for _, item in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
             if item.Name == "God's Chalice" then
                 hasGodsChalice = true
@@ -822,9 +808,9 @@ spawn(function()
         end
 
         if getgenv().config.Webhook["Send Webhook"] then
-            local seaCoordinates = GetSeaCoordinates()  -- Lấy tọa độ đúng
+            local seaCoordinates = GetSeaCoordinates()
             if seaCoordinates then
-                Tween2(seaCoordinates)  -- Dịch chuyển đến tọa độ đúng
+                Tween2(seaCoordinates)
             end
             PostWebhook(getgenv().config.Webhook["Webhook Url"], AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness))
         end
