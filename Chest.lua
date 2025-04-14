@@ -6,6 +6,7 @@ getgenv().config = {
         ["Boots FPS"] = false,         
         ["White Screen"] = false,
         ["No Stuck Chair"] = true, 
+        ["Auto Rejoin"] = true,
     },
     ChestFarm = {
         ["Start Farm Chest"] = true,   
@@ -262,15 +263,17 @@ end
 
 spawn(AntiKick)
 
--- Automatic rejoin on kick
+--Rejoin
 spawn(function()
     while wait() do
-        if _G.AutoRejoin == true then
-            getgenv().rejoin = game:GetService("CoreGui").RobloxPromptGui.promptOverlay.ChildAdded:Connect(function(child)
-                if child.Name == 'ErrorPrompt' and child:FindFirstChild('MessageArea') and child.MessageArea:FindFirstChild("ErrorFrame") then
-                    game:GetService("TeleportService"):Teleport(game.PlaceId)
-                end
-            end)
+        if getgenv().config.Setting["Auto Rejoin"] then
+            if not getgenv().rejoin then 
+                getgenv().rejoin = game:GetService("CoreGui").RobloxPromptGui.promptOverlay.ChildAdded:Connect(function(child)
+                    if child.Name == 'ErrorPrompt' and child:FindFirstChild('MessageArea') and child.MessageArea:FindFirstChild("ErrorFrame") then
+                        game:GetService("TeleportService"):Teleport(game.PlaceId)
+                    end
+                end)
+            end
         end
     end
 end)
