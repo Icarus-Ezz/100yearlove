@@ -4,14 +4,13 @@ getgenv().config = {
         ["Team"] = "Pirates",         
         ["Disabled Notify"] = false,  
         ["Boots FPS"] = false,         
-        ["White Screen"] = false,      
+        ["White Screen"] = false,
+        ["No Stuck Chair"] = true, 
     },
-
     ChestFarm = {
         ["Start Farm Chest"] = true,   
         ["Stop When Have God's Chalice or Dark Key"] = true, 
     },
-
     Webhook = {
         ["Webhook Url"] = "https://discord.com/api/webhooks/1360798536937246840/HBIfH0Okazx7DxPPu8rNi_jYQSMWT4eis8HSx6UW83rLMgxQn6fgWShuqBbaiwxUEXmS",          
         ["Send Webhook"] = true,      
@@ -620,7 +619,7 @@ end)
 local seaThirdSea = CFrame.new(-4998.47021484375, 314.7247009277344, -3018.09326171875)  -- Tọa độ Third Sea (Castle)
 local seaSecondSea = CFrame.new(-411.2250061035156, 73.31524658203125, 371.2820129394531)  -- Tọa độ Second Sea (Cafe)
 
--- Kiểm tra game.PlaceId để xác định biển hiện tại
+-- Check Placeid
 local function GetSeaCoordinates()
     if game.PlaceId == 4442272183 then  
         return seaThirdSea
@@ -631,13 +630,28 @@ local function GetSeaCoordinates()
     end
 end
 
+function AutoJump()
+    while getgenv().config.Setting["No Stuck Chair"] do
+        pcall(function()
+            local char = game.Players.LocalPlayer.Character
+            local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.Jump = true
+            end
+        end)
+        wait(1)
+    end
+end
+
+spawn(AutoJump)
+
 spawn(function()
     while true do
         -- Kiểm tra nếu Auto Chest đã bật
         if getgenv().config.ChestFarm["Start Farm Chest"] then
             game:GetService("StarterGui"):SetCore("SendNotification", {
                 Title = "Auto Chest",
-                Text = "Ez",
+                Text = "Ez Farm Chest",
                 Duration = 5
             })
 
