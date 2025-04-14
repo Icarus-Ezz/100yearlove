@@ -621,10 +621,11 @@ spawn(function()
     end
 end)
 
+-- Tọa độ các vùng
 local seaThirdSea = CFrame.new(-4998.47021484375, 314.7247009277344, -3018.09326171875)  -- Tọa độ Third Sea (Castle)
 local seaSecondSea = CFrame.new(-411.2250061035156, 73.31524658203125, 371.2820129394531)  -- Tọa độ Second Sea (Cafe)
 
--- Check Placeid
+-- Kiểm tra PlaceId
 local function GetSeaCoordinates()
     if game.PlaceId == 4442272183 then  
         return seaThirdSea
@@ -635,6 +636,7 @@ local function GetSeaCoordinates()
     end
 end
 
+-- Hàm tự động nhảy
 function AutoJump()
     while getgenv().config.Setting["No Stuck Chair"] do
         pcall(function()
@@ -653,8 +655,9 @@ spawn(AutoJump)
 -- Hàm tìm rương gần nhất
 local function GetChest()
     local distance = math.huge
-    local closestChest
+    local closestChest = nil
     for _, v in pairs(workspace.Map:GetDescendants()) do
+        -- Kiểm tra nếu đối tượng là rương và có thuộc tính "TouchInterest"
         if string.find(v.Name:lower(), "chest") and v:FindFirstChild("TouchInterest") then
             local d = (v.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
             if d < distance then
@@ -670,23 +673,27 @@ end
 local function AutoChestCollect()
     local chest = GetChest()
     if chest then
-        -- Kiểm tra rương có hợp lệ hay không
+        -- Kiểm tra xem rương có còn hợp lệ không
         if chest.Parent and chest.Parent:FindFirstChild("TouchInterest") then
+            -- Di chuyển tới vị trí của rương
             Tween2(chest.CFrame)
             pcall(function()
                 _G.LastChestCollectedTime = tick()
                 _G.CollectedChests = (_G.CollectedChests or 0) + 1  -- Tăng số lượng rương đã nhặt
+                -- Gửi thông báo hoặc các hành động cần thiết khi nhặt được rương
             end)
         end
     elseif tick() - (_G.LastChestCollectedTime or 0) > 5 then
-        Hop()  -- Chuyển sang server khác nếu không tìm thấy rương trong 5 giây
+        Hop()  -- Nếu không tìm thấy rương trong 5 giây, nhảy server khác
     end
 end
 
+-- Hàm điều khiển nhặt rương
 spawn(function()
     while true do
         -- Kiểm tra nếu Auto Chest đã bật
         if getgenv().config.ChestFarm["Start Farm Chest"] then
+            -- Gửi thông báo bắt đầu farm
             game:GetService("StarterGui"):SetCore("SendNotification", {
                 Title = "Auto Chest",
                 Text = "Ez Farm Chest",
@@ -710,16 +717,16 @@ spawn(function()
                 _G.CollectedChests = 0  -- Reset lại số lượng rương đã nhặt
             end
         end
-        wait(1)  
+        wait(1)
     end
 end)
 
+-- Hàm nhảy server (hop)
 function Hop()
     local PlaceID = game.PlaceId
     local AllIDs = {}
     local foundAnything = ""
     local actualHour = os.date("!*t").hour
-    local Deleted = false
 
     function TPReturner()
         local Site
@@ -768,7 +775,7 @@ function Hop()
                 end
                 if Possible == true then
                     table.insert(AllIDs, ID)
-                    wait(1)  -- Thêm thời gian chờ nhỏ để tránh gọi API quá nhanh
+                    wait(1)
                     pcall(
                         function()
                             game:GetService("TeleportService"):TeleportToPlaceInstance(
@@ -778,8 +785,8 @@ function Hop()
                             )
                         end
                     )
-                    wait(4)  -- Đảm bảo thời gian đủ để teleport
-                    break  -- Thoát khỏi vòng lặp sau khi teleport thành công
+                    wait(4)
+                    break
                 end
             end
         end
@@ -795,14 +802,13 @@ function Hop()
                     end
                 end
             )
-            task.wait(5)  -- Chờ trước khi tìm lại server mới
+            wait(5)
         end
     end
 
     Teleport()
 end
 
--- Hàm gửi webhook với thông tin rương
 spawn(function()
     while true do
         local hasGodsChalice = false
