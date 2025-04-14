@@ -691,7 +691,7 @@ spawn(function()
     while true do
         CheckIdleTime()
 
-        if idleTime >= 10 then
+        if idleTime == 10 then
             game:GetService("StarterGui"):SetCore("SendNotification", {
                 Title = "Idle Timeout",
                 Text = "Hop To Find New Sever",
