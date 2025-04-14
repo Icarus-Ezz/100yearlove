@@ -847,7 +847,10 @@ local function GetChest()
     return closestChest
 end
 
+-- Quá trình nhặt rương tự động
 spawn(function()
+    local startTime = tick() -- Lưu thời gian bắt đầu server
+
     while true do
         if getgenv().config.ChestFarm["Start Farm Chest"] then
             game:GetService("StarterGui"):SetCore("SendNotification", {
@@ -859,14 +862,15 @@ spawn(function()
             _G.AutoCollectChest = true
             _G.IsChestFarming = true
 
-            -- Auto nhặt rương liên tục
             local function AutoChestCollect()
                 local timeout = 0
                 while getgenv().config.ChestFarm["Start Farm Chest"] do
                     local chest = GetChest()
                     if chest and chest:IsDescendantOf(workspace) then
+                        -- Di chuyển đến rương
                         Tween2(chest.CFrame)
 
+                        -- Chạm rương để nhặt
                         pcall(function()
                             firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, chest, 0)
                             firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, chest, 1)
@@ -875,23 +879,10 @@ spawn(function()
                         local start = tick()
                         repeat task.wait(0.1) until not chest:IsDescendantOf(workspace) or tick() - start > 1
 
-                        -- Nếu rương biến mất, tăng số lượng rương đã nhặt
                         if not chest:IsDescendantOf(workspace) then
                             _G.LastChestCollectedTime = tick()
                             _G.CollectedChests = (_G.CollectedChests or 0) + 1
                             timeout = 0
-                        end
-
-                        -- Nếu đã nhặt đủ 30 rương → hop
-                        if (_G.CollectedChests or 0) == 30 then
-                            game:GetService("StarterGui"):SetCore("SendNotification", {
-                                Title = "Vxeze Hub Auto Chest",
-                                Text = "Đã nhặt đủ 30 rương, chuyển server...",
-                                Duration = 4
-                            })
-                            _G.CollectedChests = 0
-                            StartCountdownAndHop(10) 
-                            break
                         end
                     else
                         timeout = timeout + 1
@@ -900,6 +891,16 @@ spawn(function()
                             break
                         end
                         wait(1)
+                    end
+
+                    if tick() - startTime >= 300 then
+                        game:GetService("StarterGui"):SetCore("SendNotification", {
+                            Title = "Vxeze Hub Auto Chest",
+                            Text = "Đã ở trong server 5 phút, chuyển server...",
+                            Duration = 4
+                        })
+                        StartCountdownAndHop(10) -- Chuyển server sau 5 phút
+                        break
                     end
                 end
             end
