@@ -582,6 +582,7 @@ local function InitializeScript()
     
 Converted["_StartButton"].MouseButton1Click:Connect(function()
         getgenv().config.ChestFarm["Start Farm Chest"] = true
+        getgenv().config.Setting["No Stuck Chair"] = true  
         game:GetService("StarterGui"):SetCore("SendNotification", {
             Title = "Vxeze Hub Auto Chest",
             Text = "Auto Chest Started!",
@@ -591,6 +592,7 @@ Converted["_StartButton"].MouseButton1Click:Connect(function()
     
     Converted["_StopButton"].MouseButton1Click:Connect(function()
         getgenv().config.ChestFarm["Start Farm Chest"] = false
+        getgenv().config.Setting["No Stuck Chair"] = false
         game:GetService("StarterGui"):SetCore("SendNotification", {
             Title = "Vxeze Hub Auto Chest",
             Text = "Auto Chest Stopped!",
