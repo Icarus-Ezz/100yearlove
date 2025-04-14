@@ -19,11 +19,16 @@ getgenv().config = {
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Icarus-Ezz/phatyeuem/refs/heads/main/Chest.lua"))()
 ]]--
 
-if getgenv().config.Setting["Team"] == "Marines" and game.Players.LocalPlayer.Team.Name ~= "Marines" then
-    game.ReplicatedStorage.Remotes.CommF_:InvokeServer("SetTeam", "Marines")
-elseif getgenv().config.Setting["Team"] == "Pirates" and game.Players.LocalPlayer.Team.Name ~= "Pirates" then
-    game.ReplicatedStorage.Remotes.CommF_:InvokeServer("SetTeam", "Pirates")
+if getgenv().config.Setting["Team"] == "Marines" then
+    if not game.Players.LocalPlayer.Team or game.Players.LocalPlayer.Team.Name ~= "Marines" then
+        game.ReplicatedStorage.Remotes.CommF_:InvokeServer("SetTeam", "Marines")
+    end
+elseif getgenv().config.Setting["Team"] == "Pirates" then
+    if not game.Players.LocalPlayer.Team or game.Players.LocalPlayer.Team.Name ~= "Pirates" then
+        game.ReplicatedStorage.Remotes.CommF_:InvokeServer("SetTeam", "Pirates")
+    end
 end
+
 wait(3)
 ------------------------------------------------------------------------------------
 spawn(function()
