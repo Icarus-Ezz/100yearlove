@@ -194,6 +194,21 @@ spawn(function()
     end
 end)
 
+spawn(function()
+    local runService = game:GetService("RunService")
+    local player = game.Players.LocalPlayer
+
+    runService.Stepped:Connect(function()
+        if getgenv().config.ChestFarm["Start Farm Chest"] then
+            for _, part in pairs(player.Character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = false
+                end
+            end
+        end
+    end)
+end)
+
 local function FormatNumber(number)
     return tostring(number):reverse():gsub("(%d%d%d)", "%1,"):reverse():gsub("^,", "")
 end
