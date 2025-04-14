@@ -706,8 +706,8 @@ spawn(function()
                             timeout = 0
                         end
 
-                        -- Nếu đã ăn 60 rương → hop
-                        if (_G.CollectedChests or 0) >= 60 then
+                        -- Nếu đã nhặt 30 rương → hop
+                        if (_G.CollectedChests or 0) >= 30 then
                             game:GetService("StarterGui"):SetCore("SendNotification", {
                                 Title = "Vxeze Hub Auto Chest",
                                 Text = "Find New Server",
