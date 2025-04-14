@@ -639,7 +639,7 @@ local function GetSeaCoordinates()
         return nil
     end
 end
-
+--Check Backpack
 spawn(function()
     while wait() do
         if getgenv().config.ChestFarm["Stop When Have God's Chalice or Dark Key"] then
@@ -673,7 +673,51 @@ function AutoJump()
     end
 end
 spawn(AutoJump)
+--------------------------Ui
+function StartCountdownAndHop(countdownTime)
+    -- Tạo UI cho thanh tiến trình
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
+    local progressBarBackground = Instance.new("Frame")
+    progressBarBackground.Parent = screenGui
+    progressBarBackground.Size = UDim2.new(0, 200, 0, 25)
+    progressBarBackground.Position = UDim2.new(0.5, -100, 0.5, -25)
+    progressBarBackground.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+
+    local progressBar = Instance.new("Frame")
+    progressBar.Parent = progressBarBackground
+    progressBar.Size = UDim2.new(0, 0, 1, 0)  -- Đầu tiên là 0
+    progressBar.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+
+    local countdownLabel = Instance.new("TextLabel")
+    countdownLabel.Parent = screenGui
+    countdownLabel.Size = UDim2.new(0, 200, 0, 50)
+    countdownLabel.Position = UDim2.new(0.5, -100, 0.4, -25)
+    countdownLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    countdownLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    countdownLabel.TextSize = 24
+    countdownLabel.Text = tostring(countdownTime) .. "s"
+    countdownLabel.Visible = false
+
+    countdownLabel.Visible = true
+    -- Đếm ngược và cập nhật thanh tiến trình
+    for i = countdownTime, 1, -1 do
+        countdownLabel.Text = tostring(i) .. "s"
+        progressBar.Size = UDim2.new(i / countdownTime, 0, 1, 0)  -- Cập nhật thanh tiến trình
+        wait(1)
+    end
+
+    countdownLabel.Text = "Vxeze Hopping"
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Vxeze Hub",
+        Text = "Vxeze Hopping",
+        Duration = 4
+    })
+    wait(2)  
+    Hop()
+end
+----------------------------------------------------------------------------------------------------
 local lastPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
 local idleTime = 0 -- thời gian đứng im
 
@@ -703,9 +747,25 @@ spawn(function()
             break
         end
         
-        wait(1) -- Kiểm tra mỗi giây
+        wait(1) 
     end
 end)
+
+local function GetChest()
+    local distance = math.huge
+    local closestChest = nil
+    for _, v in pairs(workspace.Map:GetDescendants()) do
+        if string.find(v.Name:lower(), "chest") and v:FindFirstChild("TouchInterest") and v:IsA("BasePart") then
+            if v.Position.Y < -10 then continue end -- Bỏ qua rương dưới map
+            local d = (v.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+            if d < distance then
+                distance = d
+                closestChest = v
+            end
+        end
+    end
+    return closestChest
+end
 
 spawn(function()
     while true do
@@ -719,30 +779,12 @@ spawn(function()
             _G.AutoCollectChest = true
             _G.IsChestFarming = true
 
-            -- Tìm rương gần nhất
-            local function GetChest()
-                local distance = math.huge
-                local closestChest = nil
-                for _, v in pairs(workspace.Map:GetDescendants()) do
-                    if string.find(v.Name:lower(), "chest") and v:FindFirstChild("TouchInterest") and v:IsA("BasePart") then
-                        if v.Position.Y < -10 then continue end -- Bỏ qua rương dưới map
-                        local d = (v.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
-                        if d < distance then
-                            distance = d
-                            closestChest = v
-                        end
-                    end
-                end
-                return closestChest
-            end
-
             -- Auto nhặt rương liên tục
             local function AutoChestCollect()
                 local timeout = 0
                 while getgenv().config.ChestFarm["Start Farm Chest"] do
                     local chest = GetChest()
                     if chest and chest:IsDescendantOf(workspace) then
-                        -- Di chuyển tới rương
                         Tween2(chest.CFrame)
 
                         -- Chạm rương
@@ -769,13 +811,13 @@ spawn(function()
                                 Duration = 4
                             })
                             _G.CollectedChests = 0
-                            Hop()
+                            StartCountdownAndHop(10)
                             break
                         end
                     else
                         timeout = timeout + 1
-                        if timeout >= 5 then
-                            Hop()
+                        if timeout >= 2 then
+                            StartCountdownAndHop(10)
                             break
                         end
                         wait(1)
