@@ -619,6 +619,7 @@ spawn(function()
 
             if hasGodsChalice or hasFistOfDarkness then
                 getgenv().config.ChestFarm["Start Farm Chest"] = false
+                getgenv().config.Setting["No Stuck Chair"] = false    
             end
         end
     end
