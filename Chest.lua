@@ -626,8 +626,8 @@ spawn(function()
 end)
 
 -- ========== Toạ độ vùng ==========
-local seaThirdSea = CFrame.new(-4998.4702, 314.7247, -3018.0932)  -- Third Sea (Castle)
-local seaSecondSea = CFrame.new(-411.2250, 73.3152, 371.2820)     -- Second Sea (Cafe)
+local seaThirdSea = CFrame.new(-4998.47021484375, 314.7247009277344, -3018.09326171875)  -- Third Sea (Castle)
+local seaSecondSea = CFrame.new(-411.2250061035156, 73.31524658203125, 371.2820129394531)     -- Second Sea (Cafe)
 
 -- ========== Tự phát hiện vùng ==========
 local function GetSeaCoordinates()
