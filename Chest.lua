@@ -675,32 +675,51 @@ end
 spawn(AutoJump)
 --------------------------Ui
 function StartCountdownAndHop(countdownTime)
-    -- Tạo UI cho thanh tiến trình
     local screenGui = Instance.new("ScreenGui")
     screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
+    local background = Instance.new("ImageLabel")
+    background.Parent = screenGui
+    background.Size = UDim2.new(1, 0, 1, 0)
+    background.Position = UDim2.new(0, 0, 0, 0)
+    background.Image = "rbxassetid://91347148253026" -- Thêm ID ảnh anime ở đây
+    background.ImageTransparency = 0.5 -- Mờ nền cho thanh tiến trình nổi bật hơn
+    background.BackgroundTransparency = 1
+
+    local logo = Instance.new("ImageLabel")
+    logo.Parent = screenGui
+    logo.Size = UDim2.new(0, 100, 0, 100)
+    logo.Position = UDim2.new(0.5, -50, 0.3, -50)
+    logo.Image = "rbxassetid://91347148253026" -- Thêm ID logo của bạn ở đây
+    logo.BackgroundTransparency = 1
+
+    -- Tạo TextLabel cho thông báo (Chữ đẹp hơn)
+    local countdownLabel = Instance.new("TextLabel")
+    countdownLabel.Parent = screenGui
+    countdownLabel.Size = UDim2.new(0, 300, 0, 50)
+    countdownLabel.Position = UDim2.new(0.5, -150, 0.4, -25)
+    countdownLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    countdownLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    countdownLabel.TextSize = 32
+    countdownLabel.Font = Enum.Font.GothamBold
+    countdownLabel.Text = tostring(countdownTime) .. "s"
+    countdownLabel.TextStrokeTransparency = 0.6
+    countdownLabel.TextStrokeColor3 = Color3.fromRGB(255, 255, 255)
+    countdownLabel.Visible = true
+
+    -- Tạo thanh tiến trình
     local progressBarBackground = Instance.new("Frame")
     progressBarBackground.Parent = screenGui
-    progressBarBackground.Size = UDim2.new(0, 200, 0, 25)
-    progressBarBackground.Position = UDim2.new(0.5, -100, 0.5, -25)
+    progressBarBackground.Size = UDim2.new(0, 400, 0, 30)
+    progressBarBackground.Position = UDim2.new(0.5, -200, 0.5, -30)
     progressBarBackground.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    progressBarBackground.BorderSizePixel = 0
 
     local progressBar = Instance.new("Frame")
     progressBar.Parent = progressBarBackground
-    progressBar.Size = UDim2.new(0, 0, 1, 0)  -- Đầu tiên là 0
-    progressBar.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+    progressBar.Size = UDim2.new(0, 0, 1, 0)
+    progressBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 
-    local countdownLabel = Instance.new("TextLabel")
-    countdownLabel.Parent = screenGui
-    countdownLabel.Size = UDim2.new(0, 200, 0, 50)
-    countdownLabel.Position = UDim2.new(0.5, -100, 0.4, -25)
-    countdownLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    countdownLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    countdownLabel.TextSize = 24
-    countdownLabel.Text = tostring(countdownTime) .. "s"
-    countdownLabel.Visible = false
-
-    countdownLabel.Visible = true
     -- Đếm ngược và cập nhật thanh tiến trình
     for i = countdownTime, 1, -1 do
         countdownLabel.Text = tostring(i) .. "s"
