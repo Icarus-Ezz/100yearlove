@@ -899,7 +899,8 @@ spawn(function()
                             Text = "Đã ở trong server 5 phút, chuyển server...",
                             Duration = 4
                         })
-                        StartCountdownAndHop(10) -- Chuyển server sau 5 phút
+                        StartCountdownAndHop(10)
+                        startTime = tick()    
                         break
                     end
                 end
