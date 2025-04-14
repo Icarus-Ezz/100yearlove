@@ -678,8 +678,8 @@ local function AutoChestCollect()
                 _G.CollectedChests = (_G.CollectedChests or 0) + 1  -- Tăng số lượng rương đã nhặt
             end)
         end
-    elseif tick() - (_G.LastChestCollectedTime or 0) > 60 then
-        Hop()  -- Chuyển sang server khác nếu không tìm thấy rương
+    elseif tick() - (_G.LastChestCollectedTime or 0) > 5 then
+        Hop()  -- Chuyển sang server khác nếu không tìm thấy rương trong 5 giây
     end
 end
 
@@ -826,5 +826,16 @@ spawn(function()
         end
 
         task.wait(60)
+    end
+end)
+
+-- Hàm kiểm tra nếu không tìm thấy rương trong 5 giây thì hop
+local lastChestTime = tick()
+spawn(function()
+    while true do
+        if tick() - lastChestTime > 5 then  -- Nếu không nhặt rương trong 5 giây
+            Hop()  -- Chuyển server
+        end
+        wait(1)
     end
 end)
