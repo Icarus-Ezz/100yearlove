@@ -698,7 +698,7 @@ spawn(function()
 
                         -- Chờ rương biến mất
                         local start = tick()
-                        repeat task.wait(0.1) until not chest:IsDescendantOf(workspace) or tick() - start > 5
+                        repeat task.wait(0.1) until not chest:IsDescendantOf(workspace) or tick() - start > 2
 
                         if not chest:IsDescendantOf(workspace) then
                             _G.LastChestCollectedTime = tick()
@@ -719,7 +719,7 @@ spawn(function()
                         end
                     else
                         timeout = timeout + 1
-                        if timeout >= 60 then
+                        if timeout >= 5 then
                             Hop()
                             break
                         end
