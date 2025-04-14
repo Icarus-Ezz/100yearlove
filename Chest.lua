@@ -675,14 +675,14 @@ end
 spawn(AutoJump)
 
 local lastPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
-local idleTime = 0 
+local idleTime = 0 -- thời gian đứng im
 
 local function CheckIdleTime()
     local currentPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
     if currentPosition == lastPosition then
         idleTime = idleTime + 1
     else
-        idleTime = 0
+        idleTime = 0 -- reset nếu di chuyển
     end
     lastPosition = currentPosition
 end
@@ -691,18 +691,19 @@ spawn(function()
     while true do
         CheckIdleTime()
 
-        if idleTime == 10 then
+        if idleTime >= 600 then  
             game:GetService("StarterGui"):SetCore("SendNotification", {
                 Title = "Idle Timeout",
-                Text = "Hop To Find New Sever",
+                Text = "Đã đứng im quá 10 phút, chuyển server...",
                 Duration = 4
             })
+            
             Hop()  
-            idleTime = 0  
+            idleTime = 0 
             break
         end
         
-        wait(1) 
+        wait(1) -- Kiểm tra mỗi giây
     end
 end)
 
