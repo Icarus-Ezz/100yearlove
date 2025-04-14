@@ -652,69 +652,67 @@ end
 
 spawn(AutoJump)
 
--- Hàm tìm rương gần nhất
-local function GetChest()
-    local distance = math.huge
-    local closestChest = nil
-    for _, v in pairs(workspace.Map:GetDescendants()) do
-        -- Kiểm tra nếu đối tượng là rương và có thuộc tính "TouchInterest"
-        if string.find(v.Name:lower(), "chest") and v:FindFirstChild("TouchInterest") then
-            local d = (v.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
-            if d < distance then
-                distance = d
-                closestChest = v
-            end
-        end
-    end
-    return closestChest
-end
-
--- Hàm nhặt rương
-local function AutoChestCollect()
-    local chest = GetChest()
-    if chest then
-        -- Kiểm tra xem rương có còn hợp lệ không
-        if chest.Parent and chest.Parent:FindFirstChild("TouchInterest") then
-            -- Di chuyển tới vị trí của rương
-            Tween2(chest.CFrame)
-            pcall(function()
-                _G.LastChestCollectedTime = tick()
-                _G.CollectedChests = (_G.CollectedChests or 0) + 1  -- Tăng số lượng rương đã nhặt
-                -- Gửi thông báo hoặc các hành động cần thiết khi nhặt được rương
-            end)
-        end
-    elseif tick() - (_G.LastChestCollectedTime or 0) > 5 then
-        Hop()  -- Nếu không tìm thấy rương trong 5 giây, nhảy server khác
-    end
-end
-
--- Hàm điều khiển nhặt rương
 spawn(function()
     while true do
-        -- Kiểm tra nếu Auto Chest đã bật
         if getgenv().config.ChestFarm["Start Farm Chest"] then
-            -- Gửi thông báo bắt đầu farm
             game:GetService("StarterGui"):SetCore("SendNotification", {
                 Title = "Auto Chest",
-                Text = "Ez Farm Chest",
-                Duration = 5
+                Text = "Đang tìm rương...",
+                Duration = 3
             })
 
             _G.AutoCollectChest = true
             _G.IsChestFarming = true
 
-            -- Bắt đầu farm
+            local function GetChest()
+                local distance = math.huge
+                local closestChest
+                for _, v in pairs(workspace.Map:GetDescendants()) do
+                    if string.find(v.Name:lower(), "chest") and v:FindFirstChild("TouchInterest") and v:IsA("BasePart") then
+                        local d = (v.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+                        if d < distance then
+                            distance = d
+                            closestChest = v
+                        end
+                    end
+                end
+                return closestChest
+            end
+
+            local function AutoChestCollect()
+                local chest = GetChest()
+                if chest and chest.Parent and chest:IsDescendantOf(workspace) then
+                    -- Di chuyển tới rương
+                    Tween2(chest.CFrame + Vector3.new(0, 2, 0))  -- bay lên cao 1 chút tránh kẹt
+
+                    -- Chờ rương biến mất
+                    local start = tick()
+                    repeat
+                        task.wait(0.2)
+                    until not chest:IsDescendantOf(workspace) or tick() - start > 5
+
+                    -- Ghi lại thời gian nhặt thành công
+                    if not chest:IsDescendantOf(workspace) then
+                        _G.LastChestCollectedTime = tick()
+                        _G.CollectedChests = (_G.CollectedChests or 0) + 1
+                        print("[ChestFarm] Nhặt thành công rương #" .. tostring(_G.CollectedChests))
+                    end
+                elseif tick() - (_G.LastChestCollectedTime or 0) > 60 then
+                    Hop()
+                end
+            end
+
             AutoChestCollect()
 
-            -- Kiểm tra số lượng rương đã nhặt, nếu >= 60 thì hop server
-            if _G.CollectedChests and _G.CollectedChests >= 60 then
+            -- Nếu đã nhặt >= 60 rương thì hop server
+            if (_G.CollectedChests or 0) >= 60 then
                 game:GetService("StarterGui"):SetCore("SendNotification", {
                     Title = "Auto Chest",
-                    Text = "Đã nhặt 60 rương, chuyển server",
-                    Duration = 5
+                    Text = "Đủ 60 rương! Chuyển server mới...",
+                    Duration = 4
                 })
-                Hop()  -- Chuyển sang server khác sau khi nhặt đủ 60 rương
-                _G.CollectedChests = 0  -- Reset lại số lượng rương đã nhặt
+                _G.CollectedChests = 0
+                Hop()
             end
         end
         wait(1)
@@ -832,16 +830,5 @@ spawn(function()
         end
 
         task.wait(60)
-    end
-end)
-
--- Hàm kiểm tra nếu không tìm thấy rương trong 5 giây thì hop
-local lastChestTime = tick()
-spawn(function()
-    while true do
-        if tick() - lastChestTime > 5 then  -- Nếu không nhặt rương trong 5 giây
-            Hop()  -- Chuyển server
-        end
-        wait(1)
     end
 end)
