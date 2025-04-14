@@ -609,15 +609,15 @@ end
 
 InitializeScript()
 
-local seaThirdSea = CFrame.new(-4998.47021484375, 314.7247009277344, -3018.09326171875)  -- Third Sea (Castle)
+local seaThirdSea = CFrame.new(-5056.14794921875, 314.68048095703125, -2985.12255859375)  -- Third Sea (Castle)
 local seaSecondSea = CFrame.new(-411.2250061035156, 73.31524658203125, 371.2820129394531)     -- Second Sea (Cafe)
 
 -- ========== Tự phát hiện vùng ==========
 local function GetSeaCoordinates()
     if game.PlaceId == 4442272183 then  
-        return seaThirdSea
-    elseif game.PlaceId == 7449423635 then  
         return seaSecondSea
+    elseif game.PlaceId == 7449423635 then  
+        return seaThirdSea
     else
         return nil
     end
@@ -652,7 +652,7 @@ function AutoJump()
                 humanoid.Jump = true
             end
         end)
-        wait(1)
+        wait(2)
     end
 end
 spawn(AutoJump)
@@ -712,7 +712,7 @@ spawn(function()
                             timeout = 0
                         end
 
-                        -- Nếu đã nhặt 25 rương → hop
+                        -- Nếu đã nhặt 30 rương → hop
                         if (_G.CollectedChests or 0) >= 30 then
                             game:GetService("StarterGui"):SetCore("SendNotification", {
                                 Title = "Vxeze Hub Auto Chest",
@@ -740,7 +740,7 @@ spawn(function()
     end
 end)
 
--- ========== HOP Server ==========
+--HOP Server
 function Hop()
     local PlaceID = game.PlaceId
     local AllIDs = {}
@@ -799,7 +799,7 @@ function Hop()
     Teleport()
 end
 
--- ========== Webhook + di chuyển về tọa độ ==========
+--Post Webhook
 spawn(function()
     while true do
         local hasGodsChalice = false
