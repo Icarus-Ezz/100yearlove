@@ -867,37 +867,36 @@ spawn(function()
                     if chest and chest:IsDescendantOf(workspace) then
                         Tween2(chest.CFrame)
 
-                        -- Chạm rương
                         pcall(function()
                             firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, chest, 0)
                             firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, chest, 1)
                         end)
 
-                        -- Chờ rương biến mất
                         local start = tick()
-                        repeat task.wait(0.1) until not chest:IsDescendantOf(workspace) or tick() - start > 2
+                        repeat task.wait(0.1) until not chest:IsDescendantOf(workspace) or tick() - start > 1
 
+                        -- Nếu rương biến mất, tăng số lượng rương đã nhặt
                         if not chest:IsDescendantOf(workspace) then
                             _G.LastChestCollectedTime = tick()
                             _G.CollectedChests = (_G.CollectedChests or 0) + 1
                             timeout = 0
                         end
 
-                        -- Nếu đã nhặt 30 rương → hop
+                        -- Nếu đã nhặt đủ 30 rương → hop
                         if (_G.CollectedChests or 0) == 30 then
                             game:GetService("StarterGui"):SetCore("SendNotification", {
                                 Title = "Vxeze Hub Auto Chest",
-                                Text = "Find New Server",
+                                Text = "Đã nhặt đủ 30 rương, chuyển server...",
                                 Duration = 4
                             })
                             _G.CollectedChests = 0
-                            StartCountdownAndHop(10)
+                            StartCountdownAndHop(10) 
                             break
                         end
                     else
                         timeout = timeout + 1
                         if timeout >= 2 then
-                            StartCountdownAndHop(10)
+                            StartCountdownAndHop(10) 
                             break
                         end
                         wait(1)
