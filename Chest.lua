@@ -674,7 +674,38 @@ function AutoJump()
 end
 spawn(AutoJump)
 
--- ========== Auto Farm Chest ==========
+local lastPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
+local idleTime = 0 
+
+local function CheckIdleTime()
+    local currentPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
+    if currentPosition == lastPosition then
+        idleTime = idleTime + 1
+    else
+        idleTime = 0
+    end
+    lastPosition = currentPosition
+end
+
+spawn(function()
+    while true do
+        CheckIdleTime()
+
+        if idleTime >= 10 then
+            game:GetService("StarterGui"):SetCore("SendNotification", {
+                Title = "Idle Timeout",
+                Text = "Hop To Find New Sever",
+                Duration = 4
+            })
+            Hop()  
+            idleTime = 0  
+            break
+        end
+        
+        wait(1) 
+    end
+end)
+
 spawn(function()
     while true do
         if getgenv().config.ChestFarm["Start Farm Chest"] then
