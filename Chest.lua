@@ -738,53 +738,57 @@ spawn(AutoJump)
 function StartCountdownAndHop(countdownTime)
     local screenGui = Instance.new("ScreenGui")
     screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+    screenGui.ResetOnSpawn = false
 
+    -- Background phủ toàn bộ màn hình
     local background = Instance.new("ImageLabel")
     background.Parent = screenGui
     background.Size = UDim2.new(1, 0, 1, 0)
     background.Position = UDim2.new(0, 0, 0, 0)
-    background.Image = "rbxassetid://91347148253026" -- Thêm ID ảnh anime ở đây
-    background.ImageTransparency = 0.5 -- Mờ nền cho thanh tiến trình nổi bật hơn
+    background.Image = "rbxassetid://91347148253026" 
+    background.ImageTransparency = 0.5
     background.BackgroundTransparency = 1
+    background.ZIndex = 0 -- layer thấp nhất
 
     local logo = Instance.new("ImageLabel")
     logo.Parent = screenGui
     logo.Size = UDim2.new(0, 100, 0, 100)
     logo.Position = UDim2.new(0.5, -50, 0.3, -50)
-    logo.Image = "rbxassetid://91347148253026" -- Thêm ID logo của bạn ở đây
+    logo.Image = "rbxassetid://91347148253026"
     logo.BackgroundTransparency = 1
+    logo.ZIndex = 2
 
-    -- Tạo TextLabel cho thông báo (Chữ đẹp hơn)
+    local progressBarBackground = Instance.new("Frame")
+    progressBarBackground.Parent = screenGui
+    progressBarBackground.Size = UDim2.new(0, 400, 0, 30)
+    progressBarBackground.Position = UDim2.new(0.5, -200, 0.5, -15)
+    progressBarBackground.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    progressBarBackground.BorderSizePixel = 0
+    progressBarBackground.ZIndex = 1
+
+    local progressBar = Instance.new("Frame")
+    progressBar.Parent = progressBarBackground
+    progressBar.Size = UDim2.new(0, 0, 1, 0)
+    progressBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    progressBar.ZIndex = 2
+
+    -- Text countdown hiển thị phía trên thanh tiến trình
     local countdownLabel = Instance.new("TextLabel")
     countdownLabel.Parent = screenGui
     countdownLabel.Size = UDim2.new(0, 300, 0, 50)
-    countdownLabel.Position = UDim2.new(0.5, -150, 0.4, -25)
-    countdownLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    countdownLabel.Position = UDim2.new(0.5, -150, 0.5, -65)
+    countdownLabel.BackgroundTransparency = 1
     countdownLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     countdownLabel.TextSize = 32
     countdownLabel.Font = Enum.Font.GothamBold
     countdownLabel.Text = tostring(countdownTime) .. "s"
     countdownLabel.TextStrokeTransparency = 0.6
     countdownLabel.TextStrokeColor3 = Color3.fromRGB(255, 255, 255)
-    countdownLabel.Visible = true
+    countdownLabel.ZIndex = 3 
 
-    -- Tạo thanh tiến trình
-    local progressBarBackground = Instance.new("Frame")
-    progressBarBackground.Parent = screenGui
-    progressBarBackground.Size = UDim2.new(0, 400, 0, 30)
-    progressBarBackground.Position = UDim2.new(0.5, -200, 0.5, -30)
-    progressBarBackground.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    progressBarBackground.BorderSizePixel = 0
-
-    local progressBar = Instance.new("Frame")
-    progressBar.Parent = progressBarBackground
-    progressBar.Size = UDim2.new(0, 0, 1, 0)
-    progressBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-
-    -- Đếm ngược và cập nhật thanh tiến trình
     for i = countdownTime, 1, -1 do
         countdownLabel.Text = tostring(i) .. "s"
-        progressBar.Size = UDim2.new(i / countdownTime, 0, 1, 0)  -- Cập nhật thanh tiến trình
+        progressBar.Size = UDim2.new(i / countdownTime, 0, 1, 0)
         wait(1)
     end
 
@@ -794,7 +798,7 @@ function StartCountdownAndHop(countdownTime)
         Text = "Vxeze Hopping",
         Duration = 4
     })
-    wait(2)  
+    wait(2)
     Hop()
 end
 ----------------------------------------------------------------------------------------------------
