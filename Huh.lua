@@ -16,7 +16,7 @@ local notificationCooldown = 10
 local currentTime = tick()
 if currentTime - lastNotificationTime >= notificationCooldown then
     game.StarterGui:SetCore("SendNotification", {
-        Title = "Teddy Hub",
+        Title = "Hiru Hub",
         Text = "Loading",
         Duration = 5
     })
@@ -864,7 +864,7 @@ function fastpos(Pos)
     local currentTime = tick()
     if currentTime - lastTweenTime >= tweenCooldown then
         local Distance = (Pos.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
-        local Speed = 400       
+        local Speed = 1000        
         local tween = game:GetService("TweenService"):Create(
             game:GetService("Players").LocalPlayer.Character.HumanoidRootPart,
             TweenInfo.new(Distance / Speed, Enum.EasingStyle.Linear),
@@ -1330,12 +1330,12 @@ end
 print("--[[Loaded UI]]--")
 Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/LuaCrack/Library/refs/heads/main/LibraryFluent.lua"))()
 Window = Fluent:CreateWindow({
-    Title = "Teddy Hub-Blox Fruit",
-    SubTitle = "By Vhaidz ",
+    Title = "NTB Hub",
+    SubTitle = "by nguyenthebao",
     TabWidth = 155,
     Size = UDim2.fromOffset(555, 320),
     Acrylic = false, 
-    Theme = "Dark",
+    Theme = "Luffy",
     MinimizeKey = Enum.KeyCode.LeftControl 
 })
 Shop = Window:AddTab({ Title = "Tab Shop", Icon = "" })
@@ -2260,6 +2260,50 @@ LGa:AddButton({
         end
     end
 })
+
+-- Settings
+local attractDistance = 5 -- khoảng cách từ nhân vật đến vị trí mob bị kéo
+
+-- Toggle
+Toggle = LGa:AddToggle("Toggle", {Title = "Bring Mob", Default = true})
+Toggle:OnChanged(function(Value)
+    getgenv().BringMonster = Value
+end)
+
+-- Player
+local player = game.Players.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+local hrp = char:WaitForChild("HumanoidRootPart")
+
+-- Hàm kéo mob
+local function bringMobs()
+    if not getgenv().BringMonster then return end
+    for _, v in pairs(workspace.Enemies:GetChildren()) do
+        if v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
+            v.HumanoidRootPart.CFrame = hrp.CFrame * CFrame.new(0, 0, -attractDistance)
+            v.HumanoidRootPart.CanCollide = false
+            v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
+            if v:FindFirstChild("Head") then
+                v.Head.CanCollide = false
+            end
+            local animator = v.Humanoid:FindFirstChild("Animator")
+            if animator then
+                pcall(function()
+                    animator:Destroy()
+                end)
+            end
+            sethiddenproperty(player, "SimulationRadius", math.huge)
+        end
+    end
+end
+
+-- Vòng lặp liên tục kéo mob
+task.spawn(function()
+    while task.wait(0.5) do
+        pcall(bringMobs)
+    end
+end)
+
 if World1 then
     Dropdown = LGa:AddDropdown("Dropdown", {
         Title = "Select Island",
@@ -2580,45 +2624,68 @@ Toggle:OnChanged(function(Value)
         FastAttackTask = nil
     end
 end)
-
-local attractDistance = 5 -- khoảng cách từ nhân vật đến vị trí mob bị kéo
-
 Toggle = Settings:AddToggle("Toggle", {Title = "Bring Mob", Default = true})
 Toggle:OnChanged(function(Value)
     getgenv().BringMonster = Value
 end)
-
-local player = game.Players.LocalPlayer
-local char = player.Character or player.CharacterAdded:Wait()
-local hrp = char:WaitForChild("HumanoidRootPart")
-
-local function bringMobs()
-    if not getgenv().BringMonster then return end
-    for _, v in pairs(workspace.Enemies:GetChildren()) do
-        if v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
-            v.HumanoidRootPart.CFrame = hrp.CFrame * CFrame.new(0, 0, -attractDistance)
-            v.HumanoidRootPart.CanCollide = false
-            v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
-            if v:FindFirstChild("Head") then
-                v.Head.CanCollide = false
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local LocalPlayer = Players.LocalPlayer
+spawn(function()
+    while task.wait(0.1) do
+        pcall(function()
+            CheckQuest()
+            local enemies = Workspace.Enemies:GetChildren()
+            local MonsterCount = 0
+            for _, enemy in ipairs(enemies) do
+                if MonsterCount >= 2 then
+                    break
+                end                
+                if getgenv().BringMonster and enemy:FindFirstChild("Humanoid") and enemy:FindFirstChild("HumanoidRootPart") then
+                    local humanoid = enemy:FindFirstChild("Humanoid")
+                    local rootPart = enemy:FindFirstChild("HumanoidRootPart")
+                    if humanoid and rootPart and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                        local distance = (rootPart.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+                        if getgenv().StartMagnet and (enemy.Name == MonFarm or enemy.Name == Mon) and humanoid.Health > 0 and distance <= 350 then
+                            if enemy.Name == "Factory Staff" and PosMon and (rootPart.Position - PosMon.Position).Magnitude <= 5000 then
+                                if rootPart.Parent then
+                                    rootPart.CanCollide = false
+                                    rootPart.Size = Vector3.new(60, 60, 60)
+                                    rootPart.CFrame = PosMon
+                                    enemy.Head.CanCollide = false
+                                    local animator = humanoid:FindFirstChild("Animator")
+                                    if animator then
+                                        pcall(function()
+                                            animator:Destroy()
+                                        end)
+                                    end
+                                    sethiddenproperty(LocalPlayer, "SimulationRadius", math.huge)
+                                    MonsterCount = MonsterCount + 1
+                                end
+                            elseif (enemy.Name == MonFarm or enemy.Name == Mon) and PosMon and (rootPart.Position - PosMon.Position).Magnitude <= 4500 then
+                                if rootPart.Parent then
+                                    rootPart.CanCollide = false
+                                    rootPart.Size = Vector3.new(60, 60, 60)
+                                    rootPart.CFrame = PosMon
+                                    enemy.Head.CanCollide = false
+                                    local animator = humanoid:FindFirstChild("Animator")
+                                    if animator then
+                                        pcall(function()
+                                            animator:Destroy()
+                                        end)
+                                    end
+                                    sethiddenproperty(LocalPlayer, "SimulationRadius", math.huge)
+                                    MonsterCount = MonsterCount + 1
+                                end
+                            end
+                        end
+                    end
+                end
             end
-            local animator = v.Humanoid:FindFirstChild("Animator")
-            if animator then
-                pcall(function()
-                    animator:Destroy()
-                end)
-            end
-            sethiddenproperty(player, "SimulationRadius", math.huge)
-        end
-    end
-end
-
-task.spawn(function()
-    while task.wait(0.5) do
-        pcall(bringMobs)
+        end)
     end
 end)
-
 Toggle = Settings:AddToggle("Toggle", {Title = "Spin Position", Description = "Spin Position When Farm", Default = true })
 Toggle:OnChanged(function(Value)
     getgenv().SpinPos = Value
@@ -7388,7 +7455,7 @@ task.spawn(function()
                             EquipWeapon("Tushita")
                         elseif not hasNotified then
                             game.StarterGui:SetCore("SendNotification", {
-                                Title = "Teddy Hub",
+                                Title = "Hiru Hub",
                                 Text = "Use! - Yama or Tushita",
                                 con = "rbxassetid://11995210995",
                                 Duration = 10,
@@ -8029,7 +8096,7 @@ Button.Parent = ScreenGui
 Button.Size = UDim2.new(0, 50, 0, 50)
 Button.Position = UDim2.new(0.015, 0, 0.02, 20)
 Button.BackgroundTransparency = 1
-Button.Image = "rbxassetid://127057715088982"
+Button.Image = "rbxassetid://100310827714719"
 local UICorner = Instance.new("UICorner")
 UICorner.CornerRadius = UDim.new(1, 0)
 UICorner.Parent = Button
@@ -8088,9 +8155,300 @@ local notificationCooldown = 10
 local currentTime = tick()
 if currentTime - lastNotificationTime >= notificationCooldown then
     game.StarterGui:SetCore("SendNotification", {
-        Title = "Teddy Hub",
+        Title = "Hiru Hub",
         Text = "Successfully",
         Duration = 1
     })
     lastNotificationTime = currentTime
 end
+
+local DojoQ = Tabs.Vocanic:AddToggle("DojoQ", {Title = "Auto Quest Dojo Trainer", Default = false })
+DojoQ:OnChanged(function(Value)
+    getgenv().DojoClaimQuest = Value
+	end)
+Options.DojoQ:SetValue(false)
+
+local DojoQuestNpc = CFrame.new(5855.19629, 1208.32178, 872.713501, 0.606994748, -1.81058823e-09, -0.794705868, 5.72712722e-09, 1, 2.09605577e-09, 0.794705868, -5.82367621e-09, 0.606994748)
+spawn(function()
+    while wait(0.2) do
+        if getgenv().DojoClaimQuest and Third_Sea then
+            pcall(function()
+                if BypassTP then
+                    BTP(DojoQuestNpc)
+                else
+                    Tween(DojoQuestNpc)
+                end
+                local distance = (DojoQuestNpc.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+                if distance <= 5 then
+                    local claimQuestTable = {
+                        ["NPC"] = "Dojo Trainer",
+                        ["Command"] = "ClaimQuest"
+                    }
+                    game:GetService("ReplicatedStorage").Modules.Net["RF/InteractDragonQuest"]:InvokeServer(claimQuestTable)
+                    wait(1)
+                    local requestQuestTable = {
+                        ["NPC"] = "Dojo Trainer",
+                        ["Command"] = "RequestQuest"
+                    }
+                    game:GetService("ReplicatedStorage").Modules.Net["RF/InteractDragonQuest"]:InvokeServer(requestQuestTable)
+                end
+            end)
+        end
+    end
+end)
+
+local UpdTalon = Tabs.Vocanic:AddToggle("UpdTalon", {Title = "Auto Upgrade Dragon Talon", Default = false })
+UpdTalon:OnChanged(function(Value)
+    getgenv().DragonTalonUpgrade = Value
+	end)	
+Options.UpdTalon:SetValue(false)
+
+spawn(function()
+    while wait(0.2) do
+        if getgenv().DragonTalonUpgrade and Third_Sea then
+            local UzothNPC = CFrame.new(5661.89014, 1211.31909, 864.836731, 0.811413169, -1.36805838e-08, -0.584473014, 4.75227395e-08, 1, 4.25682458e-08, 0.584473014, -6.23161966e-08, 0.811413169)
+            local distance = (UzothNPC.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+            if distance > 5 then
+                Tween2(UzothNPC)
+            else
+                local ohTable1 = {
+                    ["NPC"] = "Uzoth",
+                    ["Command"] = "Upgrade"
+                }                
+                game:GetService("ReplicatedStorage").Modules.Net["RF/InteractDragonQuest"]:InvokeServer(ohTable1)
+            end
+        end
+    end
+end)
+
+local Toggle = Tabs.Vocanic:AddToggle("Toggle", {Title = "Auto Attack Hydra Mob And Collect Ember", Default = false })
+Toggle:OnChanged(function(Value)
+    getgenv().BlazeEmberFarm = Value	
+	end)
+Options.Toggle:SetValue(false)
+
+spawn(function()
+    while wait(0.2) do
+        if getgenv().BlazeEmberFarm and Third_Sea then
+            pcall(function()
+                local workspaceEnemies = game:GetService('Workspace').Enemies
+                local playerRoot = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                local ghost = workspaceEnemies:FindFirstChild('Ghost')
+                local hydraEnforcer = workspaceEnemies:FindFirstChild('Hydra Enforcer')
+                local venomousAssailant = workspaceEnemies:FindFirstChild('Venomous Assailant')
+                if ghost or hydraEnforcer or venomousAssailant then
+                    for _, v in pairs(workspaceEnemies:GetChildren()) do
+                        if v.Name == 'Hydra Enforcer' or v.Name == 'Venomous Assailant' then
+                            if v:FindFirstChild('Humanoid') and v:FindFirstChild('HumanoidRootPart') and v.Humanoid.Health > 0 then
+                                repeat 
+                                    game:GetService("RunService").Heartbeat:wait()
+                                    AutoHaki()
+                                    EquipWeapon(getgenv().SelectWeapon)
+                                    Tween(v.HumanoidRootPart.CFrame * Pos)
+                                    if v.HumanoidRootPart.CanCollide then
+                                        v.HumanoidRootPart.CanCollide = false
+                                    end
+                                    if v.HumanoidRootPart.Size ~= Vector3.new(60, 60, 60) then
+                                        v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
+                                    end
+                                    if v.HumanoidRootPart.Transparency ~= 1 then
+                                        v.HumanoidRootPart.Transparency = 1
+                                    end
+                                    MonFarm = v.Name
+                                    PosMon = v.HumanoidRootPart.CFrame
+                                until not getgenv().BlazeEmberFarm or v.Humanoid.Health <= 0
+                            end
+                        end
+                    end
+                else
+                    Tween(CFrame.new(5394.36475, 1082.71057, 561.993958, -0.62453711, 3.17826405e-08, -0.780995131, 6.77530991e-08, 1, -1.34849545e-08, 0.780995131, -6.13366922e-08, -0.62453711))
+                end
+            end)
+        end
+    end
+end)
+----------------
+Tabs.S:AddParagraph({
+    Title = "Setting Sea Event",
+    Content = string.rep("-", 21)
+})
+Tabs.S:AddParagraph({
+    Title = "Activating Skill Event,\nAnd Skill Leviathan Flawless Fusion",
+})
+local UseFruit1 = Tabs.S:AddToggle("Toggle", {
+    Title = "Select Use Fruit",
+    Default = true
+})
+UseFruit1:OnChanged(function(value)
+    getgenv().UseSeaFruitSkill = value
+end)
+local UseMelee1 = Tabs.S:AddToggle("UseMelee1", {
+    Title = "Select Use Melee",
+    Default = true
+})
+UseMelee1:OnChanged(function(value)
+    getgenv().UseSeaMeleeSkill = value
+end)
+local UseSword1 = Tabs.S:AddToggle("UseSword1", {
+    Title = "Select Use Sword",
+    Default = true
+})
+UseSword1:OnChanged(function(value)
+    getgenv().UseSeaSwordSkill = value
+end)
+local UseGun1 = Tabs.S:AddToggle("UseGun1", {
+    Title = "Select Use Gun",
+    Default = true
+})
+UseGun1:OnChanged(function(value)
+    getgenv().UseSeaGunSkill = value
+end)
+Tabs.S:AddParagraph({
+    Title = "Activate Weapon Farm Event,\nClick to Activate",
+})
+Tabs.S:AddParagraph({
+    Title = "Setting Skill Fruit",
+    Content = string.rep("-", 21)
+})
+local UseSkillFruit = Tabs.S:AddToggle("UseSkillFruit", {
+    Title = "Skill Fruit Z",
+    Default = true
+})
+UseSkillFruit:OnChanged(function(value)
+    getgenv().SkillFruitZ = value
+end)
+local UseSkillFruit1 = Tabs.S:AddToggle("UseSkillFruit1", {
+    Title = "Skill Fruit X",
+    Default = true
+})
+UseSkillFruit1:OnChanged(function(value)
+    getgenv().SkillFruitX = value
+end)
+local UseSkillFruit2 = Tabs.S:AddToggle("UseSkillFruit2", {
+    Title = "Skill Fruit C",
+    Default = true
+})
+UseSkillFruit2:OnChanged(function(value)
+    getgenv().SkillFruitC = value
+end)
+local UseSkillFruit3 = Tabs.S:AddToggle("UseSkillFruit3", {
+    Title = "Skill Fruit V",
+    Default = false
+})
+UseSkillFruit3:OnChanged(function(value)
+    getgenv().SkillFruitV = value
+end)
+local UseSkillFruit4 = Tabs.S:AddToggle("UseSkillFruit4", {
+    Title = "Skill Fruit F",
+    Default = false
+})
+UseSkillFruit4:OnChanged(function(value)
+    getgenv().SkillFruitF = value
+end)
+Tabs.S:AddParagraph({
+    Title = "Use To Enable Skill Fruit,\nPlease Select Correct",
+})
+Tabs.S:AddParagraph({
+    Title = "Setting Skill Melee",
+    Content = string.rep("-", 21)
+})
+local UseSkillMelee = Tabs.S:AddToggle("UseSkillMelee", {
+    Title = "Skill Melee Z",
+    Default = true
+})
+UseSkillMelee:OnChanged(function(value)
+    getgenv().SkillMeleeZ = value
+end)
+local UseSkillMelee1 = Tabs.S:AddToggle("UseSkillMelee1", {
+    Title = "Skill Melee X",
+    Default = true
+})
+UseSkillMelee1:OnChanged(function(value)
+    getgenv().SkillMeleeX = value
+end)
+local UseSkillMelee2 = Tabs.S:AddToggle("UseSkillMelee2", {
+    Title = "Skill Melee C",
+    Default = true
+})
+UseSkillMelee2:OnChanged(function(value)
+    getgenv().SkillMeleeC = value
+end)
+Tabs.S:AddParagraph({
+    Title = "Use To Enable Skill Melee,\nPlease Select Correct",
+})
+Tabs.S:AddParagraph({
+    Title = "Setting Skill Sword And Gun",
+    Content = string.rep("-", 21)
+})
+local UseSkillSword = Tabs.S:AddToggle("UseSkillSword", {
+    Title = "Sword And Gun Skill Z",
+    Default = true
+})
+UseSkillSword:OnChanged(function(value)
+    getgenv().SkillSwordZ = value
+    getgenv().SkillGunZ = value
+end) 
+local UseSkillSword1 = Tabs.S:AddToggle("UseSkillSword1", {
+    Title = "Sword And Gun Skill X",
+    Default = true
+})
+UseSkillSword1:OnChanged(function(value)
+    getgenv().SkillSwordX = value
+    getgenv().SkillGunX = value
+end)
+Tabs.S:AddParagraph({
+    Title = "Use To Enable Skill Sword and Gun,\nPlease Select Correct",
+})
+local gg = getrawmetatable(game)
+local old = gg.__namecall
+setreadonly(gg, false)
+gg.__namecall = newcclosure(function(...)
+    local method = getnamecallmethod()
+    local args = {...}    
+    if tostring(method) == "FireServer" then
+        if tostring(args[1]) == "RemoteEvent" then
+            if tostring(args[2]) ~= "true" and tostring(args[2]) ~= "false" then
+                if Skillaimbot then
+                    args[2] = AimBotSkillPosition
+                    return old(unpack(args))
+                end
+            end
+        end
+    end
+    return old(...)
+end)
+local function useSkill(skillKey, holdTime)
+    game:service('VirtualInputManager'):SendKeyEvent(true, skillKey, false, game)
+    wait(holdTime or 0.1)
+    game:service('VirtualInputManager'):SendKeyEvent(false, skillKey, false, game)
+end
+spawn(function()
+    while task.wait(0.5) do
+        pcall(function()
+            if UseSkill then
+                for _, v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+                    if v.Name == MonFarm and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") 
+                    and v.Humanoid.Health <= v.Humanoid.MaxHealth * getgenv().Kill_At / 100 then                        
+                        if getgenv().SkillZ then useSkill("Z", getgenv().HoldSKillZ) end
+                        if getgenv().SkillX then useSkill("X", getgenv().HoldSKillX) end
+                        if getgenv().SkillC then useSkill("C", getgenv().HoldSKillC) end
+                    end
+                end
+            end
+        end)
+    end
+end)
+spawn(function()
+    while task.wait(0.5) do
+        pcall(function()
+            if UseGunSkill then
+                for _, v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+                    if v.Name == MonFarm and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") 
+                    and v.Humanoid.Health <= v.Humanoid.MaxHealth * getgenv().Kill_At / 100 then                        
+                        if getgenv().SkillZ then useSkill("Z", 0.1) end
+                    end
+                end
+            end
+        end)
+    end
+end)
