@@ -324,7 +324,18 @@ local function Tween2(targetCFrame)
         end)
 
         tween:Play()
-        task.wait(travelTime + 0.1)
+
+        -- Theo dõi thời gian để có thể dừng nếu điều kiện thay đổi
+        local start = tick()
+        while tick() - start < travelTime do
+            if getgenv().StopTweenNow then
+                tween:Cancel()
+                _G.CurrentTween = nil
+                return
+            end
+            task.wait(0.1)
+        end
+
         _G.CurrentTween = nil
     end)
 end
@@ -703,18 +714,21 @@ spawn(function()
             local hasFistOfDarkness = game.Players.LocalPlayer.Backpack:FindFirstChild("Fist of Darkness") or game.Players.LocalPlayer.Character:FindFirstChild("Fist of Darkness")
 
             if hasGodsChalice or hasFistOfDarkness then
-                getgenv().config.ChestFarm["Start Farm Chest"] = false
-                getgenv().config.Setting["No Stuck Chair"] = false
-
                 local seaCoordinates = GetSeaCoordinates()
                 if seaCoordinates then
                     Tween2(seaCoordinates)
-                    StopTween()    
+                    wait(1.5)
                 end
+                    
+                getgenv().config.ChestFarm["Start Farm Chest"] = false
+                getgenv().config.Setting["No Stuck Chair"] = false
+
+                break
             end
         end
     end
 end)
+
 
 -- ========== Auto Jump nếu kẹt ghế ==========
 function AutoJump()
