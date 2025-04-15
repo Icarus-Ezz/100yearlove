@@ -1328,7 +1328,7 @@ function AttackNoCoolDown()
     end
 end
 print("--[[Loaded UI]]--")
-Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/LuaCrack/Library/refs/heads/main/LibraryFluent.lua"))()
+Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
 Window = Fluent:CreateWindow({
     Title = "NTB Hub",
     SubTitle = "by nguyenthebao",
