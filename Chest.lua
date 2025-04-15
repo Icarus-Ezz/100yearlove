@@ -733,6 +733,7 @@ function AutoJump()
         wait(2)
     end
 end
+
 spawn(AutoJump)
 --------------------------Ui
 function StartCountdownAndHop(countdownTime)
