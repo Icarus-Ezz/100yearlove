@@ -294,7 +294,6 @@ spawn(function()
 end)
 
 local function Tween2(targetCFrame)
-
     pcall(function()
         local character = game.Players.LocalPlayer.Character
         if not character then return end
@@ -303,7 +302,7 @@ local function Tween2(targetCFrame)
         if not hrp then return end
 
         local distance = (targetCFrame.Position - hrp.Position).Magnitude
-        local speed = 350 
+        local speed = 350
         local travelTime = distance / speed
 
         local tweenInfo = TweenInfo.new(
@@ -315,11 +314,8 @@ local function Tween2(targetCFrame)
             0
         )
 
-        local tween = game:GetService("TweenService"):Create(
-            hrp,
-            tweenInfo,
-            {CFrame = targetCFrame}
-        )
+        local tween = game:GetService("TweenService"):Create(hrp, tweenInfo, {CFrame = targetCFrame})
+        _G.CurrentTween = tween
 
         local connection
         connection = tween.Completed:Connect(function()
@@ -328,8 +324,8 @@ local function Tween2(targetCFrame)
         end)
 
         tween:Play()
-
         task.wait(travelTime + 0.1)
+        _G.CurrentTween = nil
     end)
 end
 
@@ -899,6 +895,11 @@ spawn(function()
                     end
 
                     if tick() - startTime >= 300 then
+                        if _G.CurrentTween then
+                            _G.CurrentTween:Cancel()
+                            _G.CurrentTween = nil
+                        end    
+                            
                         game:GetService("StarterGui"):SetCore("SendNotification", {
                             Title = "Vxeze Hub Auto Chest",
                             Text = "Đã ở trong server 5 phút, chuyển server...",
