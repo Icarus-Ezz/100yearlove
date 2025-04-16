@@ -750,21 +750,23 @@ spawn(AutoJump)
 function StartCountdownAndHop(countdownTime)
     local stopHopping = false
 
+    local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
     local screenGui = Instance.new("ScreenGui")
-    screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+    screenGui.Parent = playerGui
     screenGui.ResetOnSpawn = false
     screenGui.Name = "VxezeHopUI"
+    screenGui.IgnoreGuiInset = true
 
-    -- Background phủ toàn bộ màn hình, xám nhẹ
+    -- Nền phủ toàn màn hình, xám đậm hơn
     local background = Instance.new("Frame")
     background.Parent = screenGui
     background.Size = UDim2.new(1, 0, 1, 0)
     background.Position = UDim2.new(0, 0, 0, 0)
-    background.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    background.BackgroundTransparency = 0.3
+    background.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    background.BackgroundTransparency = 0.1
     background.ZIndex = 0
 
-    -- Logo (nếu muốn thêm hình ảnh)
+    -- Logo (nếu cần hiển thị hình)
     local logo = Instance.new("ImageLabel")
     logo.Parent = screenGui
     logo.Size = UDim2.new(0, 100, 0, 100)
@@ -782,13 +784,7 @@ function StartCountdownAndHop(countdownTime)
     progressBarBackground.BorderSizePixel = 0
     progressBarBackground.ZIndex = 1
     progressBarBackground.ClipsDescendants = true
-    progressBarBackground.BackgroundTransparency = 0.1
-    progressBarBackground.Name = "ProgressBarBG"
-    progressBarBackground:ClearAllChildren()
-
-    -- Bo tròn góc cho progress bar
-    local uiCorner = Instance.new("UICorner", progressBarBackground)
-    uiCorner.CornerRadius = UDim.new(0, 12)
+    Instance.new("UICorner", progressBarBackground).CornerRadius = UDim.new(0, 12)
 
     -- Thanh tiến trình
     local progressBar = Instance.new("Frame")
@@ -796,11 +792,9 @@ function StartCountdownAndHop(countdownTime)
     progressBar.Size = UDim2.new(0, 0, 1, 0)
     progressBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     progressBar.ZIndex = 2
+    Instance.new("UICorner", progressBar).CornerRadius = UDim.new(0, 12)
 
-    local barCorner = Instance.new("UICorner", progressBar)
-    barCorner.CornerRadius = UDim.new(0, 12)
-
-    -- Text countdown
+    -- Label thời gian
     local countdownLabel = Instance.new("TextLabel")
     countdownLabel.Parent = screenGui
     countdownLabel.Size = UDim2.new(0, 300, 0, 50)
@@ -813,28 +807,39 @@ function StartCountdownAndHop(countdownTime)
     countdownLabel.TextStrokeTransparency = 0.6
     countdownLabel.ZIndex = 3
 
+    -- Nút STOP HOP đẹp hơn
     local stopButton = Instance.new("TextButton")
     stopButton.Parent = screenGui
-    stopButton.Size = UDim2.new(0, 120, 0, 35)
-    stopButton.Position = UDim2.new(0.5, -60, 0.5, 30)
+    stopButton.Size = UDim2.new(0, 140, 0, 40)
+    stopButton.Position = UDim2.new(0.5, -70, 0.5, 30)
     stopButton.Text = "⛔ Stop Hop"
     stopButton.Font = Enum.Font.GothamBold
     stopButton.TextSize = 20
     stopButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    stopButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+    stopButton.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
     stopButton.ZIndex = 4
-    stopButton.AutoButtonColor = true
+    stopButton.AutoButtonColor = false
 
-    local stopCorner = Instance.new("UICorner", stopButton)
-    stopCorner.CornerRadius = UDim.new(1, 0)
+    local stopUICorner = Instance.new("UICorner", stopButton)
+    stopUICorner.CornerRadius = UDim.new(1, 0)
 
+    -- Hover hiệu ứng nút
+    stopButton.MouseEnter:Connect(function()
+        stopButton.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+    end)
+    stopButton.MouseLeave:Connect(function()
+        stopButton.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
+    end)
+
+    -- Khi bấm STOP
     stopButton.MouseButton1Click:Connect(function()
         stopHopping = true
-        stopButton.Text = "⛔ Stopped"
+        stopButton.Text = "Đã Dừng"
         stopButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
         if screenGui then screenGui:Destroy() end
     end)
 
+    -- Đếm ngược + progress bar mượt
     for i = countdownTime, 1, -1 do
         if stopHopping then return end
         countdownLabel.Text = tostring(i) .. "s"
@@ -960,7 +965,7 @@ spawn(function()
                             
                         game:GetService("StarterGui"):SetCore("SendNotification", {
                             Title = "Vxeze Hub Auto Chest",
-                            Text = "Đã ở trong server 5 phút, chuyển server...",
+                            Text = "Zzz. Hop Sever",
                             Duration = 4
                         })
                         StartCountdownAndHop(10)
