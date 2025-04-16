@@ -125,8 +125,8 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
                         ["inline"] = true
                     },
                     {
-                        ["name"] = "**🗿PlaceID**",
-                        ["value"] = "```" .. game.PlaceId .. "```",
+                        ["name"] = "**🗿Beli User**",
+                        ["value"] = "```" .. (player:FindFirstChild("Data") and player.Data:FindFirstChild("Beli") and player.Data.Beli.Value or "N/A") .. "```",
                         ["inline"] = false
                     },
                     {
