@@ -392,7 +392,7 @@ local function CreateMainGui()
     TitleLogo.Size = UDim2.new(0, 24, 0, 24)
     TitleLogo.Position = UDim2.new(0, 10, 0.5, -12)
     TitleLogo.BackgroundTransparency = 1
-    TitleLogo.Image = "rbxassetid://91347148253026"
+    TitleLogo.Image = "rbxassetid://112086819362620"
     TitleLogo.Parent = TitleBar
 
     -- Title Text
@@ -507,7 +507,7 @@ local function CreateMainGui()
     local RestoreButton = Instance.new("ImageButton")
     RestoreButton.Size = UDim2.new(0, 50, 0, 50) 
     RestoreButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    RestoreButton.Image = "rbxassetid://91347148253026" 
+    RestoreButton.Image = "rbxassetid://112086819362620" 
     RestoreButton.Position = UDim2.new(0.5, -RestoreButton.Size.X.Offset / 2, 0.5, -RestoreButton.Size.Y.Offset / 2)
     RestoreButton.Parent = MiniUI
     CreateSmoothCorner(RestoreButton)
@@ -639,7 +639,7 @@ function StopTween()
         getgenv().StopTween = true            
         -- Dừng tween nếu đang có tween
         if tween then
-            tween:Cancel()  -- Hủy tween hiện tại
+            tween:Cancel() 
             tween = nil
         end            
 
@@ -658,7 +658,7 @@ function StopTween()
         -- Xóa BodyClip nếu có
         local bodyClip = humanoidRootPart and humanoidRootPart:FindFirstChild("BodyClip")
         if bodyClip then
-            bodyClip:Destroy()  -- Xóa BodyClip để ngừng no-clip
+            bodyClip:Destroy() 
         end
 
         -- Reset trạng thái StopTween và Clip
@@ -679,8 +679,8 @@ spawn(function()
                     local Noclip = Instance.new("BodyVelocity")
                     Noclip.Name = "BodyClip"
                     Noclip.Parent = humanoidRootPart
-                    Noclip.MaxForce = Vector3.new(100000, 100000, 100000)  -- Force cao để không bị va chạm
-                    Noclip.Velocity = Vector3.new(0, 0, 0)  -- Không chuyển động
+                    Noclip.MaxForce = Vector3.new(100000, 100000, 100000)  
+                    Noclip.Velocity = Vector3.new(0, 0, 0) 
                 end
             else
                 -- Nếu không phải "Start Farm Chest", xóa BodyClip nếu tồn tại
@@ -771,7 +771,7 @@ function StartCountdownAndHop(countdownTime)
     logo.Parent = screenGui
     logo.Size = UDim2.new(0, 100, 0, 100)
     logo.Position = UDim2.new(0.5, -50, 0.3, -50)
-    logo.Image = "rbxassetid://91347148253026"
+    logo.Image = "rbxassetid://112086819362620"
     logo.BackgroundTransparency = 1
     logo.ZIndex = 2
 
