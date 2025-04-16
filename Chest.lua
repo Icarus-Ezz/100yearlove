@@ -714,15 +714,16 @@ spawn(function()
             local hasFistOfDarkness = game.Players.LocalPlayer.Backpack:FindFirstChild("Fist of Darkness") or game.Players.LocalPlayer.Character:FindFirstChild("Fist of Darkness")
 
             if hasGodsChalice or hasFistOfDarkness then
+                    
+                getgenv().config.ChestFarm["Start Farm Chest"] = false
+                getgenv().config.Setting["No Stuck Chair"] = false
+                    
                 local seaCoordinates = GetSeaCoordinates()
                 if seaCoordinates then
                     Tween2(seaCoordinates)
                     wait(1.5)
                 end
                     
-                getgenv().config.ChestFarm["Start Farm Chest"] = false
-                getgenv().config.Setting["No Stuck Chair"] = false
-
                 break
             end
         end
