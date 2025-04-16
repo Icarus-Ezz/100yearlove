@@ -751,15 +751,15 @@ function StartCountdownAndHop(countdownTime)
     screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
     screenGui.ResetOnSpawn = false
 
-    -- Background phủ toàn bộ màn hình
+    -- Background phủ toàn màn hình
     local background = Instance.new("ImageLabel")
     background.Parent = screenGui
     background.Size = UDim2.new(1, 0, 1, 0)
     background.Position = UDim2.new(0, 0, 0, 0)
-    background.Image = "rbxassetid://91347148253026" 
-    background.ImageTransparency = 0.5
+    background.Image = "rbxassetid://91347148253026"
+    background.ImageTransparency = 0.35
     background.BackgroundTransparency = 1
-    background.ZIndex = 0 -- layer thấp nhất
+    background.ZIndex = 0
 
     local logo = Instance.new("ImageLabel")
     logo.Parent = screenGui
@@ -771,11 +771,14 @@ function StartCountdownAndHop(countdownTime)
 
     local progressBarBackground = Instance.new("Frame")
     progressBarBackground.Parent = screenGui
-    progressBarBackground.Size = UDim2.new(0, 400, 0, 30)
-    progressBarBackground.Position = UDim2.new(0.5, -200, 0.5, -15)
-    progressBarBackground.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    progressBarBackground.Size = UDim2.new(0, 300, 0, 12)
+    progressBarBackground.Position = UDim2.new(0.5, -150, 0.5, 30)
+    progressBarBackground.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
     progressBarBackground.BorderSizePixel = 0
     progressBarBackground.ZIndex = 1
+
+    local bgCorner = Instance.new("UICorner", progressBarBackground)
+    bgCorner.CornerRadius = UDim.new(0, 10)
 
     local progressBar = Instance.new("Frame")
     progressBar.Parent = progressBarBackground
@@ -783,24 +786,31 @@ function StartCountdownAndHop(countdownTime)
     progressBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     progressBar.ZIndex = 2
 
-    -- Text countdown hiển thị phía trên thanh tiến trình
+    local barCorner = Instance.new("UICorner", progressBar)
+    barCorner.CornerRadius = UDim.new(0, 10)
+
     local countdownLabel = Instance.new("TextLabel")
     countdownLabel.Parent = screenGui
     countdownLabel.Size = UDim2.new(0, 300, 0, 50)
-    countdownLabel.Position = UDim2.new(0.5, -150, 0.5, -65)
+    countdownLabel.Position = UDim2.new(0.5, -150, 0.5, -20)
     countdownLabel.BackgroundTransparency = 1
     countdownLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    countdownLabel.TextSize = 32
+    countdownLabel.TextSize = 30
     countdownLabel.Font = Enum.Font.GothamBold
-    countdownLabel.Text = tostring(countdownTime) .. "s"
     countdownLabel.TextStrokeTransparency = 0.6
     countdownLabel.TextStrokeColor3 = Color3.fromRGB(255, 255, 255)
-    countdownLabel.ZIndex = 3 
+    countdownLabel.ZIndex = 3
 
-    for i = countdownTime, 1, -1 do
-        countdownLabel.Text = tostring(i) .. "s"
-        progressBar.Size = UDim2.new(i / countdownTime, 0, 1, 0)
-        wait(1)
+    -- Mượt từng frame
+    local startTime = tick()
+    local endTime = startTime + countdownTime
+
+    while tick() < endTime do
+        local remaining = math.ceil(endTime - tick())
+        local percent = 1 - ((endTime - tick()) / countdownTime)
+        countdownLabel.Text = remaining .. "s"
+        progressBar.Size = UDim2.new(percent, 0, 1, 0)
+        task.wait()
     end
 
     countdownLabel.Text = "Vxeze Hopping"
@@ -809,9 +819,11 @@ function StartCountdownAndHop(countdownTime)
         Text = "Vxeze Hopping",
         Duration = 4
     })
-    wait(2)
+
+    wait(1.5)
     Hop()
 end
+
 ----------------------------------------------------------------------------------------------------
 local lastPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
 local idleTime = 0 -- thời gian đứng im
