@@ -392,7 +392,7 @@ local function CreateMainGui()
     TitleLogo.Size = UDim2.new(0, 24, 0, 24)
     TitleLogo.Position = UDim2.new(0, 10, 0.5, -12)
     TitleLogo.BackgroundTransparency = 1
-    TitleLogo.Image = "rbxassetid://112086819362620"
+    TitleLogo.Image = "rbxassetid://91347148253026"
     TitleLogo.Parent = TitleBar
 
     -- Title Text
@@ -407,7 +407,6 @@ local function CreateMainGui()
     TitleText.TextXAlignment = Enum.TextXAlignment.Left
     TitleText.Parent = TitleBar
 
-    -- Close Button
     local CloseButton = Instance.new("TextButton")
     CloseButton.Size = UDim2.new(0, 30, 0, 30)
     CloseButton.Position = UDim2.new(1, -40, 0, 5)
@@ -418,7 +417,6 @@ local function CreateMainGui()
     CloseButton.Parent = TitleBar
     CreateSmoothCorner(CloseButton)
 
-    -- Minimize Button
     local MinimizeButton = Instance.new("TextButton")
     MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
     MinimizeButton.Position = UDim2.new(1, -80, 0, 5)
@@ -429,7 +427,6 @@ local function CreateMainGui()
     MinimizeButton.Parent = TitleBar
     CreateSmoothCorner(MinimizeButton)
 
-    -- Stats Section
     Converted["_Stats"] = Instance.new("Frame")
     Converted["_Stats"].Name = "Stats"
     Converted["_Stats"].Size = UDim2.new(1, -20, 0, 180)
@@ -507,7 +504,7 @@ local function CreateMainGui()
     local RestoreButton = Instance.new("ImageButton")
     RestoreButton.Size = UDim2.new(0, 50, 0, 50) 
     RestoreButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    RestoreButton.Image = "rbxassetid://112086819362620" 
+    RestoreButton.Image = "rbxassetid://91347148253026" 
     RestoreButton.Position = UDim2.new(0.5, -RestoreButton.Size.X.Offset / 2, 0.5, -RestoreButton.Size.Y.Offset / 2)
     RestoreButton.Parent = MiniUI
     CreateSmoothCorner(RestoreButton)
@@ -634,7 +631,6 @@ end
 InitializeScript()
 
 function StopTween()
-    -- Kiểm tra nếu không có tween
     if not getgenv().StopTween then
         getgenv().StopTween = true            
         -- Dừng tween nếu đang có tween
@@ -674,7 +670,6 @@ spawn(function()
                 local player = game:GetService("Players").LocalPlayer
                 local humanoidRootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
                 
-                -- Kiểm tra xem BodyClip đã tồn tại chưa, nếu chưa thì tạo mới
                 if humanoidRootPart and not humanoidRootPart:FindFirstChild("BodyClip") then
                     local Noclip = Instance.new("BodyVelocity")
                     Noclip.Name = "BodyClip"
@@ -683,7 +678,6 @@ spawn(function()
                     Noclip.Velocity = Vector3.new(0, 0, 0) 
                 end
             else
-                -- Nếu không phải "Start Farm Chest", xóa BodyClip nếu tồn tại
                 local bodyClip = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyClip")
                 if bodyClip then
                     bodyClip:Destroy()
@@ -696,7 +690,6 @@ end)
 local seaThirdSea = CFrame.new(-5056.14794921875, 314.68048095703125, -2985.12255859375)  -- Third Sea (Castle)
 local seaSecondSea = CFrame.new(-411.2250061035156, 73.31524658203125, 371.2820129394531)     -- Second Sea (Cafe)
 
--- ========== Tự phát hiện vùng ==========
 local function GetSeaCoordinates()
     if game.PlaceId == 4442272183 then  
         return seaSecondSea
@@ -757,7 +750,6 @@ function StartCountdownAndHop(countdownTime)
     screenGui.Name = "VxezeHopUI"
     screenGui.IgnoreGuiInset = true
 
-    -- Nền phủ toàn màn hình, xám đậm hơn
     local background = Instance.new("Frame")
     background.Parent = screenGui
     background.Size = UDim2.new(1, 0, 1, 0)
@@ -766,16 +758,14 @@ function StartCountdownAndHop(countdownTime)
     background.BackgroundTransparency = 0.1
     background.ZIndex = 0
 
-    -- Logo (nếu cần hiển thị hình)
     local logo = Instance.new("ImageLabel")
     logo.Parent = screenGui
     logo.Size = UDim2.new(0, 100, 0, 100)
     logo.Position = UDim2.new(0.5, -50, 0.3, -50)
-    logo.Image = "rbxassetid://112086819362620"
+    logo.Image = "rbxassetid://91347148253026"
     logo.BackgroundTransparency = 1
     logo.ZIndex = 2
 
-    -- Progress bar nền
     local progressBarBackground = Instance.new("Frame")
     progressBarBackground.Parent = screenGui
     progressBarBackground.Size = UDim2.new(0, 350, 0, 20)
@@ -786,7 +776,6 @@ function StartCountdownAndHop(countdownTime)
     progressBarBackground.ClipsDescendants = true
     Instance.new("UICorner", progressBarBackground).CornerRadius = UDim.new(0, 12)
 
-    -- Thanh tiến trình
     local progressBar = Instance.new("Frame")
     progressBar.Parent = progressBarBackground
     progressBar.Size = UDim2.new(0, 0, 1, 0)
@@ -794,7 +783,6 @@ function StartCountdownAndHop(countdownTime)
     progressBar.ZIndex = 2
     Instance.new("UICorner", progressBar).CornerRadius = UDim.new(0, 12)
 
-    -- Label thời gian
     local countdownLabel = Instance.new("TextLabel")
     countdownLabel.Parent = screenGui
     countdownLabel.Size = UDim2.new(0, 300, 0, 50)
@@ -807,7 +795,6 @@ function StartCountdownAndHop(countdownTime)
     countdownLabel.TextStrokeTransparency = 0.6
     countdownLabel.ZIndex = 3
 
-    -- Nút STOP HOP đẹp hơn
     local stopButton = Instance.new("TextButton")
     stopButton.Parent = screenGui
     stopButton.Size = UDim2.new(0, 140, 0, 40)
@@ -823,7 +810,6 @@ function StartCountdownAndHop(countdownTime)
     local stopUICorner = Instance.new("UICorner", stopButton)
     stopUICorner.CornerRadius = UDim.new(1, 0)
 
-    -- Hover hiệu ứng nút
     stopButton.MouseEnter:Connect(function()
         stopButton.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
     end)
@@ -831,15 +817,13 @@ function StartCountdownAndHop(countdownTime)
         stopButton.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
     end)
 
-    -- Khi bấm STOP
     stopButton.MouseButton1Click:Connect(function()
         stopHopping = true
-        stopButton.Text = "Đã Dừng"
+        stopButton.Text = "Stopped"
         stopButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
         if screenGui then screenGui:Destroy() end
     end)
 
-    -- Đếm ngược + progress bar mượt
     for i = countdownTime, 1, -1 do
         if stopHopping then return end
         countdownLabel.Text = tostring(i) .. "s"
