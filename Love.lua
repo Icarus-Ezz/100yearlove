@@ -136,6 +136,91 @@ spawn(function()
     end
 end)
 
+getgenv().GreenZBossCheck = true
+
+-- Đảm bảo statusText đã được xác định từ trước
+local statusText = script.Parent:WaitForChild("StatusText")  -- hoặc chỉ ra đúng vị trí của TextLabel
+
+spawn(function()
+    while wait(5) do
+        if getgenv().GreenZBossCheck then
+            local foundBoss = false
+            local bossName = getgenv().BossCheck
+
+            -- Kiểm tra Workspace
+            for _, model in pairs(game.Workspace:GetChildren()) do
+                if model:IsA("Model") and (model.Name == bossName or model.Name:find(bossName)) then
+                    local humanoid = model:FindFirstChild("Humanoid")
+                    if humanoid and humanoid.Health > 0 then
+                        foundBoss = true
+                        statusText.Text = "Status: Xuất Hiện Boss " .. bossName
+                        statusText.TextColor3 = Color3.fromRGB(255, 50, 50)
+                        break
+                    end
+                end
+            end
+
+            -- Kiểm tra ReplicatedStorage
+            if not foundBoss then
+                for _, model in pairs(game:GetService("ReplicatedStorage"):GetDescendants()) do
+                    if model:IsA("Model") and (model.Name == bossName or model.Name:find(bossName)) then
+                        foundBoss = true
+                        statusText.Text = "Status: Chà Boss Kìa Bú Lẹ"
+                        statusText.TextColor3 = Color3.fromRGB(255, 255, 255)
+                        break
+                    end
+                end
+            end
+
+            -- Nếu không tìm thấy boss, gọi API và teleport
+            if not foundBoss then
+                statusText.Text = "Status: Đang Tìm Server Tiếp Theo"
+                statusText.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+                -- Gọi API để lấy jobId
+                local apiEndpoint = ""
+                if bossName == "Dough King" then
+                    apiEndpoint = "http://greenzapi.serveirc.com:31447/Api/Gay"
+                elseif bossName == "rip_indra True Form" then
+                    apiEndpoint = "http://greenzapi.serveirc.com:31447/Api/Rip"
+                elseif bossName == "Darkbeard" then
+                    apiEndpoint = "http://greenzapi.serveirc.com:31447/Api/Dark"
+                end
+
+                if apiEndpoint ~= "" then
+                    local success, result = pcall(function()
+                        local response = game:HttpGet(apiEndpoint)
+                        local data = game:GetService("HttpService"):JSONDecode(response)
+
+                        if data and data.Amount > 0 and data.JobId then
+                            for _, job in ipairs(data.JobId) do
+                                for jobId, _ in pairs(job) do
+                                    if jobId ~= game.JobId then
+                                        return jobId
+                                    end
+                                end
+                            end
+                        end
+                        return nil
+                    end)
+
+                    -- Nếu có JobId hợp lệ thì teleport
+                    if success and result then
+                        print("Found JobId:", result)
+                        game:GetService("TeleportService"):TeleportToPlaceInstance(7449423635, result, game.Players.LocalPlayer)
+                    else
+                        statusText.Text = "Status: Không tìm thấy JobId hợp lệ"
+                        statusText.TextColor3 = Color3.fromRGB(255, 0, 0)
+                    end
+                else
+                    statusText.Text = "Status: Không có API cho boss này"
+                    statusText.TextColor3 = Color3.fromRGB(255, 0, 0)
+                end
+            end
+        end
+    end
+end)
+
 wait(0.5)
 game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("CommF_"):InvokeServer("SetTeam", "Marines")
 
@@ -1186,87 +1271,3 @@ waveConnection = RunService.Heartbeat:Connect(function()
 	end
 end)
 -----
-getgenv().GreenZBossCheck = true
-
--- Đảm bảo statusText đã được xác định từ trước
-local statusText = script.Parent:WaitForChild("StatusText")  -- hoặc chỉ ra đúng vị trí của TextLabel
-
-spawn(function()
-    while wait(5) do
-        if getgenv().GreenZBossCheck then
-            local foundBoss = false
-            local bossName = getgenv().BossCheck
-
-            -- Kiểm tra Workspace
-            for _, model in pairs(game.Workspace:GetChildren()) do
-                if model:IsA("Model") and (model.Name == bossName or model.Name:find(bossName)) then
-                    local humanoid = model:FindFirstChild("Humanoid")
-                    if humanoid and humanoid.Health > 0 then
-                        foundBoss = true
-                        statusText.Text = "Status: Xuất Hiện Boss " .. bossName
-                        statusText.TextColor3 = Color3.fromRGB(255, 50, 50)
-                        break
-                    end
-                end
-            end
-
-            -- Kiểm tra ReplicatedStorage
-            if not foundBoss then
-                for _, model in pairs(game:GetService("ReplicatedStorage"):GetDescendants()) do
-                    if model:IsA("Model") and (model.Name == bossName or model.Name:find(bossName)) then
-                        foundBoss = true
-                        statusText.Text = "Status: Chà Boss Kìa Bú Lẹ"
-                        statusText.TextColor3 = Color3.fromRGB(255, 255, 255)
-                        break
-                    end
-                end
-            end
-
-            -- Nếu không tìm thấy boss, gọi API và teleport
-            if not foundBoss then
-                statusText.Text = "Status: Đang Tìm Server Tiếp Theo"
-                statusText.TextColor3 = Color3.fromRGB(255, 255, 255)
-
-                -- Gọi API để lấy jobId
-                local apiEndpoint = ""
-                if bossName == "Dough King" then
-                    apiEndpoint = "http://greenzapi.serveirc.com:31447/Api/Gay"
-                elseif bossName == "rip_indra True Form" then
-                    apiEndpoint = "http://greenzapi.serveirc.com:31447/Api/Rip"
-                elseif bossName == "Darkbeard" then
-                    apiEndpoint = "http://greenzapi.serveirc.com:31447/Api/Dark"
-                end
-
-                if apiEndpoint ~= "" then
-                    local success, result = pcall(function()
-                        local response = game:HttpGet(apiEndpoint)
-                        local data = game:GetService("HttpService"):JSONDecode(response)
-
-                        if data and data.Amount > 0 and data.JobId then
-                            for _, job in ipairs(data.JobId) do
-                                for jobId, _ in pairs(job) do
-                                    if jobId ~= game.JobId then
-                                        return jobId
-                                    end
-                                end
-                            end
-                        end
-                        return nil
-                    end)
-
-                    -- Nếu có JobId hợp lệ thì teleport
-                    if success and result then
-                        print("Found JobId:", result)
-                        game:GetService("TeleportService"):TeleportToPlaceInstance(7449423635, result, game.Players.LocalPlayer)
-                    else
-                        statusText.Text = "Status: Không tìm thấy JobId hợp lệ"
-                        statusText.TextColor3 = Color3.fromRGB(255, 0, 0)
-                    end
-                else
-                    statusText.Text = "Status: Không có API cho boss này"
-                    statusText.TextColor3 = Color3.fromRGB(255, 0, 0)
-                end
-            end
-        end
-    end
-end)
