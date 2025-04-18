@@ -193,35 +193,38 @@ spawn(function()
                 continue
             end
 
-            -- Gọi API
-            local ok, jobId = pcall(function()
+            -- Gọi API lấy tất cả Job ID
+            local ok, jobIdList = pcall(function()
                 local res = game:HttpGet(url, true)
                 print("API Response:", res)
 
                 local data = HttpService:JSONDecode(res)
-                print("Decoded Data:", data)
+                local jobIds = {}
 
                 if data and data.Amount > 0 and data.JobId then
                     for _, entry in ipairs(data.JobId) do
                         for jobIdKey, _ in pairs(entry) do
                             if jobIdKey ~= game.JobId then
-                                return jobIdKey
+                                table.insert(jobIds, jobIdKey)
                             end
                         end
                     end
                 end
-                return nil
+                return jobIds
             end)
 
-            if ok and jobId then
-                statusText.Text = "Status: Teleport sang JobId: "..jobId
-                statusText.TextColor3 = Color3.fromRGB(0,255,0)
-                TeleportService:TeleportToPlaceInstance(game.PlaceId, jobId, player)
-                return
+            -- Nếu có danh sách Job ID thì teleport lần lượt
+            if ok and jobIdList and #jobIdList > 0 then
+                for _, jobId in ipairs(jobIdList) do
+                    statusText.Text = "Status: Teleport đến JobId: "..jobId
+                    statusText.TextColor3 = Color3.fromRGB(0,255,0)
+                    TeleportService:TeleportToPlaceInstance(game.PlaceId, jobId, player)
+                    task.wait(10)
+                end
             else
-                statusText.Text = "Status: Lấy JobId thất bại"
+                statusText.Text = "Status: Lấy danh sách JobId thất bại"
                 statusText.TextColor3 = Color3.fromRGB(255,0,0)
-                print("Error:", jobId)
+                print("Error:", jobIdList)
             end
         end
     end
