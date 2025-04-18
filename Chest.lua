@@ -340,6 +340,13 @@ local function Tween2(targetCFrame)
     end)
 end
 
+local function CreateSmoothCorner(parent, radius)
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, radius or 8)
+    corner.Parent = parent
+    return corner
+end
+
 local function CreateStroke(parent, color, thickness)
     local stroke = Instance.new("UIStroke")
     stroke.Color = color or Color3.fromRGB(65, 65, 65)
@@ -366,15 +373,25 @@ local function CreateMainGui()
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "VxezeHubUI"
     ScreenGui.ResetOnSpawn = false
+    ScreenGui.Parent = game.CoreGui
 
     -- Main
     Converted["_MainFrame"] = Instance.new("Frame")
     Converted["_MainFrame"].Name = "MainFrame"
     Converted["_MainFrame"].Size = UDim2.new(0, 350, 0, 300)
-    Converted["_MainFrame"].Position = UDim2.new(0.5, -Converted["_MainFrame"].Size.X.Offset / 2, 0.5, -Converted["_MainFrame"].Size.Y.Offset / 2)  -- Căn giữa và dịch xuống một chút
-    Converted["_MainFrame"].BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    Converted["_MainFrame"].Position = UDim2.new(0.5, -175, 0.5, -150)
+    Converted["_MainFrame"].BackgroundTransparency = 1
     Converted["_MainFrame"].Parent = ScreenGui
-    
+
+    -- Background Galaxy
+    local galaxyImage = Instance.new("ImageLabel")
+    galaxyImage.Size = UDim2.new(1, 0, 1, 0)
+    galaxyImage.Position = UDim2.new(0, 0, 0, 0)
+    galaxyImage.BackgroundTransparency = 1
+    galaxyImage.Image = "rbxassetid://126135590095712"  -- ID ảnh Galaxy
+    galaxyImage.ImageTransparency = 0.5  -- Độ mờ
+    galaxyImage.Parent = Converted["_MainFrame"]
+
     CreateDropShadow(Converted["_MainFrame"])
     CreateSmoothCorner(Converted["_MainFrame"], 12)
 
@@ -387,7 +404,6 @@ local function CreateMainGui()
     TitleBar.Parent = Converted["_MainFrame"]
     CreateSmoothCorner(TitleBar, 12)
 
-    -- Title Logo
     local TitleLogo = Instance.new("ImageLabel")
     TitleLogo.Size = UDim2.new(0, 24, 0, 24)
     TitleLogo.Position = UDim2.new(0, 10, 0.5, -12)
@@ -395,7 +411,6 @@ local function CreateMainGui()
     TitleLogo.Image = "rbxassetid://91347148253026"
     TitleLogo.Parent = TitleBar
 
-    -- Title Text
     local TitleText = Instance.new("TextLabel")
     TitleText.Size = UDim2.new(1, -100, 1, 0)
     TitleText.Position = UDim2.new(0, 40, 0, 0)
@@ -433,7 +448,7 @@ local function CreateMainGui()
     Converted["_Stats"].Position = UDim2.new(0, 10, 0, 50)
     Converted["_Stats"].BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     Converted["_Stats"].Parent = Converted["_MainFrame"]
-    
+
     local function CreateStatLabel(yPos)
         local label = Instance.new("TextLabel")
         label.Size = UDim2.new(1, -20, 0, 30)
@@ -446,19 +461,19 @@ local function CreateMainGui()
         label.Parent = Converted["_Stats"]
         return label
     end
-    
+
     Converted["_TimeLabel"] = CreateStatLabel(10)
     Converted["_BeliLabel"] = CreateStatLabel(50)
     Converted["_EarnedBeliLabel"] = CreateStatLabel(90)
     Converted["_ChestLabel"] = CreateStatLabel(130)
-    
+
     Converted["_Controls"] = Instance.new("Frame")
     Converted["_Controls"].Name = "Controls"
     Converted["_Controls"].Size = UDim2.new(1, -20, 0, 40)
     Converted["_Controls"].Position = UDim2.new(0, 10, 0, 230)
     Converted["_Controls"].BackgroundTransparency = 1
     Converted["_Controls"].Parent = Converted["_MainFrame"]
-    
+
     local function CreateButton(text, color, position)
         local button = Instance.new("TextButton")
         button.Size = UDim2.new(0.48, 0, 1, 0)
@@ -469,93 +484,91 @@ local function CreateMainGui()
         button.TextSize = 14
         button.Text = text
         button.Parent = Converted["_Controls"]
-        
+
         CreateSmoothCorner(button)
         CreateStroke(button, color:Lerp(Color3.new(0, 0, 0), 0.2))
-        
+
         local originalColor = color
         button.MouseEnter:Connect(function()
             TweenService:Create(button, TweenInfo.new(0.3), {
                 BackgroundColor3 = color:Lerp(Color3.new(1, 1, 1), 0.1)
             }):Play()
         end)
-        
+
         button.MouseLeave:Connect(function()
             TweenService:Create(button, TweenInfo.new(0.3), {
                 BackgroundColor3 = originalColor
             }):Play()
         end)
-        
+
         return button
     end
-    
+
     Converted["_StartButton"] = CreateButton("Start", Color3.fromRGB(46, 204, 113), UDim2.new(0, 0, 0, 0))
     Converted["_StopButton"] = CreateButton("Stop", Color3.fromRGB(231, 76, 60), UDim2.new(0.52, 0, 0, 0))
-    
+
     local MiniUI = Instance.new("Frame")
     MiniUI.Name = "MiniUI"
     MiniUI.Size = UDim2.new(0, 50, 0, 50)
-    MiniUI.Position = UDim2.new(0.5, -MiniUI.Size.X.Offset / 2, 0, 10)
+    MiniUI.Position = UDim2.new(0.5, -25, 0, 10)
     MiniUI.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
-    MiniUI.Visible = true
+    MiniUI.Visible = false
     MiniUI.Parent = ScreenGui
     CreateSmoothCorner(MiniUI, 8)
-    
+
     local RestoreButton = Instance.new("ImageButton")
-    RestoreButton.Size = UDim2.new(0, 50, 0, 50) 
+    RestoreButton.Size = UDim2.new(0, 50, 0, 50)
     RestoreButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    RestoreButton.Image = "rbxassetid://91347148253026" 
-    RestoreButton.Position = UDim2.new(0.5, -RestoreButton.Size.X.Offset / 2, 0.5, -RestoreButton.Size.Y.Offset / 2)
+    RestoreButton.Image = "rbxassetid://91347148253026"
+    RestoreButton.Position = UDim2.new(0.5, -25, 0.5, -25)
     RestoreButton.Parent = MiniUI
     CreateSmoothCorner(RestoreButton)
-    
+
     local dragging, dragStart, startPos
     TitleBar.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             dragging = true
             dragStart = input.Position
             startPos = Converted["_MainFrame"].Position
-            
-            local connection
-            connection = input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                    connection:Disconnect()
-                end
-            end)
         end
     end)
-    
+
     UserInputService.InputChanged:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseMovement and dragging then
             local delta = input.Position - dragStart
             Converted["_MainFrame"].Position = UDim2.new(
-                startPos.X.Scale, 
-                startPos.X.Offset + delta.X, 
-                startPos.Y.Scale, 
-                startPos.Y.Offset + delta.Y
+                startPos.X.Scale, startPos.X.Offset + delta.X,
+                startPos.Y.Scale, startPos.Y.Offset + delta.Y
             )
         end
     end)
-    
+
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
+    end)
+
     CloseButton.MouseButton1Click:Connect(function()
         ScreenGui:Destroy()
     end)
-    
+
     MinimizeButton.MouseButton1Click:Connect(function()
-        isMinimized = not isMinimized
-        Converted["_MainFrame"].Visible = not isMinimized
-        MiniUI.Visible = isMinimized
+        isMinimized = true
+        Converted["_MainFrame"].Visible = false
+        MiniUI.Visible = true
     end)
-    
+
     RestoreButton.MouseButton1Click:Connect(function()
         isMinimized = false
         Converted["_MainFrame"].Visible = true
         MiniUI.Visible = false
     end)
-    
+
     return ScreenGui
 end
+
+CreateMainGui()
 
 local function UpdateTime()
     local GameTime = math.floor(workspace.DistributedGameTime + 0.5)
