@@ -468,7 +468,7 @@ local function CreateMainGui()
     local backgroundImage = Instance.new("ImageLabel", stats)
     backgroundImage.Size = UDim2.new(1, 0, 1, 0)   -- Kích thước của ImageLabel bằng với Frame
     backgroundImage.Position = UDim2.new(0, 0, 0, 0)  -- Vị trí của ImageLabel
-    backgroundImage.Image = "rbxassetid://your_image_id_here"  -- Thay your_image_id_here bằng ID ảnh của bạn
+    backgroundImage.Image = "rbxassetid://134510815124527"  -- Thay your_image_id_here bằng ID ảnh của bạn
     backgroundImage.BackgroundTransparency = 1  -- Để ẩn nền của ImageLabel
     backgroundImage.BorderSizePixel = 0  -- Loại bỏ đường viền
 
