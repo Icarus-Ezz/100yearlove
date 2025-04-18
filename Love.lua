@@ -1,7 +1,7 @@
 --[[
 getgenv().BossCheck = "Dough King" 
 getgenv().SelectBoss = "Dough King"
-loadstring(game:HttpGet("https://raw.githubusercontent.com/GoodLua001/Testing-GREENZ-HUB/refs/heads/main/KaitunDoughKing.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Icarus-Ezz/phatyeuem/refs/heads/main/Love.lua"))()
 ]]
 local player = game.Players.LocalPlayer
 local ContentProvider = game:GetService("ContentProvider")
