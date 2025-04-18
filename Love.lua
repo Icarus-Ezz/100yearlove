@@ -138,9 +138,6 @@ end)
 
 getgenv().GreenZBossCheck = true
 
--- Đảm bảo statusText đã được xác định từ trước
-local statusText = script.Parent:WaitForChild("StatusText")  -- hoặc chỉ ra đúng vị trí của TextLabel
-
 spawn(function()
     while wait(5) do
         if getgenv().GreenZBossCheck then
