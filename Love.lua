@@ -187,19 +187,22 @@ spawn(function()
             if not url then
                 statusText.Text = "Status: Chưa có API cho boss này"
                 statusText.TextColor3 = Color3.fromRGB(255,0,0)
+                task.wait(5)  -- Thay thế continue bằng task.wait
                 continue
             end
 
             -- Gọi API
             local ok, jobId = pcall(function()
                 local res  = game:HttpGet(url, true)
-						
-		print("API Response:", res)
-						
+                
+                -- In ra phản hồi từ API để kiểm tra
+                print("API Response:", res)
+                
                 local data = HttpService:JSONDecode(res)
-						
-		print("Decoded Data:", data)	
-						
+                
+                -- In ra dữ liệu đã giải mã để kiểm tra
+                print("Decoded Data:", data)    
+                
                 if data and data.Amount > 0 and data.JobId then
                     for _, entry in ipairs(data.JobId) do
                         for jobIdKey, jobIdValue in pairs(entry) do
@@ -220,7 +223,8 @@ spawn(function()
             else
                 statusText.Text = "Status: Lấy JobId thất bại"
                 statusText.TextColor3 = Color3.fromRGB(255,0,0)
-		print("Error:", jobId)			
+                -- In ra thông báo lỗi để kiểm tra
+                print("Error:", jobId)
             end
         end
     end
