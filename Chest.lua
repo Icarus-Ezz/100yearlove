@@ -456,13 +456,22 @@ local function CreateMainGui()
     minimizeBtn.TextSize         = 16
     CreateSmoothCorner(minimizeBtn)
 
-    -- Stats Frame
+-- Tạo Frame Stats
     Converted["_Stats"] = Instance.new("Frame", main)
     local stats = Converted["_Stats"]
     stats.Name             = "Stats"
     stats.Size             = UDim2.new(1, -20, 0, 180)
     stats.Position         = UDim2.new(0, 10, 0, 50)
-    stats.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    stats.BackgroundTransparency = 1  -- Để ẩn nền của Frame
+
+-- Tạo ImageLabel để chèn hình ảnh vào Frame
+    local backgroundImage = Instance.new("ImageLabel", stats)
+    backgroundImage.Size = UDim2.new(1, 0, 1, 0)   -- Kích thước của ImageLabel bằng với Frame
+    backgroundImage.Position = UDim2.new(0, 0, 0, 0)  -- Vị trí của ImageLabel
+    backgroundImage.Image = "rbxassetid://your_image_id_here"  -- Thay your_image_id_here bằng ID ảnh của bạn
+    backgroundImage.BackgroundTransparency = 1  -- Để ẩn nền của ImageLabel
+    backgroundImage.BorderSizePixel = 0  -- Loại bỏ đường viền
+
 
     local function CreateStatLabel(y)
         local lbl = Instance.new("TextLabel", stats)
