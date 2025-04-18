@@ -463,23 +463,15 @@ local function CreateMainGui()
     stats.Position         = UDim2.new(0, 10, 0, 50)
     stats.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 
-    local function CreateStatLabel(y, imageId)
+    local function CreateStatLabel(y)
         local lbl = Instance.new("TextLabel", stats)
-        lbl.Size = UDim2.new(1, -20, 0, 30)
-        lbl.Position = UDim2.new(0, 10, 0, y)
+        lbl.Size               = UDim2.new(1, -20, 0, 30)
+        lbl.Position           = UDim2.new(0, 10, 0, y)
         lbl.BackgroundTransparency = 1
-        lbl.Font = Enum.Font.GothamSemibold
-        lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
-        lbl.TextSize = 14
-        lbl.TextXAlignment = Enum.TextXAlignment.Left
-
-    -- Create the image label to accompany the text
-        local img = Instance.new("ImageLabel", lbl)
-        img.Size = UDim2.new(0, 20, 0, 20)  -- You can adjust the size of the image
-        img.Position = UDim2.new(0, -25, 0, 5)  -- Position it near the label text
-        img.BackgroundTransparency = 1
-        img.Image = "rbxassetid://134510815124527" 
-
+        lbl.Font               = Enum.Font.GothamSemibold
+        lbl.TextColor3         = Color3.fromRGB(255, 255, 255)
+        lbl.TextSize           = 14
+        lbl.TextXAlignment     = Enum.TextXAlignment.Left
         return lbl
     end
 
@@ -520,14 +512,18 @@ local function CreateMainGui()
     Converted["_StartButton"] = CreateButton("Start", Color3.fromRGB(46,204,113), UDim2.new(0,0,0,0))
     Converted["_StopButton"]  = CreateButton("Stop",  Color3.fromRGB(231,76,60),   UDim2.new(0.52,0,0,0))
 
-    -- MiniUI (minimized state)
     local mini = Instance.new("Frame", screenGui)
-    mini.Name               = "MiniUI"
-    mini.Size               = UDim2.new(0,50,0,50)
-    mini.Position           = UDim2.new(0.5,-25,0,10)
-    mini.BackgroundColor3   = Color3.fromRGB(45,45,50)
-    mini.Visible            = false
-    CreateSmoothCorner(mini, 8)
+    mini.Name = "MiniUI"
+    mini.Size = UDim2.new(0, 50, 0, 50)
+    mini.Position = UDim2.new(0.5, -25, 0, 10)
+    mini.BackgroundTransparency = 1
+    
+    local backgroundImage = Instance.new("ImageLabel", mini)
+    backgroundImage.Size = UDim2.new(1, 0, 1, 0)
+    backgroundImage.Position = UDim2.new(0, 0, 0, 0)
+    backgroundImage.Image = "rbxassetid://134510815124527" 
+    backgroundImage.BackgroundTransparency = 1
+    backgroundImage.BorderSizePixel = 0
 
     local restoreBtn = Instance.new("ImageButton", mini)
     restoreBtn.Size             = UDim2.new(1,0,1,0)
