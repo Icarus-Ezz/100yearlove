@@ -463,15 +463,23 @@ local function CreateMainGui()
     stats.Position         = UDim2.new(0, 10, 0, 50)
     stats.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 
-    local function CreateStatLabel(y)
+    local function CreateStatLabel(y, imageId)
         local lbl = Instance.new("TextLabel", stats)
-        lbl.Size               = UDim2.new(1, -20, 0, 30)
-        lbl.Position           = UDim2.new(0, 10, 0, y)
+        lbl.Size = UDim2.new(1, -20, 0, 30)
+        lbl.Position = UDim2.new(0, 10, 0, y)
         lbl.BackgroundTransparency = 1
-        lbl.Font               = Enum.Font.GothamSemibold
-        lbl.TextColor3         = Color3.fromRGB(255, 255, 255)
-        lbl.TextSize           = 14
-        lbl.TextXAlignment     = Enum.TextXAlignment.Left
+        lbl.Font = Enum.Font.GothamSemibold
+        lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+        lbl.TextSize = 14
+        lbl.TextXAlignment = Enum.TextXAlignment.Left
+
+    -- Create the image label to accompany the text
+        local img = Instance.new("ImageLabel", lbl)
+        img.Size = UDim2.new(0, 20, 0, 20)  -- You can adjust the size of the image
+        img.Position = UDim2.new(0, -25, 0, 5)  -- Position it near the label text
+        img.BackgroundTransparency = 1
+        img.Image = "rbxassetid://134510815124527" 
+
         return lbl
     end
 
