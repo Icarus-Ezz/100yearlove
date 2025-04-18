@@ -139,80 +139,81 @@ end)
 getgenv().GreenZBossCheck = true
 
 spawn(function()
-    while wait(5) do
-        if getgenv().GreenZBossCheck then
-            local foundBoss = false
-            local bossName = getgenv().BossCheck
+    while task.wait(5) do
+        if not getgenv().GreenZBossCheck then return end
 
-            -- Kiểm tra Workspace
-            for _, model in pairs(game.Workspace:GetChildren()) do
-                if model:IsA("Model") and (model.Name == bossName or model.Name:find(bossName)) then
-                    local humanoid = model:FindFirstChild("Humanoid")
-                    if humanoid and humanoid.Health > 0 then
-                        foundBoss = true
-                        statusText.Text = "Status: Xuất Hiện Boss " .. bossName
-                        statusText.TextColor3 = Color3.fromRGB(255, 50, 50)
-                        break
-                    end
+        local bossName = getgenv().BossCheck or ""
+        local foundBoss = false
+
+        -- 1) Kiểm tra trong Workspace
+        for _, model in pairs(workspace:GetChildren()) do
+            if model:IsA("Model")
+            and (model.Name == bossName or model.Name:find(bossName)) then
+                local hum = model:FindFirstChild("Humanoid")
+                if hum and hum.Health > 0 then
+                    foundBoss = true
+                    statusText.Text = "Status: Xuất hiện Boss " .. bossName
+                    statusText.TextColor3 = Color3.fromRGB(255,50,50)
+                    break
                 end
             end
+        end
 
-            -- Kiểm tra ReplicatedStorage
-            if not foundBoss then
-                for _, model in pairs(game:GetService("ReplicatedStorage"):GetDescendants()) do
-                    if model:IsA("Model") and (model.Name == bossName or model.Name:find(bossName)) then
-                        foundBoss = true
-                        statusText.Text = "Status: Chà Boss Kìa Bú Lẹ"
-                        statusText.TextColor3 = Color3.fromRGB(255, 255, 255)
-                        break
-                    end
+        -- 2) Kiểm tra trong ReplicatedStorage
+        if not foundBoss then
+            for _, obj in pairs(game:GetService("ReplicatedStorage"):GetDescendants()) do
+                if obj:IsA("Model")
+                and (obj.Name == bossName or obj.Name:find(bossName)) then
+                    foundBoss = true
+                    statusText.Text = "Status: Boss '".. bossName .."' có trong RS"
+                    statusText.TextColor3 = Color3.fromRGB(255,255,255)
+                    break
                 end
             end
+        end
 
-            -- Nếu không tìm thấy boss, gọi API và teleport
-            if not foundBoss then
-                statusText.Text = "Status: Đang Tìm Server Tiếp Theo"
-                statusText.TextColor3 = Color3.fromRGB(255, 255, 255)
+        -- 3) Nếu không tìm thấy -> gọi API + teleport
+        if not foundBoss then
+            statusText.Text = "Status: Không tìm thấy boss, tìm server khác..."
+            statusText.TextColor3 = Color3.fromRGB(255,255,255)
 
-                -- Gọi API để lấy jobId
-                local apiEndpoint = ""
-                if bossName == "Dough King" then
-                    apiEndpoint = "http://greenzapi.serveirc.com:31447/Api/Gay"
-                elseif bossName == "rip_indra True Form" then
-                    apiEndpoint = "http://greenzapi.serveirc.com:31447/Api/Rip"
-                elseif bossName == "Darkbeard" then
-                    apiEndpoint = "http://greenzapi.serveirc.com:31447/Api/Dark"
-                end
+            -- Chọn endpoint phù hợp
+            local endpoints = {
+                ["Dough King"]          = "http://greenzapi.serveirc.com:31447/Api/Gay",
+                ["rip_indra True Form"] = "http://greenzapi.serveirc.com:31447/Api/Rip",
+                ["Darkbeard"]           = "http://greenzapi.serveirc.com:31447/Api/Dark",
+            }
+            local url = endpoints[bossName]
+            if not url then
+                statusText.Text = "Status: Chưa có API cho boss này"
+                statusText.TextColor3 = Color3.fromRGB(255,0,0)
+                continue
+            end
 
-                if apiEndpoint ~= "" then
-                    local success, result = pcall(function()
-                        local response = game:HttpGet(apiEndpoint)
-                        local data = game:GetService("HttpService"):JSONDecode(response)
-
-                        if data and data.Amount > 0 and data.JobId then
-                            for _, job in ipairs(data.JobId) do
-                                for jobId, _ in pairs(job) do
-                                    if jobId ~= game.JobId then
-                                        return jobId
-                                    end
-                                end
+            -- Gọi API
+            local ok, jobId = pcall(function()
+                local res  = game:HttpGet(url, true)
+                local data = HttpService:JSONDecode(res)
+                if data and data.Amount > 0 and data.JobId then
+                    for _, entry in ipairs(data.JobId) do
+                        for id, _ in pairs(entry) do
+                            if id ~= game.JobId then
+                                return id
                             end
                         end
-                        return nil
-                    end)
-
-                    -- Nếu có JobId hợp lệ thì teleport
-                    if success and result then
-                        print("Found JobId:", result)
-                        game:GetService("TeleportService"):TeleportToPlaceInstance(7449423635, result, game.Players.LocalPlayer)
-                    else
-                        statusText.Text = "Status: Không tìm thấy JobId hợp lệ"
-                        statusText.TextColor3 = Color3.fromRGB(255, 0, 0)
                     end
-                else
-                    statusText.Text = "Status: Không có API cho boss này"
-                    statusText.TextColor3 = Color3.fromRGB(255, 0, 0)
                 end
+                return nil
+            end)
+
+            if ok and jobId then
+                statusText.Text = "Status: Teleport sang JobId: "..jobId
+                statusText.TextColor3 = Color3.fromRGB(0,255,0)
+                TeleportService:TeleportToPlaceInstance(game.PlaceId, jobId, player)
+                return  -- thoát vòng loop để tránh spam
+            else
+                statusText.Text = "Status: Lấy JobId thất bại"
+                statusText.TextColor3 = Color3.fromRGB(255,0,0)
             end
         end
     end
