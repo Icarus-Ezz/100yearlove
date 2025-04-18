@@ -55,7 +55,7 @@ statusText.Parent = background
 -- LOGO CHÍNH GIỮA
 local logo = Instance.new("ImageLabel")
 logo.Size = UDim2.new(0, 250, 0, 250)
-logo.Position = UDim2.new(0, 20, 1, -20)
+logo.Position = UDim2.new(0.5, -125, 0.55, -125)
 logo.BackgroundTransparency = 1
 logo.Image = "rbxassetid://93927358445739"  -- Sửa lại ID ảnh hợp lệ
 logo.ZIndex = 2
