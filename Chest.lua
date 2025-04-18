@@ -417,7 +417,7 @@ local function CreateMainGui()
     titleBar.Name             = "TitleBar"
     titleBar.Size             = UDim2.new(1, 0, 0, 40)
     titleBar.Position         = UDim2.new(0, 0, 0, 0)
-    titleBar.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
+    titleBar.BackgroundColor3 = Color3.fromRGB(46, 46, 46)
     CreateSmoothCorner(titleBar, 12)
 
     local logo = Instance.new("ImageLabel", titleBar)
@@ -452,7 +452,7 @@ local function CreateMainGui()
     minimizeBtn.Position         = UDim2.new(1, -80, 0, 5)
     minimizeBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
     minimizeBtn.Text             = "-"
-    minimizeBtn.TextColor3       = Color3.fromRGB(46, 46, 46)
+    minimizeBtn.TextColor3       = Color3.fromRGB(255, 255, 255)
     minimizeBtn.TextSize         = 16
     CreateSmoothCorner(minimizeBtn)
 
