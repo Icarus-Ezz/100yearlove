@@ -340,248 +340,245 @@ local function Tween2(targetCFrame)
     end)
 end
 
+local Players            = game:GetService("Players")
+local TweenService       = game:GetService("TweenService")
+local UserInputService   = game:GetService("UserInputService")
+local workspace          = workspace
+
+local Converted = {}
+local oldBeli     = 0
+local earnedBeli  = 0
+
+-- Format số với dấu phẩy hàng nghìn
+local function FormatNumber(n)
+    local s = tostring(n)
+    local out = s:reverse():gsub("(%d%d%d)", "%1,"):reverse()
+    if out:sub(1,1) == "," then
+        out = out:sub(2)
+    end
+    return out
+end
+
+-- UI Helpers
 local function CreateSmoothCorner(parent, radius)
-    local corner = Instance.new("UICorner")
+    local corner = Instance.new("UICorner", parent)
     corner.CornerRadius = UDim.new(0, radius or 8)
-    corner.Parent = parent
     return corner
 end
 
 local function CreateStroke(parent, color, thickness)
-    local stroke = Instance.new("UIStroke")
-    stroke.Color = color or Color3.fromRGB(65, 65, 65)
-    stroke.Thickness = thickness or 1.5
-    stroke.Parent = parent
+    local stroke = Instance.new("UIStroke", parent)
+    stroke.Color      = color or Color3.fromRGB(65, 65, 65)
+    stroke.Thickness  = thickness or 1.5
     return stroke
 end
 
 local function CreateDropShadow(parent)
-    local shadow = Instance.new("ImageLabel")
-    shadow.Name = "Shadow"
-    shadow.AnchorPoint = Vector2.new(0.5, 0.5)
+    local shadow = Instance.new("ImageLabel", parent)
+    shadow.Name               = "Shadow"
+    shadow.AnchorPoint        = Vector2.new(0.5, 0.5)
     shadow.BackgroundTransparency = 1
-    shadow.Position = UDim2.new(0.5, 0, 0.5, 0)
-    shadow.Size = UDim2.new(1, 47, 1, 47)
-    shadow.Image = "rbxassetid://6014261993"
-    shadow.ImageColor3 = Color3.fromRGB(0, 0, 0)
-    shadow.ImageTransparency = 0.5
-    shadow.Parent = parent
+    shadow.Position           = UDim2.new(0.5, 0, 0.5, 0)
+    shadow.Size               = UDim2.new(1, 47, 1, 47)
+    shadow.Image              = "rbxassetid://6014261993"
+    shadow.ImageColor3        = Color3.fromRGB(0, 0, 0)
+    shadow.ImageTransparency  = 0.5
     return shadow
 end
 
+-- Tạo GUI chính và lưu vào Converted
 local function CreateMainGui()
-    local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "VxezeHubUI"
-    ScreenGui.ResetOnSpawn = false
-    ScreenGui.Parent = game.CoreGui
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name         = "VxezeHubUI"
+    screenGui.ResetOnSpawn = false
+    screenGui.Parent       = game.CoreGui
 
-    -- Main
-    Converted["_MainFrame"] = Instance.new("Frame")
-    Converted["_MainFrame"].Name = "MainFrame"
-    Converted["_MainFrame"].Size = UDim2.new(0, 350, 0, 300)
-    Converted["_MainFrame"].Position = UDim2.new(0.5, -175, 0.5, -150)
-    Converted["_MainFrame"].BackgroundTransparency = 1
-    Converted["_MainFrame"].Parent = ScreenGui
+    -- MainFrame
+    Converted["_MainFrame"] = Instance.new("Frame", screenGui)
+    local main = Converted["_MainFrame"]
+    main.Name             = "MainFrame"
+    main.Size             = UDim2.new(0, 350, 0, 300)
+    main.Position         = UDim2.new(0.5, -175, 0.5, -150)
+    main.BackgroundTransparency = 1
 
-    -- Background Galaxy
-    local galaxyImage = Instance.new("ImageLabel")
-    galaxyImage.Size = UDim2.new(1, 0, 1, 0)
-    galaxyImage.Position = UDim2.new(0, 0, 0, 0)
-    galaxyImage.BackgroundTransparency = 1
-    galaxyImage.Image = "rbxassetid://126135590095712"  -- ID ảnh Galaxy
-    galaxyImage.ImageTransparency = 0.5  -- Độ mờ
-    galaxyImage.Parent = Converted["_MainFrame"]
+    -- Galaxy Background
+    local bg = Instance.new("ImageLabel", main)
+    bg.Size               = UDim2.new(1, 0, 1, 0)
+    bg.Position           = UDim2.new(0, 0, 0, 0)
+    bg.BackgroundTransparency = 1
+    bg.Image              = "rbxassetid://126135590095712"
+    bg.ImageTransparency  = 0.5
 
-    CreateDropShadow(Converted["_MainFrame"])
-    CreateSmoothCorner(Converted["_MainFrame"], 12)
+    CreateDropShadow(main)
+    CreateSmoothCorner(main, 12)
 
-    -- Title Bar
-    local TitleBar = Instance.new("Frame")
-    TitleBar.Name = "TitleBar"
-    TitleBar.Size = UDim2.new(1, 0, 0, 40)
-    TitleBar.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
-    TitleBar.Position = UDim2.new(0, 0, 0, 0)
-    TitleBar.Parent = Converted["_MainFrame"]
-    CreateSmoothCorner(TitleBar, 12)
+    -- TitleBar
+    local titleBar = Instance.new("Frame", main)
+    titleBar.Name             = "TitleBar"
+    titleBar.Size             = UDim2.new(1, 0, 0, 40)
+    titleBar.Position         = UDim2.new(0, 0, 0, 0)
+    titleBar.BackgroundColor3 = Color3.fromRGB(240, 240, 240)
+    CreateSmoothCorner(titleBar, 12)
 
-    local TitleLogo = Instance.new("ImageLabel")
-    TitleLogo.Size = UDim2.new(0, 24, 0, 24)
-    TitleLogo.Position = UDim2.new(0, 10, 0.5, -12)
-    TitleLogo.BackgroundTransparency = 1
-    TitleLogo.Image = "rbxassetid://91347148253026"
-    TitleLogo.Parent = TitleBar
+    local logo = Instance.new("ImageLabel", titleBar)
+    logo.Size            = UDim2.new(0, 24, 0, 24)
+    logo.Position        = UDim2.new(0, 10, 0.5, -12)
+    logo.BackgroundTransparency = 1
+    logo.Image           = "rbxassetid://91347148253026"
 
-    local TitleText = Instance.new("TextLabel")
-    TitleText.Size = UDim2.new(1, -100, 1, 0)
-    TitleText.Position = UDim2.new(0, 40, 0, 0)
-    TitleText.BackgroundTransparency = 1
-    TitleText.Font = Enum.Font.GothamBold
-    TitleText.Text = "Vxeze Hub Auto Chest"
-    TitleText.TextColor3 = Color3.fromRGB(45, 45, 50)
-    TitleText.TextSize = 16
-    TitleText.TextXAlignment = Enum.TextXAlignment.Left
-    TitleText.Parent = TitleBar
+    local titleText = Instance.new("TextLabel", titleBar)
+    titleText.Size            = UDim2.new(1, -100, 1, 0)
+    titleText.Position        = UDim2.new(0, 40, 0, 0)
+    titleText.BackgroundTransparency = 1
+    titleText.Font            = Enum.Font.GothamBold
+    titleText.Text            = "Vxeze Hub Auto Chest"
+    titleText.TextColor3      = Color3.fromRGB(45, 45, 50)
+    titleText.TextSize        = 16
+    titleText.TextXAlignment  = Enum.TextXAlignment.Left
 
-    local CloseButton = Instance.new("TextButton")
-    CloseButton.Size = UDim2.new(0, 30, 0, 30)
-    CloseButton.Position = UDim2.new(1, -40, 0, 5)
-    CloseButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    CloseButton.Text = "X"
-    CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    CloseButton.TextSize = 16
-    CloseButton.Parent = TitleBar
-    CreateSmoothCorner(CloseButton)
+    -- Close & Minimize
+    local closeBtn = Instance.new("TextButton", titleBar)
+    closeBtn.Size             = UDim2.new(0, 30, 0, 30)
+    closeBtn.Position         = UDim2.new(1, -40, 0, 5)
+    closeBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    closeBtn.Text             = "X"
+    closeBtn.TextColor3       = Color3.fromRGB(255, 255, 255)
+    closeBtn.TextSize         = 16
+    CreateSmoothCorner(closeBtn)
 
-    local MinimizeButton = Instance.new("TextButton")
-    MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
-    MinimizeButton.Position = UDim2.new(1, -80, 0, 5)
-    MinimizeButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    MinimizeButton.Text = "-"
-    MinimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    MinimizeButton.TextSize = 16
-    MinimizeButton.Parent = TitleBar
-    CreateSmoothCorner(MinimizeButton)
+    local minimizeBtn = Instance.new("TextButton", titleBar)
+    minimizeBtn.Size             = UDim2.new(0, 30, 0, 30)
+    minimizeBtn.Position         = UDim2.new(1, -80, 0, 5)
+    minimizeBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    minimizeBtn.Text             = "-"
+    minimizeBtn.TextColor3       = Color3.fromRGB(255, 255, 255)
+    minimizeBtn.TextSize         = 16
+    CreateSmoothCorner(minimizeBtn)
 
-    Converted["_Stats"] = Instance.new("Frame")
-    Converted["_Stats"].Name = "Stats"
-    Converted["_Stats"].Size = UDim2.new(1, -20, 0, 180)
-    Converted["_Stats"].Position = UDim2.new(0, 10, 0, 50)
-    Converted["_Stats"].BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-    Converted["_Stats"].Parent = Converted["_MainFrame"]
+    -- Stats Frame
+    Converted["_Stats"] = Instance.new("Frame", main)
+    local stats = Converted["_Stats"]
+    stats.Name             = "Stats"
+    stats.Size             = UDim2.new(1, -20, 0, 180)
+    stats.Position         = UDim2.new(0, 10, 0, 50)
+    stats.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 
-    local function CreateStatLabel(yPos)
-        local label = Instance.new("TextLabel")
-        label.Size = UDim2.new(1, -20, 0, 30)
-        label.Position = UDim2.new(0, 10, 0, yPos)
-        label.Font = Enum.Font.GothamSemibold
-        label.TextColor3 = Color3.fromRGB(255, 255, 255)
-        label.TextSize = 14
-        label.TextXAlignment = Enum.TextXAlignment.Left
-        label.BackgroundTransparency = 1
-        label.Parent = Converted["_Stats"]
-        return label
+    local function CreateStatLabel(y)
+        local lbl = Instance.new("TextLabel", stats)
+        lbl.Size               = UDim2.new(1, -20, 0, 30)
+        lbl.Position           = UDim2.new(0, 10, 0, y)
+        lbl.BackgroundTransparency = 1
+        lbl.Font               = Enum.Font.GothamSemibold
+        lbl.TextColor3         = Color3.fromRGB(255, 255, 255)
+        lbl.TextSize           = 14
+        lbl.TextXAlignment     = Enum.TextXAlignment.Left
+        return lbl
     end
 
-    Converted["_TimeLabel"] = CreateStatLabel(10)
-    Converted["_BeliLabel"] = CreateStatLabel(50)
+    Converted["_TimeLabel"]       = CreateStatLabel(10)
+    Converted["_BeliLabel"]       = CreateStatLabel(50)
     Converted["_EarnedBeliLabel"] = CreateStatLabel(90)
-    Converted["_ChestLabel"] = CreateStatLabel(130)
+    Converted["_ChestLabel"]      = CreateStatLabel(130)
 
-    Converted["_Controls"] = Instance.new("Frame")
-    Converted["_Controls"].Name = "Controls"
-    Converted["_Controls"].Size = UDim2.new(1, -20, 0, 40)
-    Converted["_Controls"].Position = UDim2.new(0, 10, 0, 230)
-    Converted["_Controls"].BackgroundTransparency = 1
-    Converted["_Controls"].Parent = Converted["_MainFrame"]
+    -- Controls Frame
+    Converted["_Controls"] = Instance.new("Frame", main)
+    local ctrls = Converted["_Controls"]
+    ctrls.Name               = "Controls"
+    ctrls.Size               = UDim2.new(1, -20, 0, 40)
+    ctrls.Position           = UDim2.new(0, 10, 0, 230)
+    ctrls.BackgroundTransparency = 1
 
-    local function CreateButton(text, color, position)
-        local button = Instance.new("TextButton")
-        button.Size = UDim2.new(0.48, 0, 1, 0)
-        button.Position = position
-        button.BackgroundColor3 = color
-        button.Font = Enum.Font.GothamBold
-        button.TextColor3 = Color3.fromRGB(255, 255, 255)
-        button.TextSize = 14
-        button.Text = text
-        button.Parent = Converted["_Controls"]
+    local function CreateButton(text, color, pos)
+        local btn = Instance.new("TextButton", ctrls)
+        btn.Size             = UDim2.new(0.48, 0, 1, 0)
+        btn.Position         = pos
+        btn.BackgroundColor3 = color
+        btn.Font             = Enum.Font.GothamBold
+        btn.Text             = text
+        btn.TextColor3       = Color3.fromRGB(255, 255, 255)
+        btn.TextSize         = 14
+        CreateSmoothCorner(btn)
+        CreateStroke(btn, color:Lerp(Color3.new(0,0,0),0.2))
 
-        CreateSmoothCorner(button)
-        CreateStroke(button, color:Lerp(Color3.new(0, 0, 0), 0.2))
-
-        local originalColor = color
-        button.MouseEnter:Connect(function()
-            TweenService:Create(button, TweenInfo.new(0.3), {
-                BackgroundColor3 = color:Lerp(Color3.new(1, 1, 1), 0.1)
-            }):Play()
+        btn.MouseEnter:Connect(function()
+            TweenService:Create(btn, TweenInfo.new(0.3), {BackgroundColor3 = color:Lerp(Color3.new(1,1,1),0.1)}):Play()
         end)
-
-        button.MouseLeave:Connect(function()
-            TweenService:Create(button, TweenInfo.new(0.3), {
-                BackgroundColor3 = originalColor
-            }):Play()
+        btn.MouseLeave:Connect(function()
+            TweenService:Create(btn, TweenInfo.new(0.3), {BackgroundColor3 = color}):Play()
         end)
-
-        return button
+        return btn
     end
 
-    Converted["_StartButton"] = CreateButton("Start", Color3.fromRGB(46, 204, 113), UDim2.new(0, 0, 0, 0))
-    Converted["_StopButton"] = CreateButton("Stop", Color3.fromRGB(231, 76, 60), UDim2.new(0.52, 0, 0, 0))
+    Converted["_StartButton"] = CreateButton("Start", Color3.fromRGB(46,204,113), UDim2.new(0,0,0,0))
+    Converted["_StopButton"]  = CreateButton("Stop",  Color3.fromRGB(231,76,60),   UDim2.new(0.52,0,0,0))
 
-    local MiniUI = Instance.new("Frame")
-    MiniUI.Name = "MiniUI"
-    MiniUI.Size = UDim2.new(0, 50, 0, 50)
-    MiniUI.Position = UDim2.new(0.5, -25, 0, 10)
-    MiniUI.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
-    MiniUI.Visible = false
-    MiniUI.Parent = ScreenGui
-    CreateSmoothCorner(MiniUI, 8)
+    -- MiniUI (minimized state)
+    local mini = Instance.new("Frame", screenGui)
+    mini.Name               = "MiniUI"
+    mini.Size               = UDim2.new(0,50,0,50)
+    mini.Position           = UDim2.new(0.5,-25,0,10)
+    mini.BackgroundColor3   = Color3.fromRGB(45,45,50)
+    mini.Visible            = false
+    CreateSmoothCorner(mini, 8)
 
-    local RestoreButton = Instance.new("ImageButton")
-    RestoreButton.Size = UDim2.new(0, 50, 0, 50)
-    RestoreButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    RestoreButton.Image = "rbxassetid://91347148253026"
-    RestoreButton.Position = UDim2.new(0.5, -25, 0.5, -25)
-    RestoreButton.Parent = MiniUI
-    CreateSmoothCorner(RestoreButton)
+    local restoreBtn = Instance.new("ImageButton", mini)
+    restoreBtn.Size             = UDim2.new(1,0,1,0)
+    restoreBtn.BackgroundColor3 = Color3.fromRGB(0,0,0)
+    restoreBtn.Image            = "rbxassetid://91347148253026"
+    CreateSmoothCorner(restoreBtn)
 
+    -- Drag logic
     local dragging, dragStart, startPos
-    TitleBar.InputBegan:Connect(function(input)
+    titleBar.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true
-            dragStart = input.Position
-            startPos = Converted["_MainFrame"].Position
+            dragging, dragStart, startPos = true, input.Position, main.Position
         end
     end)
-
     UserInputService.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement and dragging then
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
             local delta = input.Position - dragStart
-            Converted["_MainFrame"].Position = UDim2.new(
+            main.Position = UDim2.new(
                 startPos.X.Scale, startPos.X.Offset + delta.X,
                 startPos.Y.Scale, startPos.Y.Offset + delta.Y
             )
         end
     end)
-
     UserInputService.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             dragging = false
         end
     end)
 
-    CloseButton.MouseButton1Click:Connect(function()
-        ScreenGui:Destroy()
+    -- Button events
+    closeBtn.MouseButton1Click:Connect(function()
+        screenGui:Destroy()
+    end)
+    minimizeBtn.MouseButton1Click:Connect(function()
+        main.Visible = false
+        mini.Visible = true
+    end)
+    restoreBtn.MouseButton1Click:Connect(function()
+        main.Visible = true
+        mini.Visible = false
     end)
 
-    MinimizeButton.MouseButton1Click:Connect(function()
-        isMinimized = true
-        Converted["_MainFrame"].Visible = false
-        MiniUI.Visible = true
-    end)
-
-    RestoreButton.MouseButton1Click:Connect(function()
-        isMinimized = false
-        Converted["_MainFrame"].Visible = true
-        MiniUI.Visible = false
-    end)
-
-    return ScreenGui
+    return screenGui
 end
 
-CreateMainGui()
-
+-- Cập nhật Time và Stats
 local function UpdateTime()
-    local GameTime = math.floor(workspace.DistributedGameTime + 0.5)
-    local Hour = math.floor(GameTime/(60^2))%24
-    local Minute = math.floor(GameTime/(60^1))%60
-    local Second = math.floor(GameTime/(60^0))%60
-    Converted["_TimeLabel"].Text = string.format("⏰ Time: %02d:%02d:%02d", Hour, Minute, Second)
+    local t = math.floor(workspace.DistributedGameTime + 0.5)
+    local h = math.floor(t/3600)%24
+    local m = math.floor(t/60)%60
+    local s = t%60
+    Converted["_TimeLabel"].Text = string.format("⏰ Time: %02d:%02d:%02d", h, m, s)
 end
 
 local function UpdateStats()
-    local player = game:GetService("Players").LocalPlayer
-    local beli = player.Data.Beli.Value
+    local player = Players.LocalPlayer
+    if not player or not player:FindFirstChild("Data") then return end
 
+    local beli = player.Data.Beli.Value
     if oldBeli == 0 then
         oldBeli = beli
     else
@@ -589,59 +586,47 @@ local function UpdateStats()
     end
 
     local chestCount = 0
-    for _, v in pairs(workspace:GetDescendants()) do
-        -- Kiểm tra đối tượng có tên chứa từ "chest" và là BasePart hoặc có "TouchInterest"
-        if string.find(v.Name:lower(), "chest") and v:IsA("BasePart") and v:FindFirstChild("TouchInterest") then
-            chestCount = chestCount + 1
+    for _, v in ipairs(workspace:GetDescendants()) do
+        if v:IsA("BasePart") and v:FindFirstChild("TouchInterest") and v.Name:lower():find("chest") then
+            chestCount += 1
         end
     end
 
-    Converted["_BeliLabel"].Text = string.format("💰 Beli: %s", FormatNumber(beli))
-    Converted["_EarnedBeliLabel"].Text = string.format("📈 Earned: %s", FormatNumber(earnedBeli))
-    Converted["_ChestLabel"].Text = string.format("🎁 Chests: %d", chestCount)
+    Converted["_BeliLabel"].Text       = "💰 Beli: " .. FormatNumber(beli)
+    Converted["_EarnedBeliLabel"].Text = "📈 Earned: " .. FormatNumber(earnedBeli)
+    Converted["_ChestLabel"].Text      = "🎁 Chests: " .. chestCount
 end
 
+-- Khởi tạo và vòng lặp cập nhật
+CreateMainGui()
 spawn(function()
     while true do
+        UpdateTime()
         UpdateStats()
-        wait(1)
+        task.wait(1)
     end
 end)
-
-local function InitializeScript()
-    local gui = CreateMainGui()
-    gui.Parent = game:GetService("CoreGui")
-    
-Converted["_StartButton"].MouseButton1Click:Connect(function()
+spawn(function()
+    -- Xử lý Start/Stop Farm nếu cần
+    Converted["_StartButton"].MouseButton1Click:Connect(function()
         getgenv().config.ChestFarm["Start Farm Chest"] = true
-        getgenv().config.Setting["No Stuck Chair"] = true  
-        game:GetService("StarterGui"):SetCore("SendNotification", {
+        getgenv().config.Setting["No Stuck Chair"] = true
+        game.StarterGui:SetCore("SendNotification", {
             Title = "Vxeze Hub Auto Chest",
             Text = "Auto Chest Started!",
             Duration = 2
         })
     end)
-    
     Converted["_StopButton"].MouseButton1Click:Connect(function()
         getgenv().config.ChestFarm["Start Farm Chest"] = false
         getgenv().config.Setting["No Stuck Chair"] = false
-        game:GetService("StarterGui"):SetCore("SendNotification", {
+        game.StarterGui:SetCore("SendNotification", {
             Title = "Vxeze Hub Auto Chest",
             Text = "Auto Chest Stopped!",
             Duration = 2
         })
     end)
-   
-    task.spawn(function()
-        while true do
-            UpdateTime()
-            UpdateStats()
-            task.wait(1)
-        end
-    end)
-end
-
-InitializeScript()
+end)
 
 function StopTween()
     if not getgenv().StopTween then
