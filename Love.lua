@@ -136,6 +136,11 @@ spawn(function()
     end
 end)
 
+-------------------------------------------------------HOP BOSS + STATUS
+local HttpService = game:GetService("HttpService")
+local TeleportService = game:GetService("TeleportService")
+local player = game.Players.LocalPlayer
+
 getgenv().GreenZBossCheck = true
 
 spawn(function()
@@ -147,8 +152,7 @@ spawn(function()
 
         -- 1) Kiểm tra trong Workspace
         for _, model in pairs(workspace:GetChildren()) do
-            if model:IsA("Model")
-            and (model.Name == bossName or model.Name:find(bossName)) then
+            if model:IsA("Model") and (model.Name == bossName or model.Name:find(bossName)) then
                 local hum = model:FindFirstChild("Humanoid")
                 if hum and hum.Health > 0 then
                     foundBoss = true
@@ -162,8 +166,7 @@ spawn(function()
         -- 2) Kiểm tra trong ReplicatedStorage
         if not foundBoss then
             for _, obj in pairs(game:GetService("ReplicatedStorage"):GetDescendants()) do
-                if obj:IsA("Model")
-                and (obj.Name == bossName or obj.Name:find(bossName)) then
+                if obj:IsA("Model") and (obj.Name == bossName or obj.Name:find(bossName)) then
                     foundBoss = true
                     statusText.Text = "Status: Boss '".. bossName .."' có trong RS"
                     statusText.TextColor3 = Color3.fromRGB(255,255,255)
@@ -179,35 +182,30 @@ spawn(function()
 
             -- Chọn endpoint phù hợp
             local endpoints = {
-                ["Dough King"]          = "http://greenzapi.serveirc.com:31447/Api/Gay",
+                ["Dough King"] = "http://greenzapi.serveirc.com:31447/Api/Gay",
                 ["rip_indra True Form"] = "http://greenzapi.serveirc.com:31447/Api/Rip",
-                ["Darkbeard"]           = "http://greenzapi.serveirc.com:31447/Api/Dark",
+                ["Darkbeard"] = "http://greenzapi.serveirc.com:31447/Api/Dark",
             }
             local url = endpoints[bossName]
             if not url then
                 statusText.Text = "Status: Chưa có API cho boss này"
                 statusText.TextColor3 = Color3.fromRGB(255,0,0)
-                task.wait(5)  -- Thay thế continue bằng task.wait
                 continue
             end
 
             -- Gọi API
             local ok, jobId = pcall(function()
-                local res  = game:HttpGet(url, true)
-                
-                -- In ra phản hồi từ API để kiểm tra
+                local res = game:HttpGet(url, true)
                 print("API Response:", res)
-                
+
                 local data = HttpService:JSONDecode(res)
-                
-                -- In ra dữ liệu đã giải mã để kiểm tra
-                print("Decoded Data:", data)    
-                
+                print("Decoded Data:", data)
+
                 if data and data.Amount > 0 and data.JobId then
                     for _, entry in ipairs(data.JobId) do
-                        for jobIdKey, jobIdValue in pairs(entry) do
+                        for jobIdKey, _ in pairs(entry) do
                             if jobIdKey ~= game.JobId then
-                                return jobIdValue
+                                return jobIdKey
                             end
                         end
                     end
@@ -219,11 +217,10 @@ spawn(function()
                 statusText.Text = "Status: Teleport sang JobId: "..jobId
                 statusText.TextColor3 = Color3.fromRGB(0,255,0)
                 TeleportService:TeleportToPlaceInstance(game.PlaceId, jobId, player)
-                return  -- thoát vòng loop để tránh spam
+                return
             else
                 statusText.Text = "Status: Lấy JobId thất bại"
                 statusText.TextColor3 = Color3.fromRGB(255,0,0)
-                -- In ra thông báo lỗi để kiểm tra
                 print("Error:", jobId)
             end
         end
