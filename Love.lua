@@ -1075,14 +1075,18 @@ task.spawn(function()
 
 end)
 getgenv().KaitunBoss = true
+
 spawn(function()
-    while wait() do
+    while task.wait() do
         if getgenv().KaitunBoss and not BypassTP then
             pcall(function()
                 local enemies = game:GetService("Workspace").Enemies
-                if enemies:FindFirstChild(getgenv().SelectBoss) then
+                local bossName = getgenv().SelectBoss
+                local boss = enemies:FindFirstChild(bossName)
+
+                if boss then
                     for _, v in pairs(enemies:GetChildren()) do
-                        if v.Name == getgenv().SelectBoss and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
+                        if v.Name == bossName and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
                             repeat
                                 task.wait()
                                 AutoHaki()
@@ -1090,57 +1094,48 @@ spawn(function()
                                 v.HumanoidRootPart.CanCollide = false
                                 v.Humanoid.WalkSpeed = 0
                                 topos(v.HumanoidRootPart.CFrame * Pos)
-                                sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge)
+                                sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)
                             until not getgenv().KaitunBoss or not v.Parent or v.Humanoid.Health <= 0
                         end
                     end
                 else
-                    local SelectBoss = getgenv().SelectBoss  -- Lấy giá trị SelectBoss từ getgenv()
-                    local url = {}
+                    -- Boss chưa xuất hiện → check API để chuyển server
                     local apiEndpoint = ""
-
-                    -- Lựa chọn API dựa trên SelectBoss
-                    if SelectBoss == "Dough King" then
+                    if bossName == "Dough King" then
                         apiEndpoint = "http://greenzapi.serveirc.com:31447/Api/Gay"
-                    elseif SelectBoss == "rip_indra True Form" then
+                    elseif bossName == "rip_indra True Form" then
                         apiEndpoint = "http://greenzapi.serveirc.com:31447/Api/Rip"
-                    elseif SelectBoss == "Darkbeard" then
+                    elseif bossName == "Darkbeard" then
                         apiEndpoint = "http://greenzapi.serveirc.com:31447/Api/Dark"
                     end
 
-                    -- Thêm apiEndpoint vào url
-                    table.insert(url, apiEndpoint)
-
-                    -- Scrape jobId từ API
-                    local a, b = pcall(function()
-                        for _, v in pairs(url) do
-                            local response = game:HttpGet(v, true)
+                    if apiEndpoint ~= "" then
+                        local success, result = pcall(function()
+                            local response = game:HttpGet(apiEndpoint, true)
                             local data = game:GetService("HttpService"):JSONDecode(response)
-                            if data and data.Amount and data.Amount > 0 and data.JobId then
+                            if data and data.Amount > 0 and data.JobId then
                                 for _, job in ipairs(data.JobId) do
                                     for jobId, _ in pairs(job) do
                                         if jobId and jobId ~= game.JobId then
-                                            return {
-                                                Job = jobId
-                                            }
+                                            return jobId
                                         end
                                     end
                                 end
                             end
-                        end
-                        return nil
-                    end)
+                            return nil
+                        end)
 
-                    if a and b then
-                        -- Nếu tìm thấy jobId hợp lệ, teleport sang server đó
-                        game:GetService("TeleportService"):TeleportToPlaceInstance(7449423635, b.Job, game.Players.LocalPlayer)
-                        return true
+                        if success and result then
+                            game:GetService("TeleportService"):TeleportToPlaceInstance(7449423635, result, game.Players.LocalPlayer)
+                        end
                     end
                 end
             end)
         end
     end
-end)                       function AutoHaki()
+end)
+
+function AutoHaki()
     if not game.Players.LocalPlayer.Character:FindFirstChild("HasBuso") then
         game.ReplicatedStorage.Remotes.CommF_:InvokeServer("Buso")
     end
