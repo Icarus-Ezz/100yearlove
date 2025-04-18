@@ -192,7 +192,6 @@ spawn(function()
 
             local ok, jobIdList = pcall(function()
                 local res = game:HttpGet(url, true)
-                print("API Response:", res)
 
                 local data = HttpService:JSONDecode(res)
                 local jobIds = {}
@@ -219,7 +218,6 @@ spawn(function()
             else
                 statusText.Text = "Status: Lấy JobId thất bại"
                 statusText.TextColor3 = Color3.fromRGB(255,0,0)
-                print("Error:", jobIdList)
             end
         end
     end
