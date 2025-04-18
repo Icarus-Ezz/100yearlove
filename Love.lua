@@ -193,12 +193,18 @@ spawn(function()
             -- Gọi API
             local ok, jobId = pcall(function()
                 local res  = game:HttpGet(url, true)
+						
+		print("API Response:", res)
+						
                 local data = HttpService:JSONDecode(res)
+						
+		print("Decoded Data:", data)	
+						
                 if data and data.Amount > 0 and data.JobId then
                     for _, entry in ipairs(data.JobId) do
-                        for id, _ in pairs(entry) do
-                            if id ~= game.JobId then
-                                return id
+                        for jobIdKey, jobIdValue in pairs(entry) do
+                            if jobIdKey ~= game.JobId then
+                                return jobIdValue
                             end
                         end
                     end
@@ -214,6 +220,7 @@ spawn(function()
             else
                 statusText.Text = "Status: Lấy JobId thất bại"
                 statusText.TextColor3 = Color3.fromRGB(255,0,0)
+		print("Error:", jobId)			
             end
         end
     end
