@@ -425,6 +425,7 @@ local function CreateMainGui()
     logo.Position        = UDim2.new(0, 10, 0.5, -12)
     logo.BackgroundTransparency = 1
     logo.Image           = "rbxassetid://91347148253026"
+    CreateSmoothCorner(logo)
 
     local titleText = Instance.new("TextLabel", titleBar)
     titleText.Size            = UDim2.new(1, -100, 1, 0)
@@ -451,7 +452,7 @@ local function CreateMainGui()
     minimizeBtn.Position         = UDim2.new(1, -80, 0, 5)
     minimizeBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
     minimizeBtn.Text             = "-"
-    minimizeBtn.TextColor3       = Color3.fromRGB(255, 255, 255)
+    minimizeBtn.TextColor3       = Color3.fromRGB(46, 46, 46)
     minimizeBtn.TextSize         = 16
     CreateSmoothCorner(minimizeBtn)
 
