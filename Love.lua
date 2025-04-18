@@ -150,7 +150,6 @@ spawn(function()
         local bossName = getgenv().BossCheck or ""
         local foundBoss = false
 
-        -- 1) Kiểm tra trong Workspace
         for _, model in pairs(workspace:GetChildren()) do
             if model:IsA("Model") and (model.Name == bossName or model.Name:find(bossName)) then
                 local hum = model:FindFirstChild("Humanoid")
@@ -163,19 +162,17 @@ spawn(function()
             end
         end
 
-        -- 2) Kiểm tra trong ReplicatedStorage
         if not foundBoss then
             for _, obj in pairs(game:GetService("ReplicatedStorage"):GetDescendants()) do
                 if obj:IsA("Model") and (obj.Name == bossName or obj.Name:find(bossName)) then
                     foundBoss = true
-                    statusText.Text = "Status: Boss '".. bossName .."' có trong RS"
+                    statusText.Text = "Status: Boss ".. bossName .." Spawn. Húppp"
                     statusText.TextColor3 = Color3.fromRGB(255,255,255)
                     break
                 end
             end
         end
 
-        -- 3) Nếu không tìm thấy -> gọi API + teleport
         if not foundBoss then
             statusText.Text = "Status: Không tìm thấy boss, tìm server khác..."
             statusText.TextColor3 = Color3.fromRGB(255,255,255)
@@ -193,7 +190,6 @@ spawn(function()
                 continue
             end
 
-            -- Gọi API lấy tất cả Job ID
             local ok, jobIdList = pcall(function()
                 local res = game:HttpGet(url, true)
                 print("API Response:", res)
@@ -213,7 +209,6 @@ spawn(function()
                 return jobIds
             end)
 
-            -- Nếu có danh sách Job ID thì teleport lần lượt
             if ok and jobIdList and #jobIdList > 0 then
                 for _, jobId in ipairs(jobIdList) do
                     statusText.Text = "Status: Teleport đến JobId: "..jobId
@@ -222,7 +217,7 @@ spawn(function()
                     task.wait(10)
                 end
             else
-                statusText.Text = "Status: Lấy danh sách JobId thất bại"
+                statusText.Text = "Status: Lấy JobId thất bại"
                 statusText.TextColor3 = Color3.fromRGB(255,0,0)
                 print("Error:", jobIdList)
             end
