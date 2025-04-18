@@ -291,8 +291,8 @@ function CheckNearestTeleporter(aI)
 
             ["Beautiful Pirate"] = Vector3.new(5319, 23, -93),
 
-            ["Beautiful Room"] = Vector3.new(5314.58203, 22.5364361, -125.942276, 1, 2.14762768e-08, -1.99111154e-13, -2.14762768e-08, 1, -3.0510602e-08, 1.98455903e-13, 3.0510602e-08, 1),
-
+            ["Beautiful Room"] = Vector3.new(5314.58203, 22.5364361, -125.942276),
+			
             ["Temple of Time"] = Vector3.new(28286, 14897, 103)
 
         }
