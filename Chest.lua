@@ -406,7 +406,7 @@ local function CreateMainGui()
     bg.Size               = UDim2.new(1, 0, 1, 0)
     bg.Position           = UDim2.new(0, 0, 0, 0)
     bg.BackgroundTransparency = 1
-    bg.Image              = "rbxassetid://126135590095712"
+    bg.Image              = "rbxassetid://134510815124527"
     bg.ImageTransparency  = 0.5
 
     CreateDropShadow(main)
