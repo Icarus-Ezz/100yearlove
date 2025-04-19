@@ -823,69 +823,87 @@ spawn(function()
 	end
 end)
 
-function CheckBossAndHop()
-    local HttpService = game:GetService("HttpService")
-    local TeleportService = game:GetService("TeleportService")
-    local player = game.Players.LocalPlayer
+local function CheckBossAndHop()
+    if not getgenv().GreenZBossCheck then return end
 
-    local bossName = getgenv().BossCheck
+    local bossName = getgenv().BossCheck or ""
+    local foundBoss = false
+
+    -- Kiểm tra boss trong workspace
+    for _, model in pairs(workspace:GetChildren()) do
+        if model:IsA("Model") and (model.Name == bossName or model.Name:find(bossName)) then
+            local hum = model:FindFirstChild("Humanoid")
+            if hum and hum.Health > 0 then
+                foundBoss = true
+                statusText.Text = "Status: Xuất hiện Boss " .. bossName
+                statusText.TextColor3 = Color3.fromRGB(255, 50, 50)
+                return
+            end
+        end
+    end
+
+    -- Kiểm tra boss trong ReplicatedStorage
+    for _, obj in pairs(game:GetService("ReplicatedStorage"):GetDescendants()) do
+        if obj:IsA("Model") and (obj.Name == bossName or obj.Name:find(bossName)) then
+            foundBoss = true
+            statusText.Text = "Status: Boss " .. bossName .. " sắp xuất hiện (RS)"
+            statusText.TextColor3 = Color3.fromRGB(255, 255, 0)
+            return
+        end
+    end
+
+    -- Nếu boss không tồn tại → hop server
+    statusText.Text = "Status: Không tìm thấy boss, tìm server khác..."
+    statusText.TextColor3 = Color3.fromRGB(255, 255, 255)
+
     local endpoints = {
         ["Dough King"] = "http://greenzapi.serveirc.com:31447/Api/Gay",
         ["rip_indra True Form"] = "http://greenzapi.serveirc.com:31447/Api/Rip",
         ["Darkbeard"] = "http://greenzapi.serveirc.com:31447/Api/Dark",
     }
-
-    local bossExists = false
-
-    for _, model in pairs(workspace:GetChildren()) do
-        if model:IsA("Model") and (model.Name == bossName or model.Name:find(bossName)) then
-            local hum = model:FindFirstChild("Humanoid")
-            if hum and hum.Health > 0 then
-                bossExists = true
-                break
-            end
-        end
+    local url = endpoints[bossName]
+    if not url then
+        statusText.Text = "Status: Chưa có API cho boss này"
+        statusText.TextColor3 = Color3.fromRGB(255, 0, 0)
+        return
     end
 
-    if not bossExists then
-        for _, obj in pairs(game:GetService("ReplicatedStorage"):GetDescendants()) do
-            if obj:IsA("Model") and (obj.Name == bossName or obj.Name:find(bossName)) then
-                bossExists = true
-                break
-            end
-        end
-    end
+    --===[ LẤY JOB ID TỪ API ]===
+    local ok, jobIdList = pcall(function()
+        local res = game:HttpGet(url, true)
+        local data = HttpService:JSONDecode(res)
+        local jobIds = {}
 
-    if not bossExists then
-        local url = endpoints[bossName]
-        if not url then warn("Chưa có API cho boss này") return end
-
-        local ok, jobIdList = pcall(function()
-            local res = game:HttpGet(url, true)
-            local data = HttpService:JSONDecode(res)
-            local jobIds = {}
-
-            if data and data.Amount > 0 and data.JobId then
-                for _, entry in ipairs(data.JobId) do
-                    for jobIdKey, _ in pairs(entry) do
-                        if jobIdKey ~= game.JobId then
-                            table.insert(jobIds, jobIdKey)
-                        end
+        if data and data.Amount > 0 and data.JobId then
+            for _, entry in ipairs(data.JobId) do
+                for jobIdKey, _ in pairs(entry) do
+                    if jobIdKey ~= game.JobId then
+                        table.insert(jobIds, jobIdKey)
                     end
                 end
             end
-            return jobIds
-        end)
-
-        if ok and jobIdList and #jobIdList > 0 then
-            TeleportService:TeleportToPlaceInstance(game.PlaceId, jobIdList[1], player)
-        else
-            warn("Không tìm thấy JobId phù hợp")
         end
+        return jobIds
+    end)
+
+    if ok and jobIdList and #jobIdList > 0 then
+        for _, jobId in ipairs(jobIdList) do
+            statusText.Text = "Status: Teleport đến JobId: " .. jobId
+            statusText.TextColor3 = Color3.fromRGB(0, 255, 0)
+            TeleportService:TeleportToPlaceInstance(game.PlaceId, jobId, player)
+            task.wait(10)
+        end
+    else
+        statusText.Text = "Status: Lấy JobId thất bại"
+        statusText.TextColor3 = Color3.fromRGB(255, 0, 0)
     end
 end
 
-CheckBossAndHop()
+spawn(function()
+    while task.wait(5) do
+        CheckBossAndHop()
+    end
+end)
 
 _G.DoughKing = true
 
