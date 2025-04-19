@@ -1120,6 +1120,147 @@ task.spawn(function()
 
 end)
 
+getgenv().Set = true;
+spawn(function(Value)
+	getgenv().Set = Value
+	if Value ~= lastSetState then
+		lastSetState = Value
+		if Value then
+			pcall(function()
+				game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("SetSpawnPoint")
+			end)
+		end
+	end
+end)
+getgenv().AutoTurnOnV4 = true;
+spawn(function(Value)
+	getgenv().AutoTurnOnV4 = Value
+end)
+task.spawn(function()
+	local lastCheckTime = 0
+	while true do
+		task.wait(0.1)
+		if getgenv().AutoTurnOnV4 then
+			local currentTime = tick()
+			if currentTime - lastCheckTime >= 0.5 then
+				lastCheckTime = currentTime
+				local character = game.Players.LocalPlayer.Character
+				if character and character:FindFirstChild("RaceEnergy") and
+                   character.RaceEnergy.Value >= 1 and
+                   not character.RaceTransformed.Value then
+					local be = game:GetService("VirtualInputManager")
+					be:SendKeyEvent(true, "Y", false, game)
+					task.wait(0.1)
+					be:SendKeyEvent(false, "Y", false, game)
+				end
+			end
+		end
+	end
+end)
+getgenv().AutoTurnOnV3 = true;
+spawn(function()
+	local prevState = false
+	while true do
+		task.wait(0.1)
+		pcall(function()
+			if getgenv().AutoTurnOnV3 ~= prevState then
+				if getgenv().AutoTurnOnV3 then
+					game:GetService("ReplicatedStorage").Remotes.CommE:FireServer("ActivateAbility")
+				end
+				prevState = getgenv().AutoTurnOnV3
+			end
+		end)
+	end
+end)
+
+getgenv().AntiAFK = true;
+spawn(function()
+	while true do
+		if getgenv().AntiAFK then
+			local vu = game:GetService("VirtualUser")
+			local player = game:GetService("Players").LocalPlayer
+			player.Idled:Connect(function()
+				vu:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+				wait(1)
+				vu:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+			end)
+		end
+		game:GetService("RunService").Heartbeat:wait()
+	end
+end)
+
+_G.AutoKen = true;
+spawn(function(Value)
+	_G.AutoKen = Value
+	if Value then
+		game:GetService("ReplicatedStorage").Remotes.CommE:FireServer("Ken", true)
+	else
+		game:GetService("ReplicatedStorage").Remotes.CommE:FireServer("Ken", false)
+	end
+end)
+spawn(function()
+	while wait() do
+		pcall(function()
+			if _G.AutoKen then
+				game:GetService("ReplicatedStorage").Remotes.CommE:FireServer("Ken", true)
+			end
+		end)
+	end
+end)
+
+_G.DoughKing = true;
+
+spawn(function()
+	while wait() do
+		if _G.DoughKing then
+			pcall(function()
+				local enemies = game:GetService("Workspace").Enemies;
+				if enemies:FindFirstChild("Dough King") then
+					for _, v in pairs(enemies:GetChildren()) do
+						if v.Name == "Dough King" and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
+							repeat
+								wait(1)
+								task.wait()
+								AutoHaki()
+								EquipWeapon(_G.SelectWeapon)
+								v.HumanoidRootPart.CanCollide = false
+								v.Humanoid.WalkSpeed = 0
+								topos(v.HumanoidRootPart.CFrame * Pos)
+								sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge)
+							until not _G.DoughKing or not v.Parent or v.Humanoid.Health <= 0
+						end
+					end
+				else
+					local dough = game:GetService("ReplicatedStorage"):FindFirstChild("Dough King")
+					if dough and dough:FindFirstChild("HumanoidRootPart") then
+						topos(dough.HumanoidRootPart.CFrame * CFrame.new(5, 10, 7))
+					else
+						wait(1)
+						getgenv().Rip = function()
+							local url = 'http://greenzapi.serveirc.com:31447/Api/Gay'
+							local response = game:GetService('HttpService'):JSONDecode(game:HttpGet(url))
+							if response and response.Job and response.Job ~= "Not Found" then
+								local jobId = response.Job
+								game:GetService("TeleportService"):TeleportToPlaceInstance(7449423635, jobId, game.Players.LocalPlayer)
+							else
+								warn("Dough King server not found!")
+							end
+						end
+						spawn(function()
+							while _G.DoughKing do
+								pcall(function()
+									Rip()
+								end)
+								wait(10) 
+							end
+						end)
+					end
+				end
+			end)
+		end
+	end
+end)
+
 function AutoHaki()
     if not game.Players.LocalPlayer.Character:FindFirstChild("HasBuso") then
         game.ReplicatedStorage.Remotes.CommF_:InvokeServer("Buso")
