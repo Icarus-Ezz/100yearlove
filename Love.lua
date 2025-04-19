@@ -137,242 +137,19 @@ spawn(function()
 end)
 
 -------------------------------------------------------HOP BOSS + STATUS
-local HttpService = game:GetService("HttpService")
-local TeleportService = game:GetService("TeleportService")
-local player = game.Players.LocalPlayer
-
-getgenv().GreenZBossCheck = true
+function AutoHaki()
+    if not game.Players.LocalPlayer.Character:FindFirstChild("HasBuso") then
+        game.ReplicatedStorage.Remotes.CommF_:InvokeServer("Buso")
+    end
+end
 
 spawn(function()
-    while task.wait(5) do
-        if not getgenv().GreenZBossCheck then return end
-
-        local bossName = getgenv().BossCheck or ""
-        local foundBoss = false
-
-        for _, model in pairs(workspace:GetChildren()) do
-            if model:IsA("Model") and (model.Name == bossName or model.Name:find(bossName)) then
-                local hum = model:FindFirstChild("Humanoid")
-                if hum and hum.Health > 0 then
-                    foundBoss = true
-                    statusText.Text = "Status: Xuất hiện Boss " .. bossName
-                    statusText.TextColor3 = Color3.fromRGB(255,50,50)
-                    break
-                end
-            end
-        end
-
-        if not foundBoss then
-            for _, obj in pairs(game:GetService("ReplicatedStorage"):GetDescendants()) do
-                if obj:IsA("Model") and (obj.Name == bossName or obj.Name:find(bossName)) then
-                    foundBoss = true
-                    statusText.Text = "Status: Boss ".. bossName .." Spawn. Húppp"
-                    statusText.TextColor3 = Color3.fromRGB(255,255,255)
-                    break
-                end
-            end
-        end
-
-        if not foundBoss then
-            statusText.Text = "Status: Không tìm thấy boss, tìm server khác..."
-            statusText.TextColor3 = Color3.fromRGB(255,255,255)
-
-            -- Chọn endpoint phù hợp
-            local endpoints = {
-                ["Dough King"] = "http://greenzapi.serveirc.com:31447/Api/Gay",
-                ["rip_indra True Form"] = "http://greenzapi.serveirc.com:31447/Api/Rip",
-                ["Darkbeard"] = "http://greenzapi.serveirc.com:31447/Api/Dark",
-            }
-            local url = endpoints[bossName]
-            if not url then
-                statusText.Text = "Status: Chưa có API cho boss này"
-                statusText.TextColor3 = Color3.fromRGB(255,0,0)
-                continue
-            end
-
-            local ok, jobIdList = pcall(function()
-                local res = game:HttpGet(url, true)
-
-                local data = HttpService:JSONDecode(res)
-                local jobIds = {}
-
-                if data and data.Amount > 0 and data.JobId then
-                    for _, entry in ipairs(data.JobId) do
-                        for jobIdKey, _ in pairs(entry) do
-                            if jobIdKey ~= game.JobId then
-                                table.insert(jobIds, jobIdKey)
-                            end
-                        end
-                    end
-                end
-                return jobIds
-            end)
-
-            if ok and jobIdList and #jobIdList > 0 then
-                for _, jobId in ipairs(jobIdList) do
-                    statusText.Text = "Status: Teleport đến JobId: "..jobId
-                    statusText.TextColor3 = Color3.fromRGB(0,255,0)
-                    TeleportService:TeleportToPlaceInstance(game.PlaceId, jobId, player)
-                    task.wait(10)
-                end
-            else
-                statusText.Text = "Status: Lấy JobId thất bại"
-                statusText.TextColor3 = Color3.fromRGB(255,0,0)
-            end
-        end
+    while wait(1) do
+        pcall(function()
+            AutoHaki()
+        end)
     end
 end)
-
-wait(0.5)
-game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("CommF_"):InvokeServer("SetTeam", "Marines")
-
-
-
-game:GetService("ReplicatedStorage"):WaitForChild("__ServerBrowser"):InvokeServer("getjob")
-
-
-
-game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("ClientAnalyticsEvent"):FireServer({["Platform"] = "Mobile"})
-
-
-
-hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Death), function() end)
-
-hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Respawn), function() end)
-
-hookfunction(require(game:GetService("ReplicatedStorage"):WaitForChild("GuideModule")).ChangeDisplayedNPC, function() end)
-
-
-
-require(game.ReplicatedStorage.Util.CameraShaker):Stop()
-
-
-
-if game.PlaceId == 2753915549 then
-
-        World1 = true
-
-    elseif game.PlaceId == 4442272183 then
-
-        World2 = true
-
-    elseif game.PlaceId == 7449423635 then
-
-        World3 = true
-
-    end
-
-
-
-local isTeleporting = false
-
-
-
-function WaitHRP(q0)
-
-    if not q0 then return end
-
-    return q0.Character:WaitForChild("HumanoidRootPart", 9)
-
-end
-
-
-
-function CheckNearestTeleporter(aI)
-
-    local vcspos = aI.Position
-
-    local minDist = math.huge
-
-    local chosenTeleport = nil
-
-    local y = game.PlaceId
-
-
-
-    local TableLocations = {}
-
-
-
-    if y == 2753915549 then
-
-        TableLocations = {
-
-            ["Sky3"] = Vector3.new(-7894, 5547, -380),
-
-            ["Sky3Exit"] = Vector3.new(-4607, 874, -1667),
-
-            ["UnderWater"] = Vector3.new(61163, 11, 1819),
-
-            ["UnderwaterExit"] = Vector3.new(4050, -1, -1814)
-
-        }
-
-    elseif y == 4442272183 then
-
-        TableLocations = {
-
-            ["Swan Mansion"] = Vector3.new(-390, 332, 673),
-
-            ["Swan Room"] = Vector3.new(2285, 15, 905),
-
-            ["Cursed Ship"] = Vector3.new(923, 126, 32852),
-
-            ["Zombie Island"] = Vector3.new(-6509, 83, -133)
-
-        }
-
-    elseif y == 7449423635 then
-
-        TableLocations = {
-
-            ["Floating Turtle"] = Vector3.new(-12462, 375, -7552),
-
-            ["Hydra Island"] = Vector3.new(5662, 1013, -335),
-
-            ["Mansion"] = Vector3.new(-12462, 375, -7552),
-
-            ["Castle"] = Vector3.new(-5036, 315, -3179),
-
-            ["Beautiful Pirate"] = Vector3.new(5319, 23, -93),
-
-            ["Beautiful Room"] = Vector3.new(5314.58203, 22.5364361, -125.942276),
-			
-            ["Temple of Time"] = Vector3.new(28286, 14897, 103)
-
-        }
-
-    end
-
-
-
-    for _, v in pairs(TableLocations) do
-
-        local dist = (v - vcspos).Magnitude
-
-        if dist < minDist then
-
-            minDist = dist
-
-            chosenTeleport = v
-
-        end
-
-    end
-
-
-
-    local playerPos = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
-
-    if minDist <= (vcspos - playerPos).Magnitude then
-
-        return chosenTeleport
-
-    end
-
-end
-
-
 
 function requestEntrance(teleportPos)
 
@@ -541,157 +318,6 @@ spawn(function()
     end
 
 end)
-
-
-
-local plr = game.Players.LocalPlayer
-
-
-
-local function onCharacterAdded(character)
-
-    local humanoid = character:WaitForChild("Humanoid")
-
-    humanoid.Died:Connect(function()
-
-        stopTeleport()
-
-    end)
-
-end
-
-
-
-plr.CharacterAdded:Connect(onCharacterAdded)
-
-
-
-if plr.Character then
-
-    onCharacterAdded(plr.Character)
-
-end
-
-
-
-spawn(function()
-
-    pcall(function()
-
-        while wait() do
-
-            if getgenv().KaitunBoss then
-
-                if not game:GetService("Players").LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyClip") then
-
-                    local Noclip = Instance.new("BodyVelocity")
-
-                    Noclip.Name = "BodyClip"
-
-                    Noclip.Parent = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart
-
-                    Noclip.MaxForce = Vector3.new(100000,100000,100000)
-
-                    Noclip.Velocity = Vector3.new(0,0,0)
-
-                end
-
-            end
-
-        end
-
-    end)
-
-end)
-
-    
-
-spawn(function()
-
-    pcall(function()
-
-        game:GetService("RunService").Stepped:Connect(function()
-
-            if getgenv().KaitunBoss then
-
-                for _, v in pairs(game:GetService("Players").LocalPlayer.Character:GetDescendants()) do
-
-                    if v:IsA("BasePart") then
-
-                        v.CanCollide = false    
-
-                    end
-
-                end
-
-            end
-
-        end)
-
-    end)
-
-end)
-
-
-
-PosY = 25
-
-
-
-Type = 1
-
-spawn(function()
-
-    while wait() do
-
-		if Type == 1 then
-
-			Pos = CFrame.new(0,PosY,-19)
-
-		elseif Type == 2 then
-
-			Pos = CFrame.new(19,PosY,0)
-
-		elseif Type == 3 then
-
-			Pos = CFrame.new(0,PosY,19)	
-
-		elseif Type == 4 then
-
-			Pos = CFrame.new(-19,PosY,0)
-
-        end
-
-    end
-
-end)
-
-
-
-spawn(function()
-
-    while wait(.1) do
-
-        Type = 1
-
-        wait(0.2)
-
-        Type = 2
-
-        wait(0.2)
-
-        Type = 3
-
-        wait(0.2)
-
-        Type = 4
-
-        wait(0.2)
-
-    end
-
-end)
-
 
 
 _G.FastAttack = true
@@ -1003,21 +629,6 @@ if _G.FastAttack then
     end)()
 
 end
-
-
-
-function AutoHaki()
-
-    if not game:GetService("Players").LocalPlayer.Character:FindFirstChild("HasBuso") then
-
-        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Buso")
-
-    end
-
-end
-
-
-
 function EquipWeapon(ToolSe)
 
     if not Nill then
@@ -1039,8 +650,6 @@ end
 
 
 _G.SelectWeapon = "Melee"
-
-
 
 task.spawn(function()
 
@@ -1121,6 +730,7 @@ task.spawn(function()
 end)
 
 getgenv().Set = true;
+
 spawn(function(Value)
 	getgenv().Set = Value
 	if Value ~= lastSetState then
@@ -1133,6 +743,7 @@ spawn(function(Value)
 	end
 end)
 getgenv().AutoTurnOnV4 = true;
+
 spawn(function(Value)
 	getgenv().AutoTurnOnV4 = Value
 end)
@@ -1157,7 +768,9 @@ task.spawn(function()
 		end
 	end
 end)
+
 getgenv().AutoTurnOnV3 = true;
+
 spawn(function()
 	local prevState = false
 	while true do
@@ -1174,6 +787,7 @@ spawn(function()
 end)
 
 getgenv().AntiAFK = true;
+
 spawn(function()
 	while true do
 		if getgenv().AntiAFK then
@@ -1190,6 +804,7 @@ spawn(function()
 end)
 
 _G.AutoKen = true;
+
 spawn(function(Value)
 	_G.AutoKen = Value
 	if Value then
@@ -1208,52 +823,90 @@ spawn(function()
 	end
 end)
 
-_G.DoughKing = true;
+function CheckBossAndHop()
+    local HttpService = game:GetService("HttpService")
+    local TeleportService = game:GetService("TeleportService")
+    local player = game.Players.LocalPlayer
+
+    local bossName = getgenv().BossCheck
+    local endpoints = {
+        ["Dough King"] = "http://greenzapi.serveirc.com:31447/Api/Gay",
+        ["rip_indra True Form"] = "http://greenzapi.serveirc.com:31447/Api/Rip",
+        ["Darkbeard"] = "http://greenzapi.serveirc.com:31447/Api/Dark",
+    }
+
+    local bossExists = false
+
+    for _, model in pairs(workspace:GetChildren()) do
+        if model:IsA("Model") and (model.Name == bossName or model.Name:find(bossName)) then
+            local hum = model:FindFirstChild("Humanoid")
+            if hum and hum.Health > 0 then
+                bossExists = true
+                break
+            end
+        end
+    end
+
+    if not bossExists then
+        for _, obj in pairs(game:GetService("ReplicatedStorage"):GetDescendants()) do
+            if obj:IsA("Model") and (obj.Name == bossName or obj.Name:find(bossName)) then
+                bossExists = true
+                break
+            end
+        end
+    end
+
+    if not bossExists then
+        local url = endpoints[bossName]
+        if not url then warn("Chưa có API cho boss này") return end
+
+        local ok, jobIdList = pcall(function()
+            local res = game:HttpGet(url, true)
+            local data = HttpService:JSONDecode(res)
+            local jobIds = {}
+
+            if data and data.Amount > 0 and data.JobId then
+                for _, entry in ipairs(data.JobId) do
+                    for jobIdKey, _ in pairs(entry) do
+                        if jobIdKey ~= game.JobId then
+                            table.insert(jobIds, jobIdKey)
+                        end
+                    end
+                end
+            end
+            return jobIds
+        end)
+
+        if ok and jobIdList and #jobIdList > 0 then
+            TeleportService:TeleportToPlaceInstance(game.PlaceId, jobIdList[1], player)
+        else
+            warn("Không tìm thấy JobId phù hợp")
+        end
+    end
+end
+
+CheckBossAndHop()
+
+_G.DoughKing = true
 
 spawn(function()
 	while wait() do
 		if _G.DoughKing then
 			pcall(function()
-				local enemies = game:GetService("Workspace").Enemies;
-				if enemies:FindFirstChild("Dough King") then
+				local enemies = workspace:FindFirstChild("Enemies")
+				if enemies and enemies:FindFirstChild("Dough King") then
 					for _, v in pairs(enemies:GetChildren()) do
 						if v.Name == "Dough King" and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
 							repeat
-								wait(1)
-								task.wait()
+								wait(0.5)
 								AutoHaki()
 								EquipWeapon(_G.SelectWeapon)
 								v.HumanoidRootPart.CanCollide = false
 								v.Humanoid.WalkSpeed = 0
-								topos(v.HumanoidRootPart.CFrame * Pos)
-								sethiddenproperty(game:GetService("Players").LocalPlayer, "SimulationRadius", math.huge)
+								topos(v.HumanoidRootPart.CFrame * CFrame.new(0, 30, 0))
+								sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)
 							until not _G.DoughKing or not v.Parent or v.Humanoid.Health <= 0
 						end
-					end
-				else
-					local dough = game:GetService("ReplicatedStorage"):FindFirstChild("Dough King")
-					if dough and dough:FindFirstChild("HumanoidRootPart") then
-						topos(dough.HumanoidRootPart.CFrame * CFrame.new(5, 10, 7))
-					else
-						wait(1)
-						getgenv().Rip = function()
-							local url = 'http://greenzapi.serveirc.com:31447/Api/Gay'
-							local response = game:GetService('HttpService'):JSONDecode(game:HttpGet(url))
-							if response and response.Job and response.Job ~= "Not Found" then
-								local jobId = response.Job
-								game:GetService("TeleportService"):TeleportToPlaceInstance(7449423635, jobId, game.Players.LocalPlayer)
-							else
-								warn("Dough King server not found!")
-							end
-						end
-						spawn(function()
-							while _G.DoughKing do
-								pcall(function()
-									Rip()
-								end)
-								wait(10) 
-							end
-						end)
 					end
 				end
 			end)
@@ -1261,18 +914,302 @@ spawn(function()
 	end
 end)
 
-function AutoHaki()
-    if not game.Players.LocalPlayer.Character:FindFirstChild("HasBuso") then
-        game.ReplicatedStorage.Remotes.CommF_:InvokeServer("Buso")
+wait(0.5)
+game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("CommF_"):InvokeServer("SetTeam", "Marines")
+
+
+
+game:GetService("ReplicatedStorage"):WaitForChild("__ServerBrowser"):InvokeServer("getjob")
+
+
+
+game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("ClientAnalyticsEvent"):FireServer({["Platform"] = "Mobile"})
+
+
+
+hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Death), function() end)
+
+hookfunction(require(game:GetService("ReplicatedStorage").Effect.Container.Respawn), function() end)
+
+hookfunction(require(game:GetService("ReplicatedStorage"):WaitForChild("GuideModule")).ChangeDisplayedNPC, function() end)
+
+
+
+require(game.ReplicatedStorage.Util.CameraShaker):Stop()
+
+
+
+if game.PlaceId == 2753915549 then
+
+        World1 = true
+
+    elseif game.PlaceId == 4442272183 then
+
+        World2 = true
+
+    elseif game.PlaceId == 7449423635 then
+
+        World3 = true
+
     end
+
+
+
+local isTeleporting = false
+
+
+
+function WaitHRP(q0)
+
+    if not q0 then return end
+
+    return q0.Character:WaitForChild("HumanoidRootPart", 9)
+
 end
 
-spawn(function()
-    while wait(1) do
-        pcall(function()
-            AutoHaki()
-        end)
+
+
+function CheckNearestTeleporter(aI)
+
+    local vcspos = aI.Position
+
+    local minDist = math.huge
+
+    local chosenTeleport = nil
+
+    local y = game.PlaceId
+
+
+
+    local TableLocations = {}
+
+
+
+    if y == 2753915549 then
+
+        TableLocations = {
+
+            ["Sky3"] = Vector3.new(-7894, 5547, -380),
+
+            ["Sky3Exit"] = Vector3.new(-4607, 874, -1667),
+
+            ["UnderWater"] = Vector3.new(61163, 11, 1819),
+
+            ["UnderwaterExit"] = Vector3.new(4050, -1, -1814)
+
+        }
+
+    elseif y == 4442272183 then
+
+        TableLocations = {
+
+            ["Swan Mansion"] = Vector3.new(-390, 332, 673),
+
+            ["Swan Room"] = Vector3.new(2285, 15, 905),
+
+            ["Cursed Ship"] = Vector3.new(923, 126, 32852),
+
+            ["Zombie Island"] = Vector3.new(-6509, 83, -133)
+
+        }
+
+    elseif y == 7449423635 then
+
+        TableLocations = {
+
+            ["Floating Turtle"] = Vector3.new(-12462, 375, -7552),
+
+            ["Hydra Island"] = Vector3.new(5662, 1013, -335),
+
+            ["Mansion"] = Vector3.new(-12462, 375, -7552),
+
+            ["Castle"] = Vector3.new(-5036, 315, -3179),
+
+            ["Beautiful Pirate"] = Vector3.new(5319, 23, -93),
+
+            ["Beautiful Room"] = Vector3.new(5314.58203, 22.5364361, -125.942276),
+			
+            ["Temple of Time"] = Vector3.new(28286, 14897, 103)
+
+        }
+
     end
+
+
+
+    for _, v in pairs(TableLocations) do
+
+        local dist = (v - vcspos).Magnitude
+
+        if dist < minDist then
+
+            minDist = dist
+
+            chosenTeleport = v
+
+        end
+
+    end
+
+
+
+    local playerPos = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
+
+    if minDist <= (vcspos - playerPos).Magnitude then
+
+        return chosenTeleport
+
+    end
+
+end
+
+
+local plr = game.Players.LocalPlayer
+
+
+
+local function onCharacterAdded(character)
+
+    local humanoid = character:WaitForChild("Humanoid")
+
+    humanoid.Died:Connect(function()
+
+        stopTeleport()
+
+    end)
+
+end
+
+
+
+plr.CharacterAdded:Connect(onCharacterAdded)
+
+
+
+if plr.Character then
+
+    onCharacterAdded(plr.Character)
+
+end
+
+
+
+spawn(function()
+
+    pcall(function()
+
+        while wait() do
+
+            if getgenv().KaitunBoss then
+
+                if not game:GetService("Players").LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyClip") then
+
+                    local Noclip = Instance.new("BodyVelocity")
+
+                    Noclip.Name = "BodyClip"
+
+                    Noclip.Parent = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart
+
+                    Noclip.MaxForce = Vector3.new(100000,100000,100000)
+
+                    Noclip.Velocity = Vector3.new(0,0,0)
+
+                end
+
+            end
+
+        end
+
+    end)
+
+end)
+
+    
+
+spawn(function()
+
+    pcall(function()
+
+        game:GetService("RunService").Stepped:Connect(function()
+
+            if getgenv().KaitunBoss then
+
+                for _, v in pairs(game:GetService("Players").LocalPlayer.Character:GetDescendants()) do
+
+                    if v:IsA("BasePart") then
+
+                        v.CanCollide = false    
+
+                    end
+
+                end
+
+            end
+
+        end)
+
+    end)
+
+end)
+
+
+
+PosY = 25
+
+
+
+Type = 1
+
+spawn(function()
+
+    while wait() do
+
+		if Type == 1 then
+
+			Pos = CFrame.new(0,PosY,-19)
+
+		elseif Type == 2 then
+
+			Pos = CFrame.new(19,PosY,0)
+
+		elseif Type == 3 then
+
+			Pos = CFrame.new(0,PosY,19)	
+
+		elseif Type == 4 then
+
+			Pos = CFrame.new(-19,PosY,0)
+
+        end
+
+    end
+
+end)
+
+
+
+spawn(function()
+
+    while wait(.1) do
+
+        Type = 1
+
+        wait(0.2)
+
+        Type = 2
+
+        wait(0.2)
+
+        Type = 3
+
+        wait(0.2)
+
+        Type = 4
+
+        wait(0.2)
+
+    end
+
 end)
 
 local player = game.Players.LocalPlayer
