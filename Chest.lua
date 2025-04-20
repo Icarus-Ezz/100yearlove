@@ -1,7 +1,7 @@
 --[[
 getgenv().config = {
     Setting = {
-        ["Team"] = "Marines",         
+        ["Team"] = "Marines",         --Pirates\Marines
         ["Disabled Notify"] = false,  
         ["Boots FPS"] = false,         
         ["White Screen"] = false,
