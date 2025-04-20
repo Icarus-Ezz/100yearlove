@@ -120,9 +120,7 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
     local beli = player:FindFirstChild("Data")
                  and player.Data:FindFirstChild("Beli")
                  and player.Data.Beli.Value or 0
-    local userId = player.UserId
-    local hopCount = hopCountTable[userId] or 0
-
+    
     local AdminMessage = {
         embeds = {{
             title       = "**📦 Inventory Check!**",
