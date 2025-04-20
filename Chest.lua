@@ -165,12 +165,12 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
                     inline = false
                 },
                 {
-                    name   = "️♜ God's Chalice",
+                    name   = "️♜ God's Chalice 🔳",
                     value  = hasGodsChalice and "✅" or "❌",
                     inline = true
                 },
                 {
-                    name   = "🗝Fist of Darkness",
+                    name   = "♣️ Fist of Darkness ♠️",
                     value  = hasFistOfDarkness and "✅" or "❌",
                     inline = true
                 },
