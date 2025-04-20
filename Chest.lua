@@ -441,7 +441,55 @@ local function CreateMainGui()
     closeBtn.TextColor3       = Color3.fromRGB(231, 76, 60)
     closeBtn.TextSize         = 16
     CreateSmoothCorner(closeBtn)
+    
+    closeBtn.MouseButton1Click:Connect(function()
+    	local confirmFrame = Instance.new("Frame")
+    	confirmFrame.Size = UDim2.new(0, 250, 0, 120)
+    	confirmFrame.Position = UDim2.new(0.5, -125, 0.5, -60)
+    	confirmFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    	confirmFrame.BorderSizePixel = 0
+	    confirmFrame.Parent = closeBtn:FindFirstAncestorOfClass("ScreenGui") or game.Players.LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("ScreenGui")
+	    CreateSmoothCorner(confirmFrame)
 
+    	local question = Instance.new("TextLabel", confirmFrame)
+    	question.Size = UDim2.new(1, -20, 0, 50)
+    	question.Position = UDim2.new(0, 10, 0, 10)
+    	question.BackgroundTransparency = 1
+    	question.Text = "Are you sure you want to close this Ui?"
+    	question.TextColor3 = Color3.fromRGB(255, 255, 255)
+    	question.TextSize = 16
+    	question.Font = Enum.Font.Gotham
+
+    	local yesBtn = Instance.new("TextButton", confirmFrame)
+    	yesBtn.Size = UDim2.new(0.4, 0, 0, 30)
+    	yesBtn.Position = UDim2.new(0.05, 0, 1, -40)
+    	yesBtn.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
+    	yesBtn.Text = "Yep"
+    	yesBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    	yesBtn.TextSize = 14
+	    CreateSmoothCorner(yesBtn)
+
+	    local noBtn = Instance.new("TextButton", confirmFrame)
+	    noBtn.Size = UDim2.new(0.4, 0, 0, 30)
+    	noBtn.Position = UDim2.new(0.55, 0, 1, -40)
+    	noBtn.BackgroundColor3 = Color3.fromRGB(231, 76, 60)
+    	noBtn.Text = "No"
+    	noBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    	noBtn.TextSize = 14
+    	CreateSmoothCorner(noBtn)
+
+	    yesBtn.MouseButton1Click:Connect(function()
+	    	local topFrame = closeBtn:FindFirstAncestorOfClass("Frame")
+	    	if topFrame then
+	    		topFrame:Destroy()
+	    	end
+    	end)
+
+    	noBtn.MouseButton1Click:Connect(function()
+    		confirmFrame:Destroy()
+    	end)
+    end)
+    
     local minimizeBtn = Instance.new("TextButton", titleBar)
     minimizeBtn.Size             = UDim2.new(0, 30, 0, 30)
     minimizeBtn.Position         = UDim2.new(1, -80, 0, 5)
