@@ -765,15 +765,17 @@ end)
 
 -- ========== Auto Jump nếu kẹt ghế ==========
 function AutoJump()
-    while getgenv().config.Setting["No Stuck Chair"] do
-        pcall(function()
-            local char = game.Players.LocalPlayer.Character
-            local humanoid = char and char:FindFirstChildOfClass("Humanoid")
-            if humanoid then
-                humanoid.Jump = true
-            end
-        end)
-        wait(2)
+    while wait(2) do
+        if getgenv().config.Setting["No Stuck Chair"] then
+            print("Jumping...")
+            pcall(function()
+                local char = game.Players.LocalPlayer.Character
+                local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid.Jump = true
+                end
+            end)
+        end
     end
 end
 
