@@ -835,13 +835,13 @@ function StartCountdownAndHop(countdownTime)
 
     local countdownLabel = Instance.new("TextLabel")
     countdownLabel.Parent = screenGui
-    countdownLabel.Size = UDim2.new(0, 300, 0, 50)
+    countdownLabel.Size = UDim2.new(0, 300, 0, 70)
     countdownLabel.Position = UDim2.new(0.5, -150, 0.5, -60)
     countdownLabel.BackgroundTransparency = 1
     countdownLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     countdownLabel.TextSize = 30
     countdownLabel.Font = Enum.Font.GothamBold
-    countdownLabel.Text = tostring(countdownTime) .. "s | Vxeze Hop Sever"
+    countdownLabel.Text = tostring(i) .. "s\nVxeze Hop Chest"
     countdownLabel.TextStrokeTransparency = 0.6
     countdownLabel.ZIndex = 3
 
