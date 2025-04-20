@@ -866,7 +866,7 @@ function StartCountdownAndHop(countdownTime)
     stopButton.Parent = screenGui
     stopButton.Size = UDim2.new(0, 140, 0, 40)
     stopButton.Position = UDim2.new(0.5, -70, 0.5, 30)
-    stopButton.Image = "rbxassetid://13014919534" 
+    stopButton.Image = "rbxassetid://91347148253026" 
     stopButton.ScaleType = Enum.ScaleType.Stretch
     stopButton.BackgroundTransparency = 1
     stopButton.ZIndex = 4
