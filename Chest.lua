@@ -801,11 +801,38 @@ function StartCountdownAndHop(countdownTime)
 
     local logo = Instance.new("ImageLabel")
     logo.Parent = screenGui
-    logo.Size = UDim2.new(0, 100, 0, 100)
-    logo.Position = UDim2.new(0.5, -50, 0.3, -50)
+    logo.Size = UDim2.new(0, 70, 0, 70) -- nhỏ lại
+    logo.Position = UDim2.new(0.5, -35, 0.3, -60)
     logo.Image = "rbxassetid://91347148253026"
     logo.BackgroundTransparency = 1
     logo.ZIndex = 2
+
+    -- Dòng chữ chính: Vxeze Hop Server
+    local titleLabel = Instance.new("TextLabel")
+    titleLabel.Parent = screenGui
+    titleLabel.Size = UDim2.new(0, 400, 0, 40)
+    titleLabel.Position = UDim2.new(0.5, -200, 0.3, 20) -- ngay dưới logo
+    titleLabel.BackgroundTransparency = 1
+    titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    titleLabel.TextSize = 32
+    titleLabel.Font = Enum.Font.GothamBold
+    titleLabel.Text = "Vxeze Hop Server"
+    titleLabel.TextStrokeTransparency = 0.6
+    titleLabel.TextScaled = false
+    titleLabel.ZIndex = 3
+
+    local subLabel = Instance.new("TextLabel")
+    subLabel.Parent = screenGui
+    subLabel.Size = UDim2.new(0, 300, 0, 20)
+    subLabel.Position = UDim2.new(0.5, -150, 0.3, 60) 
+    subLabel.BackgroundTransparency = 1
+    subLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+    subLabel.TextSize = 18
+    subLabel.Font = Enum.Font.Gotham
+    subLabel.Text = "Find New Server"
+    subLabel.TextStrokeTransparency = 0.8
+    subLabel.TextScaled = false
+    subLabel.ZIndex = 3
 
     local progressBarBackground = Instance.new("Frame")
     progressBarBackground.Parent = screenGui
