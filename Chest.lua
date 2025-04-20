@@ -371,7 +371,7 @@ local function CreateSmoothCorner1(parent, isCircle)
     if isCircle then
         corner.CornerRadius = UDim.new(1, 0)
     else
-        corner.CornerRadius = UDim.new(0, 12)
+        corner.CornerRadius = UDim.new(0, 8)
     end
     return corner
 end
@@ -513,7 +513,7 @@ local function CreateMainGui()
         btn.Text = text
         btn.Font = Enum.Font.GothamBold
         btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        btn.TextSize = 16
+        btn.TextSize = 12
         btn.AutoButtonColor = false
         btn.ClipsDescendants = true
 
@@ -535,10 +535,10 @@ local function CreateMainGui()
         return btn
     end
     
-    Converted["_StartButton"] = CreateButton("Start", Color3.fromRGB(46,204,113))
+    Converted["_StartButton"] = CreateButton("▶️ Start", Color3.fromRGB(46,204,113))
     Converted["_StartButton"].Parent = btnFrame
 
-    Converted["_StopButton"] = CreateButton("Stop", Color3.fromRGB(231,76,60))
+    Converted["_StopButton"] = CreateButton("⏹️ Stop", Color3.fromRGB(231,76,60))
     Converted["_StopButton"].Parent = btnFrame
 
     local mini = Instance.new("Frame", screenGui)
