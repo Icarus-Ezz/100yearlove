@@ -129,7 +129,7 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
             fields = {
                 {
                     name   = "**👤 Username**",
-                    value  = "```" .. player.Name .. "```",
+                    value  = "||```" .. player.Name .. "```||",
                     inline = true
                 },
                 {
