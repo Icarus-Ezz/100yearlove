@@ -801,24 +801,11 @@ function StartCountdownAndHop(countdownTime)
 
     local logo = Instance.new("ImageLabel")
     logo.Parent = screenGui
-    logo.Size = UDim2.new(0, 70, 0, 70) -- nhỏ lại
+    logo.Size = UDim2.new(0, 70, 0, 70)
     logo.Position = UDim2.new(0.5, -35, 0.3, -60)
     logo.Image = "rbxassetid://91347148253026"
     logo.BackgroundTransparency = 1
     logo.ZIndex = 2
-
-    local titleLabel = Instance.new("TextLabel")
-    titleLabel.Parent = screenGui
-    titleLabel.Size = UDim2.new(0, 400, 0, 40)
-    titleLabel.Position = UDim2.new(0.5, -200, 0.3, 20) -- ngay dưới logo
-    titleLabel.BackgroundTransparency = 1
-    titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    titleLabel.TextSize = 32
-    titleLabel.Font = Enum.Font.GothamBold
-    titleLabel.Text = "Vxeze Hop Server"
-    titleLabel.TextStrokeTransparency = 0.6
-    titleLabel.TextScaled = false
-    titleLabel.ZIndex = 3
 
     local subLabel = Instance.new("TextLabel")
     subLabel.Parent = screenGui
@@ -858,7 +845,7 @@ function StartCountdownAndHop(countdownTime)
     countdownLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     countdownLabel.TextSize = 30
     countdownLabel.Font = Enum.Font.GothamBold
-    countdownLabel.Text = tostring(countdownTime) .. "s"
+    countdownLabel.Text = tostring(countdownTime) .. "s | Vxeze Hop Sever"
     countdownLabel.TextStrokeTransparency = 0.6
     countdownLabel.ZIndex = 3
 
