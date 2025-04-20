@@ -835,17 +835,18 @@ function StartCountdownAndHop(countdownTime)
 
     local countdownLabel = Instance.new("TextLabel")
     countdownLabel.Parent = screenGui
-    countdownLabel.Size = UDim2.new(0, 300, 0, 70)
-    countdownLabel.TextWrapped = true
-    countdownLabel.Position = UDim2.new(0.5, -150, 0.5, -60)
+    countdownLabel.Size = UDim2.new(0, 350, 0, 50)                -- rộng hơn để chứa cả chuỗi
+    countdownLabel.Position = UDim2.new(0.5, -175, 0.5, -60)
     countdownLabel.BackgroundTransparency = 1
     countdownLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    countdownLabel.TextSize = 30
     countdownLabel.Font = Enum.Font.GothamBold
-    countdownLabel.Text = tostring(i) .. "s\nVxeze Hop Chest"
+    countdownLabel.TextSize = 28
+    countdownLabel.TextWrapped = false                            -- không wrap
+    countdownLabel.TextXAlignment = Enum.TextXAlignment.Center   -- căn giữa ngang
+    countdownLabel.TextYAlignment = Enum.TextYAlignment.Center   -- căn giữa dọc
     countdownLabel.TextStrokeTransparency = 0.6
     countdownLabel.ZIndex = 3
-
+    
     local stopButton = Instance.new("ImageButton") 
     stopButton.Parent = screenGui
     stopButton.Size = UDim2.new(0, 140, 0, 40)
@@ -884,8 +885,8 @@ function StartCountdownAndHop(countdownTime)
 
     for i = countdownTime, 1, -1 do
         if stopHopping then return end
-        countdownLabel.Text = tostring(i) .. "s"
-        progressBar:TweenSize(UDim2.new(i / countdownTime, 0, 1, 0), "Out", "Linear", 1, true)
+        countdownLabel.Text = string.format("%ds | Vxeze Hop Chest", i)
+        progressBar:TweenSize(UDim2.new(i/countdownTime, 0, 1, 0), "Out", "Linear", 1, true)
         wait(1)
     end
 
