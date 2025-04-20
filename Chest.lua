@@ -366,6 +366,16 @@ local function CreateSmoothCorner(parent, radius)
     return corner
 end
 
+local function CreateSmoothCorner1(parent, isCircle)
+    local corner = Instance.new("UICorner", parent)
+    if isCircle then
+        corner.CornerRadius = UDim.new(1, 0)
+    else
+        corner.CornerRadius = UDim.new(0, 12)
+    end
+    return corner
+end
+
 local function CreateStroke(parent, color, thickness)
     local stroke = Instance.new("UIStroke", parent)
     stroke.Color      = color or Color3.fromRGB(65, 65, 65)
@@ -413,7 +423,7 @@ local function CreateMainGui()
     logo.Position        = UDim2.new(0, 10, 0.5, -12)
     logo.BackgroundTransparency = 1
     logo.Image           = "rbxassetid://91347148253026"
-    CreateSmoothCorner(logo, 12)
+    CreateSmoothCorner1(logo, true)
 
     local titleText = Instance.new("TextLabel", titleBar)
     titleText.Size            = UDim2.new(1, -100, 1, 0)
@@ -450,7 +460,7 @@ local function CreateMainGui()
     stats.Name             = "Stats"
     stats.Size             = UDim2.new(1, -20, 0, 180)
     stats.Position         = UDim2.new(0, 10, 0, 50)
-    stats.BackgroundTransparency = 1  -- Để ẩn nền của Frame
+    stats.BackgroundTransparency = 1 
 
 -- Tạo ImageLabel để chèn hình ảnh vào Frame
     local backgroundImage = Instance.new("ImageLabel", stats)
