@@ -836,6 +836,7 @@ function StartCountdownAndHop(countdownTime)
     local countdownLabel = Instance.new("TextLabel")
     countdownLabel.Parent = screenGui
     countdownLabel.Size = UDim2.new(0, 300, 0, 70)
+    countdownLabel.TextWrapped = true
     countdownLabel.Position = UDim2.new(0.5, -150, 0.5, -60)
     countdownLabel.BackgroundTransparency = 1
     countdownLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
