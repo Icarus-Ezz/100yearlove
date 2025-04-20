@@ -440,60 +440,65 @@ local function CreateMainGui()
     titleText.TextXAlignment  = Enum.TextXAlignment.Left
 
     local closeBtn = Instance.new("TextButton", titleBar)
-    closeBtn.Size             = UDim2.new(0, 30, 0, 30)
-    closeBtn.Position         = UDim2.new(1, -40, 0, 5)
+    closeBtn.Size = UDim2.new(0, 30, 0, 30)
+    closeBtn.Position = UDim2.new(1, -40, 0, 5)
     closeBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    closeBtn.Text             = "X"
-    closeBtn.TextColor3       = Color3.fromRGB(231, 76, 60)
-    closeBtn.TextSize         = 16
+    closeBtn.Text = "X"
+    closeBtn.TextColor3 = Color3.fromRGB(231, 76, 60)
+    closeBtn.TextSize = 16
     CreateSmoothCorner(closeBtn)
+
+    -- Tạo cửa sổ xác nhận
+    local function createConfirmationDialog()
+        local dialog = Instance.new("ScreenGui")
+        dialog.Name = "ConfirmationDialog"
+        dialog.Parent = game.Players.LocalPlayer.PlayerGui
     
+    -- Tạo Background
+        local bg = Instance.new("Frame")
+        bg.Size = UDim2.new(0, 300, 0, 150)
+        bg.Position = UDim2.new(0.5, -150, 0.5, -75)
+        bg.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+        bg.Parent = dialog
+    
+    -- Tiêu đề
+        local title = Instance.new("TextLabel")
+        title.Size = UDim2.new(1, 0, 0, 30)
+        title.Text = "Are you sure you want to close?"
+        title.TextColor3 = Color3.fromRGB(255, 255, 255)
+        title.BackgroundTransparency = 1
+        title.Parent = bg
+    
+    -- Nút "Có"
+        local yesBtn = Instance.new("TextButton")
+        yesBtn.Size = UDim2.new(0.4, 0, 0, 40)
+        yesBtn.Position = UDim2.new(0, 20, 0, 60)
+        yesBtn.Text = "Yes"
+        yesBtn.BackgroundColor3 = Color3.fromRGB(76, 175, 80)  -- Màu xanh lá
+        yesBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        yesBtn.Parent = bg
+        yesBtn.MouseButton1Click:Connect(function()
+            -- Thực hiện hành động đóng ứng dụng
+            game:Shutdown()  -- Hoặc hành động tắt game, tùy theo yêu cầu của bạn
+            dialog:Destroy()
+        end)
+    
+        -- Nút "Không"
+        local noBtn = Instance.new("TextButton")
+        noBtn.Size = UDim2.new(0.4, 0, 0, 40)
+        noBtn.Position = UDim2.new(0, 180, 0, 60)
+        noBtn.Text = "No"
+        noBtn.BackgroundColor3 = Color3.fromRGB(244, 67, 54)  -- Màu đỏ
+        noBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        noBtn.Parent = bg
+        noBtn.MouseButton1Click:Connect(function()
+            dialog:Destroy()  -- Đóng hộp thoại nếu chọn "Không"
+        end)
+    end
+
+    -- Khi bấm vào nút X
     closeBtn.MouseButton1Click:Connect(function()
-    	local confirmFrame = Instance.new("Frame")
-    	confirmFrame.Size = UDim2.new(0, 250, 0, 120)
-    	confirmFrame.Position = UDim2.new(0.5, -125, 0.5, -60)
-    	confirmFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-    	confirmFrame.BorderSizePixel = 0
-	    confirmFrame.Parent = closeBtn:FindFirstAncestorOfClass("ScreenGui") or game.Players.LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("ScreenGui")
-	    CreateSmoothCorner(confirmFrame)
-
-    	local question = Instance.new("TextLabel", confirmFrame)
-    	question.Size = UDim2.new(1, -20, 0, 50)
-    	question.Position = UDim2.new(0, 10, 0, 10)
-    	question.BackgroundTransparency = 1
-    	question.Text = "Are you sure you want to close this Ui?"
-    	question.TextColor3 = Color3.fromRGB(255, 255, 255)
-    	question.TextSize = 16
-    	question.Font = Enum.Font.Gotham
-
-    	local yesBtn = Instance.new("TextButton", confirmFrame)
-    	yesBtn.Size = UDim2.new(0.4, 0, 0, 30)
-    	yesBtn.Position = UDim2.new(0.05, 0, 1, -40)
-    	yesBtn.BackgroundColor3 = Color3.fromRGB(46, 204, 113)
-    	yesBtn.Text = "Yep"
-    	yesBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    	yesBtn.TextSize = 14
-	    CreateSmoothCorner(yesBtn)
-
-	    local noBtn = Instance.new("TextButton", confirmFrame)
-	    noBtn.Size = UDim2.new(0.4, 0, 0, 30)
-    	noBtn.Position = UDim2.new(0.55, 0, 1, -40)
-    	noBtn.BackgroundColor3 = Color3.fromRGB(231, 76, 60)
-    	noBtn.Text = "No"
-    	noBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    	noBtn.TextSize = 14
-    	CreateSmoothCorner(noBtn)
-
-	    yesBtn.MouseButton1Click:Connect(function()
-	    	local topFrame = closeBtn:FindFirstAncestorOfClass("Frame")
-	    	if topFrame then
-	    		topFrame:Destroy()
-	    	end
-    	end)
-
-    	noBtn.MouseButton1Click:Connect(function()
-    		confirmFrame:Destroy()
-    	end)
+        createConfirmationDialog()  -- Tạo và hiển thị hộp thoại xác nhận
     end)
     
     local minimizeBtn = Instance.new("TextButton", titleBar)
