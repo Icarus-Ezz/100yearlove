@@ -411,7 +411,7 @@ local function CreateMainGui()
 
     local titleBar = Instance.new("Frame", main)
     titleBar.Name             = "TitleBar"
-    titleBar.Size             = UDim2.new(1, 0, 1, 0)
+    titleBar.Size = UDim2.new(1, 0, 0, 35)
     titleBar.Position         = UDim2.new(0, 0, 0, 0)
     titleBar.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
     CreateSmoothCorner1(titleBar, false, 12)
