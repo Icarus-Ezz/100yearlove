@@ -76,11 +76,46 @@ local function formatNumberWithCommas(n)
     local s = tostring(n)
     local result = s:reverse():gsub("(%d%d%d)", "%1,")
     result = result:reverse()
-    -- Nếu đầu chuỗi là dấu phẩy, loại bỏ nó
     if result:sub(1,1) == "," then
         result = result:sub(2)
     end
     return result
+end
+
+local lastHopTime = {} 
+
+local hopCountTable = {}
+
+local resetTime = 1200
+
+function checkAndReset(userId)
+    local currentTime = os.time()
+    
+    if lastHopTime[userId] then
+        if currentTime - lastHopTime[userId] >= resetTime then
+            hopCountTable[userId] = 0
+        end
+    end
+end
+
+function playerHop(userId)
+    local currentTime = os.time()
+    
+    lastHopTime[userId] = currentTime
+
+    hopCountTable[userId] = (hopCountTable[userId] or 0) + 1
+
+end
+
+function checkAllPlayers()
+    for userId, _ in pairs(lastHopTime) do
+        checkAndReset(userId)
+    end
+end
+
+while true do
+    wait(1)  -- Kiểm tra mỗi giây
+    checkAllPlayers()
 end
 
 --//Code Ui
@@ -121,6 +156,8 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
     local beli = player:FindFirstChild("Data")
                  and player.Data:FindFirstChild("Beli")
                  and player.Data.Beli.Value or 0
+    local userId = player.UserId
+    local hopCount = hopCountTable[userId] or 0
 
     local AdminMessage = {
         embeds = {{
@@ -175,6 +212,11 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
                     value  = hasFistOfDarkness and "✅" or "❌",
                     inline = true
                 },
+                {
+                    name   = "**🔄 Number of Server Hops**",
+                    value  = "```" .. hopCount .. "```",
+                    inline = false
+                },    
             },
             timestamp = os.date("!%Y-%m-%dT%H:%M:%S")
         }}
