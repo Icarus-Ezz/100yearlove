@@ -365,15 +365,16 @@ local function CreateSmoothCorner(parent, radius)
     return corner
 end
 
-local function CreateSmoothCorner1(parent, isCircle)
+local function CreateSmoothCorner1(parent, isCircle, pixelRadius)
     local corner = Instance.new("UICorner", parent)
     if isCircle then
-        corner.CornerRadius = UDim.new(1, 0)
+        corner.CornerRadius = UDim.new(1, 0)  
     else
-        corner.CornerRadius = UDim.new(0, 8)
+        corner.CornerRadius = UDim.new(0, pixelRadius or 8)
     end
     return corner
 end
+
 
 local function CreateStroke(parent, color, thickness)
     local stroke = Instance.new("UIStroke", parent)
@@ -412,8 +413,8 @@ local function CreateMainGui()
     titleBar.Name             = "TitleBar"
     titleBar.Size             = UDim2.new(1, 0, 1, 0)
     titleBar.Position         = UDim2.new(0, 0, 0, 0)
-    titleBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    CreateSmoothCorner(titleBar, 12)
+    titleBar.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+    CreateSmoothCorner1(titleBar, false, 12)
 
     local logo = Instance.new("ImageLabel", titleBar)
     logo.Size            = UDim2.new(0, 24, 0, 24)
