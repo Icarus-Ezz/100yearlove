@@ -280,7 +280,7 @@ local function AntiKick()
                 v1524.TextYAlignment = "Top";
                 v1524.BackgroundTransparency = 1;
                 v1524.TextStrokeTransparency = 0.5;
-                v1524.TextColor3 = Color3.fromRGB(255, 0, 0);  
+                v1524.TextColor3 = Color3.fromRGB(255, 255, 255);  
                  v1524.Text = "gg.vxezehub";  
             end
             if game.Players.LocalPlayer.Character.HumanoidRootPart.Velocity.Magnitude < 0.1 then
@@ -674,25 +674,22 @@ end)
 function StopTween()
     if not getgenv().StopTween then
         getgenv().StopTween = true            
-        -- Dừng tween nếu đang có tween
         if tween then
             tween:Cancel() 
             tween = nil
         end            
 
-        -- Lấy HumanoidRootPart của nhân vật
         local player = game:GetService("Players").LocalPlayer
         local character = player and player.Character
         local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
         
         if humanoidRootPart then
             humanoidRootPart.Anchored = true  -- Đảm bảo không bị di chuyển
-            task.wait(0.1)  -- Chờ một chút để đảm bảo dừng lại hoàn toàn
-            humanoidRootPart.CFrame = humanoidRootPart.CFrame  -- Đảm bảo không di chuyển
+            task.wait(0.1)  
+            humanoidRootPart.CFrame = humanoidRootPart.CFrame  
             humanoidRootPart.Anchored = false
         end
 
-        -- Xóa BodyClip nếu có
         local bodyClip = humanoidRootPart and humanoidRootPart:FindFirstChild("BodyClip")
         if bodyClip then
             bodyClip:Destroy() 
@@ -740,6 +737,7 @@ local function GetSeaCoordinates()
         return nil
     end
 end
+
 --Check Backpack
 spawn(function()
     while wait() do
@@ -888,14 +886,14 @@ end
 
 ----------------------------------------------------------------------------------------------------
 local lastPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
-local idleTime = 0 -- thời gian đứng im
+local idleTime = 0 
 
 local function CheckIdleTime()
     local currentPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
     if currentPosition == lastPosition then
         idleTime = idleTime + 1
     else
-        idleTime = 0 -- reset nếu di chuyển
+        idleTime = 0 
     end
     lastPosition = currentPosition
 end
@@ -907,7 +905,7 @@ spawn(function()
         if idleTime >= 600 then  
             game:GetService("StarterGui"):SetCore("SendNotification", {
                 Title = "Idle Timeout",
-                Text = "Đã đứng im quá 10 phút, chuyển server...",
+                Text = "Idle Timeout. Hop Sever",
                 Duration = 4
             })
             
@@ -925,7 +923,7 @@ local function GetChest()
     local closestChest = nil
     for _, v in pairs(workspace.Map:GetDescendants()) do
         if string.find(v.Name:lower(), "chest") and v:FindFirstChild("TouchInterest") and v:IsA("BasePart") then
-            if v.Position.Y < -10 then continue end -- Bỏ qua rương dưới map
+            if v.Position.Y < -10 then continue end
             local d = (v.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
             if d < distance then
                 distance = d
@@ -936,9 +934,8 @@ local function GetChest()
     return closestChest
 end
 
--- Quá trình nhặt rương tự động
 spawn(function()
-    local startTime = tick() -- Lưu thời gian bắt đầu server
+    local startTime = tick() 
 
     while true do
         if getgenv().config.ChestFarm["Start Farm Chest"] then
@@ -956,10 +953,8 @@ spawn(function()
                 while getgenv().config.ChestFarm["Start Farm Chest"] do
                     local chest = GetChest()
                     if chest and chest:IsDescendantOf(workspace) then
-                        -- Di chuyển đến rương
                         Tween2(chest.CFrame)
 
-                        -- Chạm rương để nhặt
                         pcall(function()
                             firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, chest, 0)
                             firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, chest, 1)
