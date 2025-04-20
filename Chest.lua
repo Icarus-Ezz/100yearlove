@@ -465,7 +465,6 @@ local function CreateMainGui()
     minimizeBtn.TextSize         = 16
     CreateSmoothCorner(minimizeBtn)
 
--- Tạo Frame Stats
     Converted["_Stats"] = Instance.new("Frame", main)
     local stats = Converted["_Stats"]
     stats.Name             = "Stats"
@@ -497,7 +496,6 @@ local function CreateMainGui()
     Converted["_EarnedBeliLabel"] = CreateStatLabel(90)
     Converted["_ChestLabel"]      = CreateStatLabel(130)
 
-    -- Controls Frame
     Converted["_Controls"] = Instance.new("Frame", main)
     local ctrls = Converted["_Controls"]
     ctrls.Name               = "Controls"
@@ -505,13 +503,11 @@ local function CreateMainGui()
     ctrls.Position           = UDim2.new(0, 10, 0, 230)
     ctrls.BackgroundTransparency = 1
 
-    -- Frame chứa 2 nút
     local btnFrame = Instance.new("Frame", main)
     btnFrame.Size = UDim2.new(1, -20, 0, 55)
     btnFrame.Position = UDim2.new(0, 10, 1, -65)
     btnFrame.BackgroundTransparency = 1
 
-    -- Căn ngang, cách đều
     local uiList = Instance.new("UIListLayout", btnFrame)
     uiList.FillDirection = Enum.FillDirection.Horizontal
     uiList.HorizontalAlignment = Enum.HorizontalAlignment.Center
@@ -853,7 +849,7 @@ function StartCountdownAndHop(countdownTime)
     stopButton.Parent = screenGui
     stopButton.Size = UDim2.new(0, 140, 0, 40)
     stopButton.Position = UDim2.new(0.5, -70, 0.5, 30)
-    stopButton.Image = "rbxassetid://91347148253026" 
+    stopButton.Image = "rbxassetid://122225757659866" 
     stopButton.ScaleType = Enum.ScaleType.Stretch
     stopButton.BackgroundTransparency = 1
     stopButton.ZIndex = 4
