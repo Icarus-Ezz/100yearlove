@@ -402,7 +402,6 @@ local function CreateMainGui()
     screenGui.ResetOnSpawn = false
     screenGui.Parent       = game.CoreGui
 
-    -- MainFrame
     Converted["_MainFrame"] = Instance.new("Frame", screenGui)
     local main = Converted["_MainFrame"]
     main.Name             = "MainFrame"
@@ -410,10 +409,9 @@ local function CreateMainGui()
     main.Position         = UDim2.new(0.5, -175, 0.5, -150)
     main.BackgroundTransparency = 1
 
-    -- TitleBar
     local titleBar = Instance.new("Frame", main)
     titleBar.Name             = "TitleBar"
-    titleBar.Size             = UDim2.new(1, 0, 0, 40)
+    titleBar.Size             = UDim2.new(1, 0, 1, 0)
     titleBar.Position         = UDim2.new(0, 0, 0, 0)
     titleBar.BackgroundColor3 = Color3.fromRGB(46, 46, 46)
     CreateSmoothCorner(titleBar, 12)
@@ -431,17 +429,16 @@ local function CreateMainGui()
     titleText.BackgroundTransparency = 1
     titleText.Font            = Enum.Font.GothamBold
     titleText.Text            = "Vxeze Hub Auto Chest"
-    titleText.TextColor3      = Color3.fromRGB(45, 45, 50)
+    titleText.TextColor3      = Color3.fromRGB(255, 255, 255)
     titleText.TextSize        = 16
     titleText.TextXAlignment  = Enum.TextXAlignment.Left
 
-    -- Close & Minimize
     local closeBtn = Instance.new("TextButton", titleBar)
     closeBtn.Size             = UDim2.new(0, 30, 0, 30)
     closeBtn.Position         = UDim2.new(1, -40, 0, 5)
     closeBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
     closeBtn.Text             = "X"
-    closeBtn.TextColor3       = Color3.fromRGB(255, 255, 255)
+    closeBtn.TextColor3       = Color3.fromRGB(231, 76, 60)
     closeBtn.TextSize         = 16
     CreateSmoothCorner(closeBtn)
 
@@ -466,7 +463,7 @@ local function CreateMainGui()
     local backgroundImage = Instance.new("ImageLabel", stats)
     backgroundImage.Size = UDim2.new(1, 0, 1, 0)  
     backgroundImage.Position = UDim2.new(0, 0, 0, 0)  
-    backgroundImage.Image = "rbxassetid://91347148253026"
+    backgroundImage.Image = "rbxassetid://133887806410147"
     backgroundImage.BackgroundTransparency = 1
     backgroundImage.BorderSizePixel = 0  
 
@@ -496,29 +493,53 @@ local function CreateMainGui()
     ctrls.Position           = UDim2.new(0, 10, 0, 230)
     ctrls.BackgroundTransparency = 1
 
-    local function CreateButton(text, color, pos)
-        local btn = Instance.new("TextButton", ctrls)
-        btn.Size             = UDim2.new(0.48, 0, 1, 0)
-        btn.Position         = pos
-        btn.BackgroundColor3 = color
-        btn.Font             = Enum.Font.GothamBold
-        btn.Text             = text
-        btn.TextColor3       = Color3.fromRGB(255, 255, 255)
-        btn.TextSize         = 14
-        CreateSmoothCorner(btn)
-        CreateStroke(btn, color:Lerp(Color3.new(0,0,0),0.2))
+    -- Frame chứa 2 nút
+    local btnFrame = Instance.new("Frame", main)
+    btnFrame.Size = UDim2.new(1, -20, 0, 55)
+    btnFrame.Position = UDim2.new(0, 10, 1, -65)
+    btnFrame.BackgroundTransparency = 1
 
+    -- Căn ngang, cách đều
+    local uiList = Instance.new("UIListLayout", btnFrame)
+    uiList.FillDirection = Enum.FillDirection.Horizontal
+    uiList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    uiList.VerticalAlignment = Enum.VerticalAlignment.Center
+    uiList.Padding = UDim.new(0, 10)
+
+    local function CreateButton(text, color)
+        local btn = Instance.new("TextButton")
+        btn.Size = UDim2.new(0.5, -6, 1, 0)
+        btn.BackgroundColor3 = color
+        btn.Text = text
+        btn.Font = Enum.Font.GothamBold
+        btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        btn.TextSize = 16
+        btn.AutoButtonColor = false
+        btn.ClipsDescendants = true
+
+        CreateSmoothCorner(btn, 10)
+        CreateStroke(btn, color:Lerp(Color3.new(0,0,0), 0.2))
+
+        -- Hover animation
         btn.MouseEnter:Connect(function()
-            TweenService:Create(btn, TweenInfo.new(0.3), {BackgroundColor3 = color:Lerp(Color3.new(1,1,1),0.1)}):Play()
+            TweenService:Create(btn, TweenInfo.new(0.25), {
+                BackgroundColor3 = color:Lerp(Color3.new(1, 1, 1), 0.08)
+            }):Play()
         end)
         btn.MouseLeave:Connect(function()
-            TweenService:Create(btn, TweenInfo.new(0.3), {BackgroundColor3 = color}):Play()
+            TweenService:Create(btn, TweenInfo.new(0.25), {
+                BackgroundColor3 = color
+            }):Play()
         end)
+
         return btn
     end
+    
+    Converted["_StartButton"] = CreateButton("Start", Color3.fromRGB(46,204,113))
+    Converted["_StartButton"].Parent = btnFrame
 
-    Converted["_StartButton"] = CreateButton("Start", Color3.fromRGB(46,204,113), UDim2.new(0,0,0,0))
-    Converted["_StopButton"]  = CreateButton("Stop",  Color3.fromRGB(231,76,60),   UDim2.new(0.52,0,0,0))
+    Converted["_StopButton"] = CreateButton("Stop", Color3.fromRGB(231,76,60))
+    Converted["_StopButton"].Parent = btnFrame
 
     local mini = Instance.new("Frame", screenGui)
     mini.Name = "MiniUI"
@@ -537,9 +558,8 @@ local function CreateMainGui()
     restoreBtn.Size             = UDim2.new(1,0,1,0)
     restoreBtn.BackgroundColor3 = Color3.fromRGB(0,0,0)
     restoreBtn.Image            = "rbxassetid://91347148253026"
-    CreateSmoothCorner(restoreBtn)
+    CreateSmoothCorner1(restoreBtn, true)
 
-    -- Drag logic
     local dragging, dragStart, startPos
     titleBar.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -561,7 +581,6 @@ local function CreateMainGui()
         end
     end)
 
-    -- Button events
     closeBtn.MouseButton1Click:Connect(function()
         screenGui:Destroy()
     end)
@@ -577,7 +596,6 @@ local function CreateMainGui()
     return screenGui
 end
 
--- Cập nhật Time và Stats
 local function UpdateTime()
     local t = math.floor(workspace.DistributedGameTime + 0.5)
     local h = math.floor(t/3600)%24
@@ -609,7 +627,6 @@ local function UpdateStats()
     Converted["_ChestLabel"].Text      = "🎁 Chests: " .. chestCount
 end
 
--- Khởi tạo và vòng lặp cập nhật
 CreateMainGui()
 spawn(function()
     while true do
