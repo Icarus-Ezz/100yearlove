@@ -795,7 +795,7 @@ function StartCountdownAndHop(countdownTime)
     background.Parent = screenGui
     background.Size = UDim2.new(1, 0, 1, 0)
     background.Position = UDim2.new(0, 0, 0, 0)
-    background.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
     background.BackgroundTransparency = 0.1
     background.ZIndex = 0
 
@@ -807,7 +807,6 @@ function StartCountdownAndHop(countdownTime)
     logo.BackgroundTransparency = 1
     logo.ZIndex = 2
 
-    -- Dòng chữ chính: Vxeze Hop Server
     local titleLabel = Instance.new("TextLabel")
     titleLabel.Parent = screenGui
     titleLabel.Size = UDim2.new(0, 400, 0, 40)
@@ -863,32 +862,39 @@ function StartCountdownAndHop(countdownTime)
     countdownLabel.TextStrokeTransparency = 0.6
     countdownLabel.ZIndex = 3
 
-    local stopButton = Instance.new("TextButton")
+    local stopButton = Instance.new("ImageButton") 
     stopButton.Parent = screenGui
     stopButton.Size = UDim2.new(0, 140, 0, 40)
     stopButton.Position = UDim2.new(0.5, -70, 0.5, 30)
-    stopButton.Text = "⛔ Stop Hop"
-    stopButton.Font = Enum.Font.GothamBold
-    stopButton.TextSize = 20
-    stopButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    stopButton.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
+    stopButton.Image = "rbxassetid://13014919534" 
+    stopButton.ScaleType = Enum.ScaleType.Stretch
+    stopButton.BackgroundTransparency = 1
     stopButton.ZIndex = 4
     stopButton.AutoButtonColor = false
 
-    local stopUICorner = Instance.new("UICorner", stopButton)
-    stopUICorner.CornerRadius = UDim.new(1, 0)
+    local stopText = Instance.new("TextLabel")
+    stopText.Parent = stopButton
+    stopText.Size = UDim2.new(1, 0, 1, 0)
+    stopText.BackgroundTransparency = 1
+    stopText.Text = "⛔ Stop Hop"
+    stopText.Font = Enum.Font.GothamBold
+    stopText.TextSize = 20
+    stopText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    stopText.TextStrokeTransparency = 0.6
+    stopText.ZIndex = 5
 
     stopButton.MouseEnter:Connect(function()
-        stopButton.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+        stopText.TextColor3 = Color3.fromRGB(255, 200, 200)
     end)
     stopButton.MouseLeave:Connect(function()
-        stopButton.BackgroundColor3 = Color3.fromRGB(255, 80, 80)
+        stopText.TextColor3 = Color3.fromRGB(255, 255, 255)
     end)
 
     stopButton.MouseButton1Click:Connect(function()
         stopHopping = true
-        stopButton.Text = "Stopped"
-        stopButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+        stopText.Text = "Stopped"
+        stopText.TextColor3 = Color3.fromRGB(150, 150, 150)
+        stopButton.Image = ""
         if screenGui then screenGui:Destroy() end
     end)
 
