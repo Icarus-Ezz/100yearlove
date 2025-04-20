@@ -459,14 +459,12 @@ local function CreateMainGui()
     stats.Position         = UDim2.new(0, 10, 0, 50)
     stats.BackgroundTransparency = 1 
 
--- Tạo ImageLabel để chèn hình ảnh vào Frame
-    local backgroundImage = Instance.new("ImageLabel", stats)
-    backgroundImage.Size = UDim2.new(1, 0, 1, 0)  
-    backgroundImage.Position = UDim2.new(0, 0, 0, 0)  
-    backgroundImage.Image = "rbxassetid://133887806410147"
-    backgroundImage.BackgroundTransparency = 1
-    backgroundImage.BorderSizePixel = 0  
-
+    local miniBg = Instance.new("ImageLabel", mini)
+    miniBg.Size = UDim2.new(1, 0, 1, 0)  
+    miniBg.Position = UDim2.new(0, 0, 0, 0)  
+    miniBg.Image = "rbxassetid://133887806410147"
+    miniBg.BackgroundTransparency = 1
+    miniBg.BorderSizePixel = 0  
 
     local function CreateStatLabel(y)
         local lbl = Instance.new("TextLabel", stats)
@@ -517,7 +515,7 @@ local function CreateMainGui()
         btn.AutoButtonColor = false
         btn.ClipsDescendants = true
 
-        CreateSmoothCorner(btn, 10)
+        CreateSmoothCorner(btn, false, 10)
         CreateStroke(btn, color:Lerp(Color3.new(0,0,0), 0.2))
 
         -- Hover animation
@@ -628,6 +626,7 @@ local function UpdateStats()
 end
 
 CreateMainGui()
+
 spawn(function()
     while true do
         UpdateTime()
@@ -635,6 +634,7 @@ spawn(function()
         task.wait(1)
     end
 end)
+
 spawn(function()
     -- Xử lý Start/Stop Farm nếu cần
     Converted["_StartButton"].MouseButton1Click:Connect(function()
