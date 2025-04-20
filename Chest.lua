@@ -386,7 +386,6 @@ local function CreateDropShadow(parent)
     return shadow
 end
 
--- Tạo GUI chính và lưu vào Converted
 local function CreateMainGui()
     local screenGui = Instance.new("ScreenGui")
     screenGui.Name         = "VxezeHubUI"
@@ -407,9 +406,25 @@ local function CreateMainGui()
     bg.Position           = UDim2.new(0, 0, 0, 0)
     bg.BackgroundTransparency = 1
     bg.Image              = "rbxassetid://134510815124527"
-    bg.ImageTransparency  = 0.5
+    bg.ImageTransparency = 0.2
+    bg.ImageRectSize = Vector2.new(128, 128)
+    bg.ImageRectOffset = Vector2.new(0, 0)
+    bg.ZIndex = -1 -- để hình nền nằm phía sau
 
-    CreateDropShadow(main)
+    -- Animate Sharingan
+    local totalFrames = 8
+    local frameWidth = 128
+    local currentFrame = 0
+    local frameDuration = 0.1
+
+    task.spawn(function()
+    	while true do
+    		currentFrame = (currentFrame + 1) % totalFrames
+    		bg.ImageRectOffset = Vector2.new(currentFrame * frameWidth, 0)
+    		wait(frameDuration)
+    	end
+    end)
+
     CreateSmoothCorner(main, 12)
 
     -- TitleBar
@@ -425,7 +440,7 @@ local function CreateMainGui()
     logo.Position        = UDim2.new(0, 10, 0.5, -12)
     logo.BackgroundTransparency = 1
     logo.Image           = "rbxassetid://91347148253026"
-    CreateSmoothCorner(logo)
+    CreateSmoothCorner(logo, 12)
 
     local titleText = Instance.new("TextLabel", titleBar)
     titleText.Size            = UDim2.new(1, -100, 1, 0)
@@ -466,11 +481,11 @@ local function CreateMainGui()
 
 -- Tạo ImageLabel để chèn hình ảnh vào Frame
     local backgroundImage = Instance.new("ImageLabel", stats)
-    backgroundImage.Size = UDim2.new(1, 0, 1, 0)   -- Kích thước của ImageLabel bằng với Frame
-    backgroundImage.Position = UDim2.new(0, 0, 0, 0)  -- Vị trí của ImageLabel
-    backgroundImage.Image = "rbxassetid://134510815124527"  -- Thay your_image_id_here bằng ID ảnh của bạn
-    backgroundImage.BackgroundTransparency = 1  -- Để ẩn nền của ImageLabel
-    backgroundImage.BorderSizePixel = 0  -- Loại bỏ đường viền
+    backgroundImage.Size = UDim2.new(1, 0, 1, 0)  
+    backgroundImage.Position = UDim2.new(0, 0, 0, 0)  
+    backgroundImage.Image = "rbxassetid://134510815124527"
+    backgroundImage.BackgroundTransparency = 1
+    backgroundImage.BorderSizePixel = 0  
 
 
     local function CreateStatLabel(y)
