@@ -405,7 +405,7 @@ local function CreateMainGui()
     bg.Size               = UDim2.new(1, 0, 1, 0)
     bg.Position           = UDim2.new(0, 0, 0, 0)
     bg.BackgroundTransparency = 1
-    bg.Image              = "rbxassetid://134510815124527"
+    bg.Image              = "rbxassetid://109644744660487"
     bg.ImageTransparency = 0.2
     bg.ImageRectSize = Vector2.new(128, 128)
     bg.ImageRectOffset = Vector2.new(0, 0)
