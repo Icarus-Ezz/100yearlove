@@ -400,33 +400,6 @@ local function CreateMainGui()
     main.Position         = UDim2.new(0.5, -175, 0.5, -150)
     main.BackgroundTransparency = 1
 
-    -- Galaxy Background
-    local bg = Instance.new("ImageLabel", main)
-    bg.Size               = UDim2.new(1, 0, 1, 0)
-    bg.Position           = UDim2.new(0, 0, 0, 0)
-    bg.BackgroundTransparency = 1
-    bg.Image              = "rbxassetid://109644744660487"
-    bg.ImageTransparency = 0.2
-    bg.ImageRectSize = Vector2.new(128, 128)
-    bg.ImageRectOffset = Vector2.new(0, 0)
-    bg.ZIndex = -1 -- để hình nền nằm phía sau
-
-    -- Animate Sharingan
-    local totalFrames = 8
-    local frameWidth = 128
-    local currentFrame = 0
-    local frameDuration = 0.1
-
-    task.spawn(function()
-    	while true do
-    		currentFrame = (currentFrame + 1) % totalFrames
-    		bg.ImageRectOffset = Vector2.new(currentFrame * frameWidth, 0)
-    		wait(frameDuration)
-    	end
-    end)
-
-    CreateSmoothCorner(main, 12)
-
     -- TitleBar
     local titleBar = Instance.new("Frame", main)
     titleBar.Name             = "TitleBar"
@@ -483,7 +456,7 @@ local function CreateMainGui()
     local backgroundImage = Instance.new("ImageLabel", stats)
     backgroundImage.Size = UDim2.new(1, 0, 1, 0)  
     backgroundImage.Position = UDim2.new(0, 0, 0, 0)  
-    backgroundImage.Image = "rbxassetid://134510815124527"
+    backgroundImage.Image = "rbxassetid://91347148253026"
     backgroundImage.BackgroundTransparency = 1
     backgroundImage.BorderSizePixel = 0  
 
