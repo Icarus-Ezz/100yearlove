@@ -349,7 +349,6 @@ local Converted = {}
 local oldBeli     = 0
 local earnedBeli  = 0
 
--- Format số với dấu phẩy hàng nghìn
 local function FormatNumber(n)
     local s = tostring(n)
     local out = s:reverse():gsub("(%d%d%d)", "%1,"):reverse()
@@ -413,7 +412,7 @@ local function CreateMainGui()
     titleBar.Name             = "TitleBar"
     titleBar.Size             = UDim2.new(1, 0, 1, 0)
     titleBar.Position         = UDim2.new(0, 0, 0, 0)
-    titleBar.BackgroundColor3 = Color3.fromRGB(46, 46, 46)
+    titleBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     CreateSmoothCorner(titleBar, 12)
 
     local logo = Instance.new("ImageLabel", titleBar)
@@ -508,12 +507,12 @@ local function CreateMainGui()
 
     local function CreateButton(text, color)
         local btn = Instance.new("TextButton")
-        btn.Size = UDim2.new(0.5, -6, 1, 0)
+        btn.Size = UDim2.new(0, 120, 0, 35)
         btn.BackgroundColor3 = color
         btn.Text = text
         btn.Font = Enum.Font.GothamBold
         btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        btn.TextSize = 12
+        btn.TextSize = 16
         btn.AutoButtonColor = false
         btn.ClipsDescendants = true
 
@@ -535,10 +534,10 @@ local function CreateMainGui()
         return btn
     end
     
-    Converted["_StartButton"] = CreateButton("▶️ Start", Color3.fromRGB(46,204,113))
+    Converted["_StartButton"] = CreateButton("✔️ Start", Color3.fromRGB(46,204,113))
     Converted["_StartButton"].Parent = btnFrame
 
-    Converted["_StopButton"] = CreateButton("⏹️ Stop", Color3.fromRGB(231,76,60))
+    Converted["_StopButton"] = CreateButton("🛑 Stop", Color3.fromRGB(231,76,60))
     Converted["_StopButton"].Parent = btnFrame
 
     local mini = Instance.new("Frame", screenGui)
