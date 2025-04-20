@@ -82,42 +82,6 @@ local function formatNumberWithCommas(n)
     return result
 end
 
-local lastHopTime = {} 
-
-local hopCountTable = {}
-
-local resetTime = 1200
-
-function checkAndReset(userId)
-    local currentTime = os.time()
-    
-    if lastHopTime[userId] then
-        if currentTime - lastHopTime[userId] >= resetTime then
-            hopCountTable[userId] = 0
-        end
-    end
-end
-
-function playerHop(userId)
-    local currentTime = os.time()
-    
-    lastHopTime[userId] = currentTime
-
-    hopCountTable[userId] = (hopCountTable[userId] or 0) + 1
-
-end
-
-function checkAllPlayers()
-    for userId, _ in pairs(lastHopTime) do
-        checkAndReset(userId)
-    end
-end
-
-while true do
-    wait(1)  -- Kiểm tra mỗi giây
-    checkAllPlayers()
-end
-
 --//Code Ui
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
@@ -212,11 +176,6 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
                     value  = hasFistOfDarkness and "✅" or "❌",
                     inline = true
                 },
-                {
-                    name   = "**🔄 Number of Server Hops**",
-                    value  = "```" .. hopCount .. "```",
-                    inline = false
-                },    
             },
             timestamp = os.date("!%Y-%m-%dT%H:%M:%S")
         }}
