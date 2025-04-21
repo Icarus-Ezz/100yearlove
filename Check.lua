@@ -23,7 +23,7 @@ getgenv().config = {
         ["Auto Kill Rip Indra"] = true,
     },
 }
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Icarus-Ezz/phatyeuem/refs/heads/main/ChestPre.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Icarus-Ezz/phatyeuem/refs/heads/main/Check.lua"))()
 ]]--
 repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
 
