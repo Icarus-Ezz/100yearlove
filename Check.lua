@@ -36,68 +36,32 @@ if not key then
     return
 end
 
--- Link API
 local keyVerifyUrl = "http://deka.pylex.software:9468/check_key_ez?key=" .. key
 local hwidCheckUrl = "http://deka.pylex.software:9468/Checkhwid?hwid=" .. hwid .. "&key=" .. key
 
--- Hàm get JSON
 local function getData(url)
     local success, response = pcall(function()
         return game:HttpGet(url)
     end)
 
     if success and response and response ~= "" then
-        local ok, decoded = pcall(function()
-            return HttpService:JSONDecode(response)
-        end)
-        if ok and decoded then
-            return decoded
-        end
+        return HttpService:JSONDecode(response)
     end
     return nil
 end
 
--- Kiểm tra key
+-- Check key
 local verifyResponse = getData(keyVerifyUrl)
 if not verifyResponse or verifyResponse.status ~= "true" then
     game.Players.LocalPlayer:Kick(verifyResponse and verifyResponse.msg or "⚠️ Invalid Key")
     return
 end
 
--- Kiểm tra HWID
+-- Check HWID
 local hwidResponse = getData(hwidCheckUrl)
 if not hwidResponse or hwidResponse.status ~= "true" then
     game.Players.LocalPlayer:Kick(hwidResponse and hwidResponse.message or "⚠️ Invalid HWID.")
     return
-end
-
--- ✅ Nếu đến đây là hợp lệ => tiếp tục code bên dưới
-
-print("✅ Key + HWID hợp lệ!")
-
-local supportedGames = {
-    [4442272183] = "Blox Fruits - Sea 2",
-    [7449423635] = "Blox Fruits - Sea 3",
-}
-
-local gameName = supportedGames[game.PlaceId]
-if gameName then
-    print("Game supported: " .. gameName)
-
-    print("Loading script...")
-
-    -- Thêm phần xử lý pairs nếu cần:
-    local data = {} -- hoặc dữ liệu từ API khác
-    if type(data) == "table" then
-        for k, v in pairs(data) do
-            print(k, v)
-        end
-    else
-        warn("❌ Dữ liệu chính chưa sẵn sàng hoặc lỗi.")
-    end
-
-else
-    game.Players.LocalPlayer:Kick("⚠️ Not Support. PlaceId: " .. game.PlaceId)
 end
 
 if getgenv().config.Setting["Team"] == "Marines" then
