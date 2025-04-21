@@ -142,8 +142,8 @@ if not key then
     return
 end
 
-local keyVerifyUrl = "http://de1.bot-hosting.net:20328/check_key_ez?key=" .. key
-local hwidCheckUrl = "http://de1.bot-hosting.net:20328/Checkhwid?hwid=" .. hwid .. "&key=" .. key
+local keyVerifyUrl = "http://deka.pylex.software:9468/check_key_ez?key=" .. key
+local hwidCheckUrl = "http://deka.pylex.software:9468/Checkhwid?hwid=" .. hwid .. "&key=" .. key
 
 local function getData(url)
     local success, response = pcall(function()
