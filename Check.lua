@@ -69,6 +69,7 @@ if hwidResponse and hwidResponse.status == "true" then
     local gameName = supportedGames[game.PlaceId]
     if gameName then
         print("Hello World")
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Icarus-Ezz/phatyeuem/refs/heads/main/PreChest.lua"))()
     else
         game.Players.LocalPlayer:Kick("⚠️ Game chưa được hỗ trợ. PlaceId: " .. game.PlaceId)
     end
