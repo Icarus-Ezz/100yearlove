@@ -16,6 +16,10 @@ getgenv().config = {
         ["Webhook Url"] = "https://discord.com/api/webhooks/1360798536937246840/HBIfH0Okazx7DxPPu8rNi_jYQSMWT4eis8HSx6UW83rLMgxQn6fgWShuqBbaiwxUEXmS",          
         ["Send Webhook"] = true,      
     },
+    Premium = {
+        [Auto Kill Dark Beard] = true,
+        ["Auto Kill Rip Indra"] = true,
+    },
 }
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Icarus-Ezz/phatyeuem/refs/heads/main/Chest.lua"))()
 ]]--
@@ -95,6 +99,8 @@ local SCREEN_WIDTH = workspace.CurrentCamera.ViewportSize.X
 local SCREEN_HEIGHT = workspace.CurrentCamera.ViewportSize.Y
 local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local CommF_ = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
 repeat wait() until Players.LocalPlayer
 local LocalPlayer = Players.LocalPlayer
 local oldBeli = 0
@@ -103,6 +109,93 @@ local Converted = {}
 
 local isMinimized = true
 local isDragging = true
+
+local function xor(a, b)
+    return bit32.bxor(a, b)
+end
+
+local function xorCrypt(text, key)
+    local output = {}
+
+    for i = 1, #text do
+        local char = string.byte(text, i)
+        local keyChar = string.byte(key, ((i - 1) % #key) + 1)
+        local encoded = xor(char, keyChar)
+        table.insert(output, string.char(encoded))
+    end
+
+    return table.concat(output)
+end
+local k = "VxezeHubChapMayHubSkid"
+local f = xorCrypt(game:GetService("HttpService"):JSONDecode(game:HttpGet("https://httpbin.org/get"))["origin"], k)
+
+repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
+
+local HttpService = game:GetService("HttpService")
+local hwid = gethwid and gethwid() or "Unknown"
+local key = getgenv().Key or nil
+
+if not key then
+    game.Players.LocalPlayer:Kick("⚠️ You must enter a key!")
+    return
+end
+
+local keyVerifyUrl = "http://de1.bot-hosting.net:20328/check_key_ez?key=" .. key
+local hwidCheckUrl = "http://de1.bot-hosting.net:20328/Checkhwid?hwid=" .. hwid .. "&key=" .. key
+
+local function getData(url)
+    local success, response = pcall(function()
+        return game:HttpGet(url)
+    end)
+
+    if success and response and response ~= "" then
+        return HttpService:JSONDecode(response)
+    end
+    return nil
+end
+
+local verifyResponse = getData(keyVerifyUrl)
+if not verifyResponse or verifyResponse.status ~= "true" then
+    game.Players.LocalPlayer:Kick(verifyResponse and verifyResponse.msg or "⚠️ Invalid Key")
+    return
+end
+
+--Check Hwid
+local hwidResponse = getData(hwidCheckUrl)
+if hwidResponse and hwidResponse.status == "true" then
+    print("✅ Success - HWID matched")
+
+    local supportedGames = {
+        [4442272183] = "Blox Fruits - Sea 2",
+        [7449423635] = "Blox Fruits - Sea 3",
+    }
+
+    local gameName = supportedGames[game.PlaceId]
+    if gameName then
+        print("Hello World")
+    else
+        game.Players.LocalPlayer:Kick("⚠️ Game chưa được hỗ trợ. PlaceId: " .. game.PlaceId)
+    end
+else
+    game.Players.LocalPlayer:Kick(hwidResponse and hwidResponse.message or "⚠️ Invalid HWID.")
+end
+
+local function getInventory()
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    local CommF_ = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
+    local HttpService = game:GetService("HttpService")
+
+    -- Gửi yêu cầu lấy inventory từ server
+    local success, inventory = pcall(function()
+        return CommF_:InvokeServer("getInventory")
+    end)
+
+    if not success or type(inventory) ~= "table" then
+        warn("❌ Không thể lấy inventory!")
+        return nil
+    end
+    return inventory
+end
 
 function PostWebhook(Url, message)
     local request = http_request or request or HttpPost or syn.request
@@ -121,6 +214,33 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
                  and player.Data:FindFirstChild("Beli")
                  and player.Data.Beli.Value or 0
     
+    local inventory = getInventory()
+    if not inventory then
+        return 
+    end
+    
+    local darkDaggerStatus = "❌"
+    local valkyrieHelmStatus = "❌"
+    local darkCoatStatus = "❌"
+    local number_Dark_Fragments = 0
+
+    -- Kiểm tra các vật phẩm trong inventory
+    for _, item in pairs(inventory) do
+        if item.Type == "Sword" and (item.Name == "Dark Dagger" or item.Name == "DarkDagger") then
+            darkDaggerStatus = "✅"
+        end
+        if (item.Type == "Wear" or item.Type == "Accessory") and (item.Name == "Valkyrie Helm" or item.Name == "ValkyrieHelm") then
+            valkyrieHelmStatus = "✅"
+        end
+        if item.Type == "Material" and item.Name == "Dark Fragment" then
+            number_Dark_Fragments = item.Amount or 0
+        end
+        if item.Type == "Wear" and (item.Name == "Dark Coat" or item.Name == "DarkCoat") then
+            darkCoatStatus = "✅"
+        end
+    end
+
+    -- Tạo thông điệp gửi đến admin
     local AdminMessage = {
         embeds = {{
             title       = "**📦 Inventory Check!**",
@@ -139,7 +259,7 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
                 },
                 {
                     name   = "**💰 Beli**",
-                    value  = "```" .. formatNumberWithCommas(beli) .. "```",
+                    value  = "```" .. beli .. "```",  -- Đã loại bỏ format
                     inline = false
                 },
                 {
@@ -174,10 +294,31 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
                     value  = hasFistOfDarkness and "✅" or "❌",
                     inline = true
                 },
+                {
+                    name   = "🔌 Dark Fragment 🔌",
+                    value  = "```" .. (number_Dark_Fragments or 0) .. "```",
+                    inline = true
+                },
+                {
+                    name   = "🧥 Dark Coat 🧥",
+                    value  = darkCoatStatus or "❌",
+                    inline = true
+                },
+                {
+                    name   = "🗡️ Dark Dagger 🗡️",
+                    value  = darkDaggerStatus,
+                    inline = true
+                },
+                {
+                    name   = "🎓 Valkyrie Helm 🎓",
+                    value  = valkyrieHelmStatus,
+                    inline = true
+                },
             },
             timestamp = os.date("!%Y-%m-%dT%H:%M:%S")
         }}
     }
+
     return AdminMessage
 end
 
@@ -203,8 +344,8 @@ spawn(function()
             print("Webhook not enabled.")
         end
 
-        -- Check 60s/1
-        task.wait(60)
+        -- Check 120s/1
+        task.wait(120)
     end
 end)
 
@@ -259,6 +400,90 @@ end
 
 if pcall(function() game:HttpGet("https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Asc&limit=100") end) then
     HopServer = SmartServerHop
+end
+
+
+function config()
+    local fo = "vxezehub"
+    local fi = "saved.config"
+
+    local k = game:GetService("HttpService")
+    -- Kiểm tra và tạo file nếu chưa tồn tại
+    if not isfile(fo .. "/" .. fi) then
+        writefile(fo .. "/" .. fi, k:JSONEncode({
+            ["Rip_Indra"] = {
+                ["hop"] = 0,
+                ["kill"] = 0
+            },
+            ["DarkBeard"] = {
+                ["hop"] = 0,
+                ["kill"] = 0
+            }
+        }))
+    end
+    
+    return (function(...)
+        local g = {
+            ["cre"] = ...
+        }
+        
+        g["get"] = function(v)
+            local tr = readfile(fo .. "/" .. fi)
+            local data = k:JSONDecode(tr)
+            
+            if data[v] then
+                return data[v]
+            else
+                return nil 
+            end
+        end
+        
+        g["set"] = function(v, a)
+            local tr = readfile(fo .. "/" .. fi)
+            local c = k:JSONDecode(tr)
+            
+            if not c[v] then
+                c[v] = {["hop"] = 0, ["kill"] = 0} 
+            end
+            
+            local o = c[v][a]
+            c[v][a] = o + 1
+
+            writefile(fo .. "/" .. fi, k:JSONEncode(c))
+        end
+        
+        return g
+    end)("Zzz")
+end
+
+local Config_Lib = config()
+
+local darkCoatStatus = "❌"
+local darkFragmentStatus = "❌"
+
+local number_Dark_Fragments = 0
+for _, item in pairs(inventory) do
+    if item.Type == "Material" and item.Name == "Dark Fragment" then
+        number_Dark_Fragments = item.Amount or 0
+        darkFragmentStatus = "✅" 
+    end
+    
+    if item.Type == "Wear" and (item.Name == "Dark Coat" or item.Name == "DarkCoat") then
+        darkCoatStatus = "✅"
+    end
+end
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local CommF_ = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
+local HttpService = game:GetService("HttpService")
+
+local success, inventory = pcall(function()
+	return CommF_:InvokeServer("getInventory")
+end)
+
+if not success or type(inventory) ~= "table" then
+	warn("Can not check inventory")
+	return
 end
 
 local function AntiKick()
@@ -354,6 +579,149 @@ local function Tween2(targetCFrame)
     end)
 end
 
+_G.FastAttack = true
+
+if _G.FastAttack then
+    local _ENV = (getgenv or getrenv or getfenv)()
+
+    local function SafeWaitForChild(parent, childName)
+        local success, result = pcall(function()
+            return parent:WaitForChild(childName)
+        end)
+        if not success or not result then
+            warn("noooooo: " .. childName)
+        end
+        return result
+    end
+
+    local function WaitChilds(path, ...)
+        local last = path
+        for _, child in {...} do
+            last = last:FindFirstChild(child) or SafeWaitForChild(last, child)
+            if not last then break end
+        end
+        return last
+    end
+
+    local VirtualInputManager = game:GetService("VirtualInputManager")
+    local CollectionService = game:GetService("CollectionService")
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    local TeleportService = game:GetService("TeleportService")
+    local RunService = game:GetService("RunService")
+    local Players = game:GetService("Players")
+    local Player = Players.LocalPlayer
+
+    if not Player then
+        warn("KhÃ´ng tÃ¬m tháº¥y ngÆ°á»i chÆ¡i cá»¥c bá».")
+        return
+    end
+
+    local Remotes = SafeWaitForChild(ReplicatedStorage, "Remotes")
+    if not Remotes then return end
+
+    local Validator = SafeWaitForChild(Remotes, "Validator")
+    local CommF = SafeWaitForChild(Remotes, "CommF_")
+    local CommE = SafeWaitForChild(Remotes, "CommE")
+
+    local ChestModels = SafeWaitForChild(workspace, "ChestModels")
+    local WorldOrigin = SafeWaitForChild(workspace, "_WorldOrigin")
+    local Characters = SafeWaitForChild(workspace, "Characters")
+    local Enemies = SafeWaitForChild(workspace, "Enemies")
+    local Map = SafeWaitForChild(workspace, "Map")
+
+    local EnemySpawns = SafeWaitForChild(WorldOrigin, "EnemySpawns")
+    local Locations = SafeWaitForChild(WorldOrigin, "Locations")
+
+    local RenderStepped = RunService.RenderStepped
+    local Heartbeat = RunService.Heartbeat
+    local Stepped = RunService.Stepped
+
+    local Modules = SafeWaitForChild(ReplicatedStorage, "Modules")
+    local Net = SafeWaitForChild(Modules, "Net")
+
+    local sethiddenproperty = sethiddenproperty or function(...) return ... end
+    local setupvalue = setupvalue or (debug and debug.setupvalue)
+    local getupvalue = getupvalue or (debug and debug.getupvalue)
+
+    local Settings = {
+        AutoClick = true,
+        ClickDelay = 0,
+    }
+
+    local Module = {}
+
+    Module.FastAttack = (function()
+        if _ENV.rz_FastAttack then
+            return _ENV.rz_FastAttack
+        end
+
+        local FastAttack = {
+            Distance = 100,
+            attackMobs = true,
+            attackPlayers = true,
+            Equipped = nil
+        }
+
+        local RegisterAttack = SafeWaitForChild(Net, "RE/RegisterAttack")
+        local RegisterHit = SafeWaitForChild(Net, "RE/RegisterHit")
+
+        local function IsAlive(character)
+        return character and character:FindFirstChild("Humanoid") and character.Humanoid.Health > 0
+        end
+
+        local function ProcessEnemies(OthersEnemies, Folder)
+            local BasePart = nil
+            for _, Enemy in Folder:GetChildren() do
+                local Head = Enemy:FindFirstChild("Head")
+                if Head and IsAlive(Enemy) and Player:DistanceFromCharacter(Head.Position) < FastAttack.Distance then
+                    if Enemy ~= Player.Character then
+                        table.insert(OthersEnemies, { Enemy, Head })
+                        BasePart = Head
+                    end
+                end
+            end
+            return BasePart
+        end
+
+        function FastAttack:Attack(BasePart, OthersEnemies)
+            if not BasePart or #OthersEnemies == 0 then return end
+            RegisterAttack:FireServer(Settings.ClickDelay or 0)
+            RegisterHit:FireServer(BasePart, OthersEnemies)
+        end
+
+        function FastAttack:AttackNearest()
+            local OthersEnemies = {}
+            local Part1 = ProcessEnemies(OthersEnemies, Enemies)
+            local Part2 = ProcessEnemies(OthersEnemies, Characters)
+            if #OthersEnemies > 0 then
+                self:Attack(Part1 or Part2, OthersEnemies)
+            else
+                task.wait(0)
+            end
+        end
+
+        function FastAttack:BladeHits()
+            local Equipped = IsAlive(Player.Character) and Player.Character:FindFirstChildOfClass("Tool")
+            if Equipped and Equipped.ToolTip ~= "Gun" then
+                self:AttackNearest()
+            else
+                task.wait(0)
+            end
+        end
+
+        task.spawn(function()
+            while task.wait(Settings.ClickDelay) do
+                if Settings.AutoClick then
+                    FastAttack:BladeHits()
+                end
+            end
+        end)
+
+        _ENV.rz_FastAttack = FastAttack
+        return FastAttack
+    end)()
+end
+--------------------------------------------------------------------------------
 local Players            = game:GetService("Players")
 local TweenService       = game:GetService("TweenService")
 local UserInputService   = game:GetService("UserInputService")
@@ -1018,6 +1386,247 @@ spawn(function()
             AutoChestCollect()
         end
         wait(1)
+    end
+end)
+
+spawn(function()
+	pcall(function()
+		while wait() do
+			if (_G.DarkFull or _G.RipFull) then
+				if not game:GetService("Players").LocalPlayer.Character.HumanoidRootPart:FindFirstChild("BodyClip") then
+					local Noclip = Instance.new("BodyVelocity");
+					Noclip.Name = "BodyClip";
+					Noclip.Parent = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart;
+					Noclip.MaxForce = Vector3.new(100000, 100000, 100000);
+					Noclip.Velocity = Vector3.new(0, 0, 0);
+				end
+			end
+		end
+	end);
+end);
+spawn(function()
+	pcall(function()
+		game:GetService("RunService").Stepped:Connect(function()
+			if (_G.DarkFull or _G.RipFull) then
+				for _, v in pairs(game:GetService("Players").LocalPlayer.Character:GetDescendants()) do
+					if v:IsA("BasePart") then
+						v.CanCollide = false;
+					end
+				end
+			end
+		end);
+	end);
+end);
+PosY = 30;
+Type = 1;
+spawn(function()
+	while wait() do
+		if (Type == 1) then
+			Pos = CFrame.new(0, PosY, 0);
+		elseif (Type == 2) then
+			Pos = CFrame.new(0, PosY, 0);
+		elseif (Type == 3) then
+			Pos = CFrame.new(0, PosY, 0);
+		elseif (Type == 4) then
+			Pos = CFrame.new(0, PosY, 0);
+		end
+	end
+end);
+spawn(function()
+	while wait(0.1) do
+		Type = 1;
+		wait(0.1);
+		Type = 2;
+		wait(0.1);
+		Type = 3;
+		wait(0.1);
+		Type = 4;
+		wait(0.1);
+	end
+end);
+
+local m = loadstring(http_request({
+	["Url"] = "https://raw.githubusercontent.com/Iamkhnah/projectluacanmayidollop8a/refs/heads/main/pkhanh.lua",
+	["Method"] = "GET",
+	["Headers"] = { 
+		["user-agent"] = "Coded by pkhanh"
+	}
+}).Body)()
+spawn(function()
+	while wait() do
+		m.mmb()
+	end
+end)
+
+function AutoHaki()
+	if not game:GetService("Players").LocalPlayer.Character:FindFirstChild("HasBuso") then
+		game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Buso");
+	end
+end
+function EquipWeapon(ToolSe)
+	if not Nill then
+		if game.Players.LocalPlayer.Backpack:FindFirstChild(ToolSe) then
+			Tool = game.Players.LocalPlayer.Backpack:FindFirstChild(ToolSe);
+			wait(0.1);
+			game.Players.LocalPlayer.Character.Humanoid:EquipTool(Tool);
+		end
+	end
+end
+
+_G.SelectWeapon = "Melee";
+
+task.spawn(function()
+	while wait() do
+		pcall(function()
+			if (_G.SelectWeapon == "Melee") then
+				for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+					if (v.ToolTip == "Melee") then
+						if game.Players.LocalPlayer.Backpack:FindFirstChild(tostring(v.Name)) then
+							_G.SelectWeapon = v.Name;
+						end
+					end
+				end
+			elseif (_G.SelectWeapon == "Sword") then
+				for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+					if (v.ToolTip == "Sword") then
+						if game.Players.LocalPlayer.Backpack:FindFirstChild(tostring(v.Name)) then
+							_G.SelectWeapon = v.Name;
+						end
+					end
+				end
+			elseif (_G.SelectWeapon == "Gun") then
+				for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+					if (v.ToolTip == "Gun") then
+						if game.Players.LocalPlayer.Backpack:FindFirstChild(tostring(v.Name)) then
+							_G.SelectWeapon = v.Name;
+						end
+					end
+				end
+			elseif (_G.SelectWeapon == "Fruit") then
+				for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+					if (v.ToolTip == "Blox Fruit") then
+						if game.Players.LocalPlayer.Backpack:FindFirstChild(tostring(v.Name)) then
+							_G.SelectWeapon = v.Name;
+						end
+					end
+				end
+			end
+		end);
+	end
+end);
+
+getgenv().AutoTurnOnV4 = true;
+spawn(function(Value)
+	getgenv().AutoTurnOnV4 = Value
+end)
+
+task.spawn(function()
+	local lastCheckTime = 0
+	while true do
+		task.wait(0.1)
+		if getgenv().AutoTurnOnV4 then
+			local currentTime = tick()
+			if currentTime - lastCheckTime >= 0.5 then
+				lastCheckTime = currentTime
+				local character = game.Players.LocalPlayer.Character
+				if character and character:FindFirstChild("RaceEnergy") and
+                   character.RaceEnergy.Value >= 1 and
+                   not character.RaceTransformed.Value then
+					local be = game:GetService("VirtualInputManager")
+					be:SendKeyEvent(true, "Y", false, game)
+					task.wait(0.1)
+					be:SendKeyEvent(false, "Y", false, game)
+				end
+			end
+		end
+	end
+end)
+getgenv().AutoTurnOnV3 = true;
+
+spawn(function()
+	local prevState = false
+	while true do
+		task.wait(0.1)
+		pcall(function()
+			if getgenv().AutoTurnOnV3 ~= prevState then
+				if getgenv().AutoTurnOnV3 then
+					game:GetService("ReplicatedStorage").Remotes.CommE:FireServer("ActivateAbility")
+				end
+				prevState = getgenv().AutoTurnOnV3
+			end
+		end)
+	end
+end)
+
+getgenv().AntiAFK = true;
+
+spawn(function()
+	while true do
+		if getgenv().AntiAFK then
+			local vu = game:GetService("VirtualUser")
+			local player = game:GetService("Players").LocalPlayer
+			player.Idled:Connect(function()
+				vu:Button2Down(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+				wait(1)
+				vu:Button2Up(Vector2.new(0, 0), workspace.CurrentCamera.CFrame)
+			end)
+		end
+		game:GetService("RunService").Heartbeat:wait()
+	end
+end)
+
+_G.AutoKen = true;
+spawn(function(Value)
+	_G.AutoKen = Value
+	if Value then
+		game:GetService("ReplicatedStorage").Remotes.CommE:FireServer("Ken", true)
+	else
+		game:GetService("ReplicatedStorage").Remotes.CommE:FireServer("Ken", false)
+	end
+end)
+spawn(function()
+	while wait() do
+		pcall(function()
+			if _G.AutoKen then
+				game:GetService("ReplicatedStorage").Remotes.CommE:FireServer("Ken", true)
+			end
+		end)
+	end
+end)
+
+local AutoKillDarkBeard = getgenv().config.Premium["Auto Kill Dark Beard"]
+_G.DarkFull = true
+wait(1)
+
+spawn(function()
+    while task.wait(1) do
+        if AutoKillDarkBeard and _G.DarkFull then
+            pcall(function()
+                local enemies = workspace:WaitForChild("Enemies")
+                local darkBeardBoss = enemies:FindFirstChild("Darkbeard")
+
+                if darkBeardBoss then
+                    for _, v in pairs(enemies:GetChildren()) do
+                        if v.Name == "Darkbeard" and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
+                            repeat
+                                wait(1)
+                                AutoHaki()
+                                EquipWeapon(_G.SelectWeapon)
+                                v.HumanoidRootPart.CanCollide = false
+                                v.Humanoid.WalkSpeed = 0
+                                Tween2(v.HumanoidRootPart.CFrame * Pos)
+                                sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)
+                                task.wait()
+                            until not _G.DarkFull or not v.Parent or v.Humanoid.Health <= 0
+                            Config_Lib.set("DarkBeard", "kill")
+                        end
+                    end
+
+                else
+                    Config_Lib.set("DarkBeard", "hop") 
+                end
+            end)
+        end
     end
 end)
 
