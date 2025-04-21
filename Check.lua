@@ -874,17 +874,31 @@ end
 
 spawn(function()
     while task.wait(1) do
-        local lp = game.Players.LocalPlayer
+        local lp   = game.Players.LocalPlayer
         local char = lp.Character
-        local bp = lp.Backpack
+        local bp   = lp.Backpack
 
         if getgenv().config.Premium["Auto Spawn Dark Beard"] then
             if game.PlaceId == 4442272183 then
+                -- 1) Kiểm tra Fist of Darkness
                 local hasFist = bp:FindFirstChild("Fist of Darkness")
                              or (char and char:FindFirstChild("Fist of Darkness"))
-                if hasFist then
-                    Tween2(dark)
+                if not hasFist then
+                    return  
                 end
+
+                local keyTool = bp:FindFirstChild("God's Chalice")
+                             or bp:FindFirstChild("Fist of Darkness")
+                             or (char and (char:FindFirstChild("God's Chalice") or char:FindFirstChild("Fist of Darkness")))
+                if keyTool then
+                    getgenv().config.ChestFarm["Start Farm Chest"] = false
+                    if bp:FindFirstChild(keyTool.Name) and char and char:FindFirstChild("Humanoid") then
+                        char.Humanoid:EquipTool(keyTool)
+                    end
+                end
+
+                Tween2(dark)
+                return  
             end
 
         else
@@ -893,18 +907,13 @@ spawn(function()
                                  or (char and char:FindFirstChild("God's Chalice"))
                 local hasFist    = bp:FindFirstChild("Fist of Darkness")
                                  or (char and char:FindFirstChild("Fist of Darkness"))
-
                 if hasChalice or hasFist then
-                    -- Dừng farm chest
                     getgenv().config.ChestFarm["Start Farm Chest"] = false
                     getgenv().config.Setting["No Stuck Chair"]     = false
 
                     local seaCFrame = GetSeaCoordinates()
-                    if seaCFrame then
-                        Tween2(seaCFrame)
-                        task.wait(1.5)
-                    end
-                    break 
+                    if seaCFrame then Tween2(seaCFrame); task.wait(1.5) end
+                    return
                 end
             end
         end
