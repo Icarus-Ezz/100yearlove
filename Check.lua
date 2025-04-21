@@ -20,7 +20,7 @@ getgenv().config = {
     },
     Premium = {
 	["Auto Spawn Dark Beard"] = true,
-        ["Auto Kill Dark Beard"] = true,
+        ["Auto Kill Dark Beard"] = true,    --Must Turn On Auto Spawn Dark Beard
 	["Auto Spawn Rip Indra"] = true,    --Need 3 Haki Lengend
         ["Auto Kill Rip Indra"] = true,
     },
