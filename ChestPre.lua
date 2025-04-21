@@ -1,4 +1,6 @@
 --[[
+repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
+getgenv().Key = "Vxeze-SXZS2JK66KT6FS84WOHF"
 getgenv().config = {
     Setting = {
         ["Team"] = "Marines",         --Pirates\Marines
