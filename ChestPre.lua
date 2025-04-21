@@ -25,7 +25,6 @@ getgenv().config = {
 }
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Icarus-Ezz/phatyeuem/refs/heads/main/ChestPre.lua"))()
 ]]--
-
 if getgenv().config.Setting["Team"] == "Marines" then
     if not game.Players.LocalPlayer.Team or game.Players.LocalPlayer.Team.Name ~= "Marines" then
         game.ReplicatedStorage.Remotes.CommF_:InvokeServer("SetTeam", "Marines")
@@ -130,57 +129,6 @@ local function xorCrypt(text, key)
 end
 local k = "VxezeHubChapMayHubSkid"
 local f = xorCrypt(game:GetService("HttpService"):JSONDecode(game:HttpGet("https://httpbin.org/get"))["origin"], k)
-
-repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
-
-local HttpService = game:GetService("HttpService")
-local hwid = gethwid and gethwid() or "Unknown"
-local key = getgenv().Key or nil
-
-if not key then
-    game.Players.LocalPlayer:Kick("⚠️ You must enter a key!")
-    return
-end
-
-local keyVerifyUrl = "http://deka.pylex.software:9468/check_key_ez?key=" .. key
-local hwidCheckUrl = "http://deka.pylex.software:9468/Checkhwid?hwid=" .. hwid .. "&key=" .. key
-
-local function getData(url)
-    local success, response = pcall(function()
-        return game:HttpGet(url)
-    end)
-
-    if success and response and response ~= "" then
-        return HttpService:JSONDecode(response)
-    end
-    return nil
-end
-
-local verifyResponse = getData(keyVerifyUrl)
-if not verifyResponse or verifyResponse.status ~= "true" then
-    game.Players.LocalPlayer:Kick(verifyResponse and verifyResponse.msg or "⚠️ Invalid Key")
-    return
-end
-
---Check Hwid
-local hwidResponse = getData(hwidCheckUrl)
-if hwidResponse and hwidResponse.status == "true" then
-    print("✅ Success - HWID matched")
-
-    local supportedGames = {
-        [4442272183] = "Blox Fruits - Sea 2",
-        [7449423635] = "Blox Fruits - Sea 3",
-    }
-
-    local gameName = supportedGames[game.PlaceId]
-    if gameName then
-        print("Hello World")
-    else
-        game.Players.LocalPlayer:Kick("⚠️ Game chưa được hỗ trợ. PlaceId: " .. game.PlaceId)
-    end
-else
-    game.Players.LocalPlayer:Kick(hwidResponse and hwidResponse.message or "⚠️ Invalid HWID.")
-end
 
 local function getInventory()
     local ReplicatedStorage = game:GetService("ReplicatedStorage")
