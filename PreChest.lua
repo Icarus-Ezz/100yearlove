@@ -1,4 +1,3 @@
-
 if getgenv().config.Setting["Team"] == "Marines" then
     if not game.Players.LocalPlayer.Team or game.Players.LocalPlayer.Team.Name ~= "Marines" then
         game.ReplicatedStorage.Remotes.CommF_:InvokeServer("SetTeam", "Marines")
