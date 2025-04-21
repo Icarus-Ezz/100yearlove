@@ -18,7 +18,7 @@ getgenv().config = {
     },
     Premium = {
         [Auto Kill Dark Beard] = true,
-        ["Auto Kill Rip Indra"] = true,
+	["Auto Kill Rip Indra"] = true,
     },
 }
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Icarus-Ezz/phatyeuem/refs/heads/main/Chest.lua"))()
