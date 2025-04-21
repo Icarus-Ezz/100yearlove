@@ -70,6 +70,8 @@ if not verifyResponse or verifyResponse.status ~= "true" then
     return
 end
 
+wait(2)
+
 -- Check HWID
 local hwidResponse = getData(hwidCheckUrl)
 if not hwidResponse or hwidResponse.status ~= "true" then
