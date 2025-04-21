@@ -40,14 +40,24 @@ local keyVerifyUrl = "http://deka.pylex.software:9468/check_key_ez?key=" .. key
 local hwidCheckUrl = "http://deka.pylex.software:9468/Checkhwid?hwid=" .. hwid .. "&key=" .. key
 
 local function getData(url)
-    local success, response = pcall(function()
-        return game:HttpGet(url)
-    end)
+    for i = 1, 2 do 
+        local success, response = pcall(function()
+            return game:HttpGet(url)
+        end)
 
-    if success and response and response ~= "" then
-        return HttpService:JSONDecode(response)
+        if success and response and response ~= "" then
+            local successDecode, data = pcall(function()
+                return HttpService:JSONDecode(response)
+            end)
+            if successDecode then
+                return data
+            end
+        end
+
+        wait(1)
     end
-    return nil
+
+    return nil 
 end
 
 -- Check key
