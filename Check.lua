@@ -776,9 +776,9 @@ local function UpdateStats()
         end
     end
 
-    Converted["_BeliLabel"].Text       = "💲 Beli: " .. FormatNumber(beli)
+    Converted["_BeliLabel"].Text       = "💵 Beli: " .. FormatNumber(beli)
     Converted["_EarnedBeliLabel"].Text = "📊 Earned: " .. FormatNumber(earnedBeli)
-    Converted["_ChestLabel"].Text      = "📦 Chests: " .. chestCount
+    Converted["_ChestLabel"].Text      = "🧰 Chests: " .. chestCount
 end
 
 CreateMainGui()
