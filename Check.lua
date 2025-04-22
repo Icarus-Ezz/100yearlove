@@ -1248,8 +1248,10 @@ spawn(function()
 		end);
 	end);
 end);
+
 PosY = 30;
 Type = 1;
+
 spawn(function()
 	while wait() do
 		if (Type == 1) then
@@ -1263,6 +1265,7 @@ spawn(function()
 		end
 	end
 end);
+
 spawn(function()
 	while wait(0.1) do
 		Type = 1;
@@ -1275,19 +1278,6 @@ spawn(function()
 		wait(0.1);
 	end
 end);
-
-local m = loadstring(http_request({
-	["Url"] = "https://raw.githubusercontent.com/Iamkhnah/projectluacanmayidollop8a/refs/heads/main/pkhanh.lua",
-	["Method"] = "GET",
-	["Headers"] = { 
-		["user-agent"] = "Coded by pkhanh"
-	}
-}).Body)()
-spawn(function()
-	while wait() do
-		m.mmb()
-	end
-end)
 
 function AutoHaki()
 	if not game:GetService("Players").LocalPlayer.Character:FindFirstChild("HasBuso") then
@@ -1594,9 +1584,10 @@ spawn(function()
                                 task.wait()
                             until not _G.DarkFull or not v.Parent or v.Humanoid.Health <= 0
                             Config_Lib.set("DarkBeard", "kill")
+
+                            getgenv().config.ChestFarm["Start Farm Chest"] = true
                         end
                     end
-
                 else
                     Config_Lib.set("DarkBeard", "hop") 
                 end
