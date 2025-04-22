@@ -1069,38 +1069,59 @@ function StartCountdownAndHop(countdownTime)
 end
 
 ----------------------------------------------------------------------------------------------------
-local lastPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
-local idleTime = 0 
+local lastTweenPosition = nil
+local sameTweenCount = 0
+local maxSameTween = 5
 
-local function CheckIdleTime()
-    local currentPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
-    if currentPosition == lastPosition then
-        idleTime = idleTime + 1
+function SafeTween2(cf)
+    if lastTweenPosition and (cf.Position - lastTweenPosition).Magnitude < 1 then
+        sameTweenCount = sameTweenCount + 1
     else
-        idleTime = 0 
+        sameTweenCount = 0
     end
-    lastPosition = currentPosition
+
+    lastTweenPosition = cf.Position
+
+    if sameTweenCount >= maxSameTween then
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "Teleport Loop",
+            Text = "Hop Server...",
+            Duration = 4
+        })
+        Hop()
+        return
+    end
+
+    Tween2(cf)
 end
+
+local lastPosition = char:WaitForChild("HumanoidRootPart").Position
+local idleTime = 0
+
 
 spawn(function()
     while true do
-        CheckIdleTime()
+        local current = char.HumanoidRootPart.Position
+        if (current - lastPosition).Magnitude < 0.5 then
+            idleTime = idleTime + 1
+        else
+            idleTime = 0
+        end
+        lastPosition = current
 
-        if idleTime >= 600 then  
+        if idleTime >= 600 then
             game:GetService("StarterGui"):SetCore("SendNotification", {
                 Title = "Idle Timeout",
-                Text = "Idle Timeout. Hop Sever",
+                Text = "Idle Timeout. Hop Server...",
                 Duration = 4
             })
-            
-            Hop()  
-            idleTime = 0 
+            Hop()
             break
         end
-        
-        wait(1) 
+        wait(1)
     end
 end)
+
 
 local function GetChest()
     local distance = math.huge
@@ -1119,13 +1140,13 @@ local function GetChest()
 end
 
 spawn(function()
-    local startTime = tick() 
+    local startTime = tick()
 
     while true do
         if getgenv().config.ChestFarm["Start Farm Chest"] then
             game:GetService("StarterGui"):SetCore("SendNotification", {
                 Title = "Auto Chest",
-                Text = "Find Chest...",
+                Text = "Tìm rương...",
                 Duration = 3
             })
 
@@ -1134,18 +1155,22 @@ spawn(function()
 
             local function AutoChestCollect()
                 local timeout = 0
+
                 while getgenv().config.ChestFarm["Start Farm Chest"] do
                     local chest = GetChest()
                     if chest and chest:IsDescendantOf(workspace) then
-                        Tween2(chest.CFrame)
+                        SafeTween2(chest.CFrame)
 
                         pcall(function()
-                            firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, chest, 0)
-                            firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, chest, 1)
+                            local hrp = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                            if hrp then
+                                firetouchinterest(hrp, chest, 0)
+                                firetouchinterest(hrp, chest, 1)
+                            end
                         end)
 
-                        local start = tick()
-                        repeat task.wait(0.1) until not chest:IsDescendantOf(workspace) or tick() - start > 1
+                        local t = tick()
+                        repeat wait(0.1) until not chest:IsDescendantOf(workspace) or tick() - t > 1
 
                         if not chest:IsDescendantOf(workspace) then
                             _G.LastChestCollectedTime = tick()
@@ -1155,7 +1180,7 @@ spawn(function()
                     else
                         timeout = timeout + 1
                         if timeout >= 2 then
-                            StartCountdownAndHop(10) 
+                            StartCountdownAndHop(10)
                             break
                         end
                         wait(1)
@@ -1165,15 +1190,16 @@ spawn(function()
                         if _G.CurrentTween then
                             _G.CurrentTween:Cancel()
                             _G.CurrentTween = nil
-                        end    
-                            
+                        end
+
                         game:GetService("StarterGui"):SetCore("SendNotification", {
                             Title = "Vxeze Hub Auto Chest",
-                            Text = "Zzz. Hop Sever",
+                            Text = "Hop server...",
                             Duration = 4
                         })
+
                         StartCountdownAndHop(10)
-                        startTime = tick()    
+                        startTime = tick()
                         break
                     end
                 end
