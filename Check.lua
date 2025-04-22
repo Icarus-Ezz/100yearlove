@@ -1075,7 +1075,7 @@ end
 ----------------------------------------------------------------------------------------------------
 local lastPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
 local samePositionCount = 0
-local maxSamePositionCount = 5
+local maxSamePositionCount = 20
 
 function CheckForStuck()
     local currentPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
