@@ -755,7 +755,7 @@ local function UpdateTime()
     local h = math.floor(t/3600)%24
     local m = math.floor(t/60)%60
     local s = t%60
-    Converted["_TimeLabel"].Text = string.format("⏰ Time: %02d:%02d:%02d", h, m, s)
+    Converted["_TimeLabel"].Text = string.format("⏳ Time: %02d:%02d:%02d", h, m, s)
 end
 
 local function UpdateStats()
@@ -776,9 +776,9 @@ local function UpdateStats()
         end
     end
 
-    Converted["_BeliLabel"].Text       = "💰 Beli: " .. FormatNumber(beli)
-    Converted["_EarnedBeliLabel"].Text = "📈 Earned: " .. FormatNumber(earnedBeli)
-    Converted["_ChestLabel"].Text      = "🎁 Chests: " .. chestCount
+    Converted["_BeliLabel"].Text       = "💲 Beli: " .. FormatNumber(beli)
+    Converted["_EarnedBeliLabel"].Text = "📊 Earned: " .. FormatNumber(earnedBeli)
+    Converted["_ChestLabel"].Text      = "📦 Chests: " .. chestCount
 end
 
 CreateMainGui()
