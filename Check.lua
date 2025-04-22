@@ -1140,7 +1140,7 @@ local function GetChest()
     local closestChest = nil
     for _, v in pairs(workspace.Map:GetDescendants()) do
         if string.find(v.Name:lower(), "chest") and v:FindFirstChild("TouchInterest") and v:IsA("BasePart") then
-            if v.Position.Y < -10 then continue end
+            if v.Position.Y < -30 then continue end
             local d = (v.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
             if d < distance then
                 distance = d
