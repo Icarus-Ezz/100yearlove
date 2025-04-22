@@ -1074,6 +1074,10 @@ local sameTweenCount = 0
 local maxSameTween = 5
 
 function SafeTween2(cf)
+    local char = game.Players.LocalPlayer.Character
+    if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+
+    -- So sánh vị trí trước và sau
     if lastTweenPosition and (cf.Position - lastTweenPosition).Magnitude < 1 then
         sameTweenCount = sameTweenCount + 1
     else
@@ -1083,9 +1087,9 @@ function SafeTween2(cf)
     lastTweenPosition = cf.Position
 
     if sameTweenCount >= maxSameTween then
-        StarterGui:SetCore("SendNotification", {
+        game:GetService("StarterGui"):SetCore("SendNotification", {
             Title = "Teleport Loop",
-            Text = "Hop Server...",
+            Text = "Đã tele cùng chỗ 5 lần! Hop server...",
             Duration = 4
         })
         Hop()
@@ -1122,14 +1126,13 @@ spawn(function()
     end
 end)
 
--- Tìm rương gần nhất
 local function GetChest()
     local distance = math.huge
     local closestChest = nil
     for _, v in pairs(workspace.Map:GetDescendants()) do
         if string.find(v.Name:lower(), "chest") and v:FindFirstChild("TouchInterest") and v:IsA("BasePart") then
             if v.Position.Y < -10 then continue end
-            local d = (v.Position - Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+            local d = (v.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
             if d < distance then
                 distance = d
                 closestChest = v
@@ -1139,15 +1142,14 @@ local function GetChest()
     return closestChest
 end
 
--- Vòng lặp farm rương
 spawn(function()
-    local startTime = tick()
+    local startTime = tick() 
 
     while true do
         if getgenv().config.ChestFarm["Start Farm Chest"] then
-            StarterGui:SetCore("SendNotification", {
+            game:GetService("StarterGui"):SetCore("SendNotification", {
                 Title = "Auto Chest",
-                Text = "Tìm rương...",
+                Text = "Find Chest...",
                 Duration = 3
             })
 
@@ -1156,22 +1158,18 @@ spawn(function()
 
             local function AutoChestCollect()
                 local timeout = 0
-
                 while getgenv().config.ChestFarm["Start Farm Chest"] do
                     local chest = GetChest()
                     if chest and chest:IsDescendantOf(workspace) then
-                        SafeTween2(chest.CFrame)
+                        Tween2(chest.CFrame)
 
                         pcall(function()
-                            local hrp = Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                            if hrp then
-                                firetouchinterest(hrp, chest, 0)
-                                firetouchinterest(hrp, chest, 1)
-                            end
+                            firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, chest, 0)
+                            firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, chest, 1)
                         end)
 
-                        local t = tick()
-                        repeat wait(0.1) until not chest:IsDescendantOf(workspace) or tick() - t > 1
+                        local start = tick()
+                        repeat task.wait(0.1) until not chest:IsDescendantOf(workspace) or tick() - start > 1
 
                         if not chest:IsDescendantOf(workspace) then
                             _G.LastChestCollectedTime = tick()
@@ -1181,27 +1179,25 @@ spawn(function()
                     else
                         timeout = timeout + 1
                         if timeout >= 2 then
-                            StartCountdownAndHop(10)
+                            StartCountdownAndHop(10) 
                             break
                         end
                         wait(1)
                     end
 
-                    -- Hop server sau 5 phút farm
                     if tick() - startTime >= 300 then
                         if _G.CurrentTween then
                             _G.CurrentTween:Cancel()
                             _G.CurrentTween = nil
-                        end
-
-                        StarterGui:SetCore("SendNotification", {
+                        end    
+                            
+                        game:GetService("StarterGui"):SetCore("SendNotification", {
                             Title = "Vxeze Hub Auto Chest",
-                            Text = "Hop server...",
+                            Text = "Zzz. Hop Sever",
                             Duration = 4
                         })
-
                         StartCountdownAndHop(10)
-                        startTime = tick()
+                        startTime = tick()    
                         break
                     end
                 end
