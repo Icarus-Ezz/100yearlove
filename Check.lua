@@ -1105,7 +1105,7 @@ end
 spawn(function()
     while true do
         CheckForStuck()
-        wait(1)
+        wait(10)
     end
 end)
 
