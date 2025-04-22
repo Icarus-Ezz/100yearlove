@@ -1583,6 +1583,8 @@ spawn(function()
                                 sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)
                                 task.wait()
                             until not _G.DarkFull or not v.Parent or v.Humanoid.Health <= 0
+
+                            _G.DarkFull = false 
                             Config_Lib.set("DarkBeard", "kill")
 
                             getgenv().config.ChestFarm["Start Farm Chest"] = true
