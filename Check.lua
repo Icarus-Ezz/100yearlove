@@ -1069,37 +1069,6 @@ function StartCountdownAndHop(countdownTime)
 end
 
 ----------------------------------------------------------------------------------------------------
-local lastTweenPosition = nil
-local sameTweenCount = 0
-local maxSameTween = 5
-
-function SafeTween2(cf)
-    local char = game.Players.LocalPlayer.Character
-    if not char or not char:FindFirstChild("HumanoidRootPart") then return end
-
-    -- So sánh vị trí trước và sau
-    if lastTweenPosition and (cf.Position - lastTweenPosition).Magnitude < 1 then
-        sameTweenCount = sameTweenCount + 1
-    else
-        sameTweenCount = 0
-    end
-
-    lastTweenPosition = cf.Position
-
-    if sameTweenCount >= maxSameTween then
-        game:GetService("StarterGui"):SetCore("SendNotification", {
-            Title = "Teleport Loop",
-            Text = "Đã tele cùng chỗ 5 lần! Hop server...",
-            Duration = 4
-        })
-        Hop()
-        return
-    end
-
-    Tween2(cf)
-end
-
--- Idle timeout nếu đứng yên quá lâu
 local lastPosition = char:WaitForChild("HumanoidRootPart").Position
 local idleTime = 0
 
