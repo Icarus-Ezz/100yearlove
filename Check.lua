@@ -1067,6 +1067,39 @@ end
 
 ----------------------------------------------------------------------------------------------------
 local lastPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
+local samePositionCount = 0
+local maxSamePositionCount = 5
+
+function CheckForStuck()
+    local currentPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
+    if (currentPosition - lastPosition).Magnitude < 0.1 then
+        samePositionCount = samePositionCount + 1
+    else
+        samePositionCount = 0
+    end
+
+    lastPosition = currentPosition
+
+    if samePositionCount >= maxSamePositionCount then
+        -- Nếu bị giật 5 lần liên tiếp tại cùng 1 vị trí, gọi StartCountdownAndHop(10)
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "Teleport Loop",
+            Text = "Hop Server...",
+            Duration = 4
+        })
+        StartCountdownAndHop(10)
+        samePositionCount = 0
+    end
+end
+
+spawn(function()
+    while true do
+        CheckForStuck()
+        wait(1)
+    end
+end)
+
+local lastPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
 local idleTime = 0 
 
 local function CheckIdleTime()
@@ -1158,6 +1191,8 @@ spawn(function()
                         wait(1)
                     end
 
+		    CheckForStuck()
+						
                     if tick() - startTime >= 300 then
                         if _G.CurrentTween then
                             _G.CurrentTween:Cancel()
