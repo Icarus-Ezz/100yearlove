@@ -1072,7 +1072,11 @@ local maxSamePositionCount = 5
 
 function CheckForStuck()
     local currentPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
-    if (currentPosition - lastPosition).Magnitude < 0.1 then
+
+    local lastXZ = Vector2.new(lastPosition.X, lastPosition.Z)
+    local currentXZ = Vector2.new(currentPosition.X, currentPosition.Z)
+
+    if (currentXZ - lastXZ).Magnitude < 0.1 then
         samePositionCount = samePositionCount + 1
     else
         samePositionCount = 0
@@ -1081,14 +1085,13 @@ function CheckForStuck()
     lastPosition = currentPosition
 
     if samePositionCount >= maxSamePositionCount then
-        -- Nếu bị giật 5 lần liên tiếp tại cùng 1 vị trí, gọi StartCountdownAndHop(10)
         game:GetService("StarterGui"):SetCore("SendNotification", {
             Title = "Teleport Loop",
             Text = "Hop Server...",
             Duration = 4
         })
         StartCountdownAndHop(10)
-        samePositionCount = 0
+        samePositionCount = 0 
     end
 end
 
