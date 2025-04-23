@@ -881,47 +881,52 @@ end
 
 spawn(function()
     while task.wait(1) do
-        local lp   = game.Players.LocalPlayer
+        local lp = game.Players.LocalPlayer
         local char = lp.Character
-        local bp   = lp.Backpack
+        local bp = lp.Backpack
 
-        if getgenv().config.Premium["Auto Spawn Dark Beard"] then
-            if game.PlaceId == 4442272183 then
-                -- 1) Kiểm tra Fist of Darkness
-                local hasFist = bp:FindFirstChild("Fist of Darkness")
-                             or (char and char:FindFirstChild("Fist of Darkness"))
-                if not hasFist then
-                    return  
+        if not lp or not bp or not char then continue end
+
+        -- ==== Auto Spawn Dark Beard ưu tiên cao hơn ====
+        if getgenv().config.Premium["Auto Spawn Dark Beard"] and game.PlaceId == 4442272183 then
+            local hasFist = bp:FindFirstChild("Fist of Darkness") or char:FindFirstChild("Fist of Darkness")
+            if hasFist then
+                getgenv().config.ChestFarm["Start Farm Chest"] = false
+
+                local tool = bp:FindFirstChild("Fist of Darkness")
+                if tool and char:FindFirstChild("Humanoid") then
+                    pcall(function() char.Humanoid:EquipTool(tool) end)
                 end
 
-                local keyTool = bp:FindFirstChild("God's Chalice")
-                             or bp:FindFirstChild("Fist of Darkness")
-                             or (char and (char:FindFirstChild("God's Chalice") or char:FindFirstChild("Fist of Darkness")))
-                if keyTool then
-                    getgenv().config.ChestFarm["Start Farm Chest"] = false
-                    if bp:FindFirstChild(keyTool.Name) and char and char:FindFirstChild("Humanoid") then
-                        char.Humanoid:EquipTool(keyTool)
-                    end
-                end
+                if dark then
+                    Tween2(dark)
+                    task.wait(2)
 
-                Tween2(dark)
-                return  
+                    local vim = game:GetService("VirtualInputManager")
+                    vim:SendKeyEvent(true, "A", false, game)
+                    task.wait(0.2)
+                    vim:SendKeyEvent(false, "A", false, game)
+                    vim:SendKeyEvent(true, "D", false, game)
+                    task.wait(0.2)
+                    vim:SendKeyEvent(false, "D", false, game)
+                end
+                return
             end
 
-        else
-            if getgenv().config.ChestFarm["Stop When Have God's Chalice or Dark Key"] then
-                local hasChalice = bp:FindFirstChild("God's Chalice")
-                                 or (char and char:FindFirstChild("God's Chalice"))
-                local hasFist    = bp:FindFirstChild("Fist of Darkness")
-                                 or (char and char:FindFirstChild("Fist of Darkness"))
-                if hasChalice or hasFist then
-                    getgenv().config.ChestFarm["Start Farm Chest"] = false
-                    getgenv().config.Setting["No Stuck Chair"]     = false
+        -- ==== Nếu Auto Spawn tắt → check God's Chalice / Fist như bình thường ====
+        elseif getgenv().config.ChestFarm["Stop When Have God's Chalice or Dark Key"] then
+            local hasChalice = bp:FindFirstChild("God's Chalice") or char:FindFirstChild("God's Chalice")
+            local hasFist = bp:FindFirstChild("Fist of Darkness") or char:FindFirstChild("Fist of Darkness")
+            if hasChalice or hasFist then
+                getgenv().config.ChestFarm["Start Farm Chest"] = false
+                getgenv().config.Setting["No Stuck Chair"] = false
 
-                    local seaCFrame = GetSeaCoordinates()
-                    if seaCFrame then Tween2(seaCFrame); task.wait(1.5) end
-                    return
+                local seaCFrame = GetSeaCoordinates()
+                if seaCFrame then
+                    Tween2(seaCFrame)
+                    task.wait(1.5)
                 end
+                return
             end
         end
     end
