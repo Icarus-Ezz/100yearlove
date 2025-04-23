@@ -1119,26 +1119,22 @@ local function CheckForStuck()
 end
 
 local function GetChest()
-    local maxSearchRadius = 500
-    local minY            = -60
-    local character       = lp.Character or lp.CharacterAdded:Wait()
-    local hrp             = character:FindFirstChild("HumanoidRootPart")
+    local maxDist = 500
+    local closestChest, shortest = nil, maxDist
+
+    local character = lp.Character or lp.CharacterAdded:Wait()
+    local hrp = character:FindFirstChild("HumanoidRootPart")
     if not hrp then return nil end
 
-    local map = workspace:FindFirstChild("Map")
-    if not map then return nil end
-
-    local closestChest = nil
-    local shortestDist = maxSearchRadius
-
+    local map = workspace:FindFirstChild("Map") or workspace
     for _, part in ipairs(map:GetDescendants()) do
-        if part:IsA("BasePart") and part:FindFirstChild("TouchInterest") then
+        if part:IsA("BasePart") then
             local nameLower = part.Name:lower()
-            if nameLower:find("chest") and part.Position.Y >= minY then
+            if nameLower:find("chest") and part.Position.Y >= -100 then
                 local dist = (part.Position - hrp.Position).Magnitude
-                if dist < shortestDist then
-                    shortestDist = dist
+                if dist < shortest then
                     closestChest = part
+                    shortest = dist
                 end
             end
         end
