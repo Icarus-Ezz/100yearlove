@@ -258,7 +258,6 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
                                               "'teleport','" .. game.JobId .. "')```", inline = false },
                 { name = "️♜ God's Chalice 🔳", value = hasGodsChalice and "✅" or "❌", inline = true },
                 { name = "♣️ Fist of Darkness ♠️", value = hasFistOfDarkness and "✅" or "❌", inline = true },
-                { name = "🔌 Dark Fragment 🔌", value = "```" .. (number_Dark_Fragments or 0) .. "```", inline = true },
                 { name = "🧥 Dark Coat 🧥", value = darkCoatStatus or "❌", inline = true },
                 { name = "🎓 Valkyrie Helm 🎓", value = valkyrieHelmStatus, inline = true },
             },
@@ -292,7 +291,7 @@ spawn(function()
         end
 
         -- Check sau 120s
-        task.wait(120)
+        task.wait(5)   
     end
 end)
 
