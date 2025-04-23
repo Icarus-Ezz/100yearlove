@@ -310,10 +310,6 @@ spawn(function()
     end)
 end)
 
-local function FormatNumber(number)
-    return tostring(number):reverse():gsub("(%d%d%d)", "%1,"):reverse():gsub("^,", "")
-end
-
 local function CreateSmoothCorner(instance, radius)
     local corner = Instance.new("UICorner")
     corner.CornerRadius = UDim.new(0, radius or 8)
@@ -347,61 +343,6 @@ end
 if pcall(function() game:HttpGet("https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Asc&limit=100") end) then
     HopServer = SmartServerHop
 end
-
-
-function config()
-    local fo = "vxezehub"
-    local fi = "saved.config"
-
-    local k = game:GetService("HttpService")
-    -- Kiểm tra và tạo file nếu chưa tồn tại
-    if not isfile(fo .. "/" .. fi) then
-        writefile(fo .. "/" .. fi, k:JSONEncode({
-            ["Rip_Indra"] = {
-                ["hop"] = 0,
-                ["kill"] = 0
-            },
-            ["DarkBeard"] = {
-                ["hop"] = 0,
-                ["kill"] = 0
-            }
-        }))
-    end
-    
-    return (function(...)
-        local g = {
-            ["cre"] = ...
-        }
-        
-        g["get"] = function(v)
-            local tr = readfile(fo .. "/" .. fi)
-            local data = k:JSONDecode(tr)
-            
-            if data[v] then
-                return data[v]
-            else
-                return nil 
-            end
-        end
-        
-        g["set"] = function(v, a)
-            local tr = readfile(fo .. "/" .. fi)
-            local c = k:JSONDecode(tr)
-            
-            if not c[v] then
-                c[v] = {["hop"] = 0, ["kill"] = 0} 
-            end
-            
-            local o = c[v][a]
-            c[v][a] = o + 1
-
-            writefile(fo .. "/" .. fi, k:JSONEncode(c))
-        end
-        
-        return g
-    end)("Zzz")
-end
-local Config_Lib = config()
 
 local function AntiKick()
     while true do
@@ -1573,7 +1514,7 @@ _G.DarkFull = true
 wait(1)
 
 spawn(function()
-    while task.wait(1) do
+    while wait(1) do 
         if AutoKillDarkBeard and _G.DarkFull then
             pcall(function()
                 local enemies = workspace:WaitForChild("Enemies")
@@ -1581,26 +1522,27 @@ spawn(function()
 
                 if darkBeardBoss then
                     for _, v in pairs(enemies:GetChildren()) do
-                        if v.Name == "Darkbeard" and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
-                            repeat
-                                wait(1)
-                                AutoHaki()
-                                EquipWeapon(_G.SelectWeapon)
-                                v.HumanoidRootPart.CanCollide = false
-                                v.Humanoid.WalkSpeed = 0
-                                Tween2(v.HumanoidRootPart.CFrame * Pos)
-                                sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)
-                                task.wait()
-                            until not _G.DarkFull or not v.Parent or v.Humanoid.Health <= 0
+                        if v.Name == "Darkbeard" and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") then
+                            local humanoid = v.Humanoid
+                            local humanoidRootPart = v.HumanoidRootPart
 
-                            _G.DarkFull = false 
-                            Config_Lib.set("DarkBeard", "kill")
+                            if humanoid and humanoidRootPart and humanoid.Health > 0 then
+                                repeat
+                                    wait(1)
+                                    AutoHaki()
+                                    EquipWeapon(_G.SelectWeapon)
+                                    humanoidRootPart.CanCollide = false
+                                    humanoid.WalkSpeed = 0
+                                    Tween2(humanoidRootPart.CFrame * Pos)
+                                    sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)
+                                until not _G.DarkFull or not v.Parent or humanoid.Health <= 0
 
-                            getgenv().config.ChestFarm["Start Farm Chest"] = true
+                                -- Dừng lại sau khi boss chết hoặc không còn hợp lệ
+                                _G.DarkFull = false 
+                                getgenv().config.ChestFarm["Start Farm Chest"] = true
+                            end
                         end
                     end
-                else
-                    Config_Lib.set("DarkBeard", "hop") 
                 end
             end)
         end
