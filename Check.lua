@@ -1586,22 +1586,17 @@ function Hop()
     local PlaceID = game.PlaceId
     local AllIDs = {}
     local foundAnything = ""
-    local isTeleporting = false
-    local HttpService = game:GetService("HttpService")
-    local TeleportService = game:GetService("TeleportService")
-    local LocalPlayer = game.Players.LocalPlayer
+    local actualHour = os.date("!*t").hour
 
-    local function TPReturner()
-        if isTeleporting then return end
-
+    function TPReturner()
         local Site
         if foundAnything == "" then
-            Site = HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100"))
+            Site = game.HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100"))
         else
-            Site = HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100&cursor=" .. foundAnything))
+            Site = game.HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100&cursor=" .. foundAnything))
         end
 
-        if Site.nextPageCursor and Site.nextPageCursor ~= "null" then
+        if Site.nextPageCursor and Site.nextPageCursor ~= "null" and Site.nextPageCursor ~= nil then
             foundAnything = Site.nextPageCursor
         end
 
@@ -1611,7 +1606,7 @@ function Hop()
 
             if tonumber(v.maxPlayers) > tonumber(v.playing) then
                 for _, Existing in pairs(AllIDs) do
-                    if ID == Existing then
+                    if ID == tostring(Existing) then
                         Possible = false
                         break
                     end
@@ -1620,29 +1615,24 @@ function Hop()
                 if Possible then
                     table.insert(AllIDs, ID)
                     wait(1)
-
-                    isTeleporting = true
-                    local success, err = pcall(function()
-                        TeleportService:TeleportToPlaceInstance(PlaceID, ID, LocalPlayer)
+                    pcall(function()
+                        game:GetService("TeleportService"):TeleportToPlaceInstance(PlaceID, ID, game.Players.LocalPlayer)
                     end)
-
-                    if not success then
-                        warn("Teleport failed: ", err)
-                        isTeleporting = false
-                    end
-
-                    wait(5)
+                    wait(4)
                     return
                 end
             end
         end
     end
 
-    local function Teleport()
-        for i = 1, 10 do  -- Giới hạn lặp để tránh spam
-            if not isTeleporting then
+    function Teleport()
+        while true do
+            pcall(function()
                 TPReturner()
-            end
+                if foundAnything ~= "" then
+                    TPReturner()
+                end
+            end)
             wait(5)
         end
     end
