@@ -1549,6 +1549,38 @@ spawn(function()
     end
 end)
 
+local AutoKillRipIndra = getgenv().config.Premium["Auto Kill Rip Indra"]
+_G.RipFull = true;
+
+wait(1)
+spawn(function()
+	while wait() do
+		if _G.RipFull then
+			pcall(function()
+				local enemies = game:GetService("Workspace").Enemies;
+				if enemies:FindFirstChild("rip_indra True Form") then
+					for _, v in pairs(enemies:GetChildren()) do
+						if ((v.Name == "rip_indra True Form") and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and (v.Humanoid.Health > 0)) then
+							repeat
+								task.wait(1)
+								AutoHaki()
+								EquipWeapon(_G.SelectWeapon)
+								v.HumanoidRootPart.CanCollide = false
+								v.Humanoid.WalkSpeed = 0
+								Tween2(v.HumanoidRootPart.CFrame * Pos);
+								sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)
+							until not _G.RipFull or not v.Parent or v.Humanoid.Health <= 0
+
+							_G.RipFull = false
+							getgenv().config.ChestFarm["Start Farm Chest"] = true		
+						end
+					end
+				end
+			end)
+		end
+	end
+end)
+
 --HOP Server
 function Hop()
     local PlaceID = game.PlaceId
