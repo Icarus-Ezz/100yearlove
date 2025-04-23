@@ -218,7 +218,6 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
     local darkDaggerStatus = "❌"
     local valkyrieHelmStatus = "❌"
     local darkCoatStatus = "❌"
-    local number_Dark_Fragments = 0
 
     for _, item in pairs(inventory) do
         if item.Type == "Sword" and (item.Name == "Dark Dagger" or item.Name == "DarkDagger") then
@@ -261,7 +260,6 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
                 { name = "♣️ Fist of Darkness ♠️", value = hasFistOfDarkness and "✅" or "❌", inline = true },
                 { name = "🔌 Dark Fragment 🔌", value = "```" .. (number_Dark_Fragments or 0) .. "```", inline = true },
                 { name = "🧥 Dark Coat 🧥", value = darkCoatStatus or "❌", inline = true },
-                { name = "🗡️ Dark Dagger 🗡️", value = darkDaggerStatus, inline = true },
                 { name = "🎓 Valkyrie Helm 🎓", value = valkyrieHelmStatus, inline = true },
             },
             timestamp = os.date("!%Y-%m-%dT%H:%M:%S")
