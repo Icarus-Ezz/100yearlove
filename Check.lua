@@ -293,8 +293,8 @@ spawn(function()
             print("Webhook not enabled.")
         end
 
-        -- Check sau 120s
-        task.wait(120)
+        -- Check sau 60s
+        task.wait(60)
     end
 end)
 
@@ -1681,6 +1681,6 @@ spawn(function()
             PostWebhook(getgenv().config.Webhook["Webhook Url"], AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness))
         end
             
-        task.wait(60)
+        task.wait(120)
     end
 end)
