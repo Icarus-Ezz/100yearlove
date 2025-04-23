@@ -885,43 +885,38 @@ spawn(function()
         local char = lp.Character
         local bp   = lp.Backpack
 
-        if getgenv().config.Premium["Auto Spawn Dark Beard"] then
-            if game.PlaceId == 4442272183 then
-                local hasFist = bp:FindFirstChild("Fist of Darkness")
+        if getgenv().config.ChestFarm["Stop When Have God's Chalice or Dark Key"] then
+            local hasChalice = bp:FindFirstChild("God's Chalice")
+                             or (char and char:FindFirstChild("God's Chalice"))
+            local hasFist    = bp:FindFirstChild("Fist of Darkness")
                              or (char and char:FindFirstChild("Fist of Darkness"))
-                if not hasFist then
-                    return  
-                end
+            if hasChalice or hasFist then
+                getgenv().config.ChestFarm["Start Farm Chest"] = false
+                getgenv().config.Setting["No Stuck Chair"]     = false
 
-                local keyTool = bp:FindFirstChild("God's Chalice")
-                             or bp:FindFirstChild("Fist of Darkness")
-                             or (char and (char:FindFirstChild("God's Chalice") or char:FindFirstChild("Fist of Darkness")))
-                if keyTool then
-                    getgenv().config.ChestFarm["Start Farm Chest"] = false
-                    if bp:FindFirstChild(keyTool.Name) and char and char:FindFirstChild("Humanoid") then
-                        char.Humanoid:EquipTool(keyTool)
-                    end
-                end
+                local seaCFrame = GetSeaCoordinates()
+                if seaCFrame then Tween2(seaCFrame); task.wait(1.5) end
+                return
+            end
+        end
 
-                Tween2(dark)
-                return  
+        if getgenv().config.Premium["Auto Spawn Dark Beard"] and game.PlaceId == 4442272183 then
+            local hasFist = bp:FindFirstChild("Fist of Darkness")
+                         or (char and char:FindFirstChild("Fist of Darkness"))
+            if not hasFist then return end
+
+            local keyTool = bp:FindFirstChild("God's Chalice")
+                         or bp:FindFirstChild("Fist of Darkness")
+                         or (char and (char:FindFirstChild("God's Chalice") or char:FindFirstChild("Fist of Darkness")))
+            if keyTool then
+                getgenv().config.ChestFarm["Start Farm Chest"] = false
+                if bp:FindFirstChild(keyTool.Name) and char and char:FindFirstChild("Humanoid") then
+                    char.Humanoid:EquipTool(keyTool)
+                end
             end
 
-        else
-            if getgenv().config.ChestFarm["Stop When Have God's Chalice or Dark Key"] then
-                local hasChalice = bp:FindFirstChild("God's Chalice")
-                                 or (char and char:FindFirstChild("God's Chalice"))
-                local hasFist    = bp:FindFirstChild("Fist of Darkness")
-                                 or (char and char:FindFirstChild("Fist of Darkness"))
-                if hasChalice or hasFist then
-                    getgenv().config.ChestFarm["Start Farm Chest"] = false
-                    getgenv().config.Setting["No Stuck Chair"]     = false
-
-                    local seaCFrame = GetSeaCoordinates()
-                    if seaCFrame then Tween2(seaCFrame); task.wait(1.5) end
-                    return
-                end
-            end
+            Tween2(dark)
+            return
         end
     end
 end)
