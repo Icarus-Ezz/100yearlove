@@ -887,7 +887,6 @@ spawn(function()
 
         if getgenv().config.Premium["Auto Spawn Dark Beard"] then
             if game.PlaceId == 4442272183 then
-                -- 1) Kiểm tra Fist of Darkness
                 local hasFist = bp:FindFirstChild("Fist of Darkness")
                              or (char and char:FindFirstChild("Fist of Darkness"))
                 if not hasFist then
