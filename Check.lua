@@ -77,6 +77,7 @@ if not hwidResponse or hwidResponse.status ~= "true" then
     return
 end
 
+wait(2)
 if getgenv().config.Setting["Team"] == "Marines" then
     if not game.Players.LocalPlayer.Team or game.Players.LocalPlayer.Team.Name ~= "Marines" then
         game.ReplicatedStorage.Remotes.CommF_:InvokeServer("SetTeam", "Marines")
