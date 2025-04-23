@@ -12,7 +12,7 @@ getgenv().config = {
     },
     ChestFarm = {
         ["Start Farm Chest"] = true,   
-        ["Stop When Have God's Chalice or First Of Darkness"] = true, 
+        ["Stop When Have God's Chalice or Dark Key"] = true, 
     },
     Webhook = {
         ["Webhook Url"] = "https://discord.com/api/webhooks/1360798536937246840/HBIfH0Okazx7DxPPu8rNi_jYQSMWT4eis8HSx6UW83rLMgxQn6fgWShuqBbaiwxUEXmS",          
@@ -27,6 +27,7 @@ getgenv().config = {
 }
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Icarus-Ezz/phatyeuem/refs/heads/main/Check.lua"))()
 ]]--
+wait(3)
 repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
 
 local HttpService = game:GetService("HttpService")
@@ -76,7 +77,6 @@ if not hwidResponse or hwidResponse.status ~= "true" then
     return
 end
 
-wait(5)
 if getgenv().config.Setting["Team"] == "Marines" then
     if not game.Players.LocalPlayer.Team or game.Players.LocalPlayer.Team.Name ~= "Marines" then
         game.ReplicatedStorage.Remotes.CommF_:InvokeServer("SetTeam", "Marines")
@@ -293,8 +293,8 @@ spawn(function()
             print("Webhook not enabled.")
         end
 
-        -- Check sau 60s
-        task.wait(60)
+        -- Check sau 120s
+        task.wait(120)
     end
 end)
 
@@ -885,43 +885,44 @@ spawn(function()
         local char = lp.Character
         local bp   = lp.Backpack
 
-        -- Kiểm tra và tắt farm chest nếu có God's Chalice hoặc Fist of Darkness
-        if not getgenv().config.Premium["Auto Spawn Dark Beard"] and getgenv().config.ChestFarm["Stop When Have God's Chalice or Fist of Darkness"] then
-            local hasChalice = bp:FindFirstChild("God's Chalice")
-                             or (char and char:FindFirstChild("God's Chalice"))
-            local hasFist    = bp:FindFirstChild("Fist of Darkness")
+        if getgenv().config.Premium["Auto Spawn Dark Beard"] then
+            if game.PlaceId == 4442272183 then
+                -- 1) Kiểm tra Fist of Darkness
+                local hasFist = bp:FindFirstChild("Fist of Darkness")
                              or (char and char:FindFirstChild("Fist of Darkness"))
-            if hasChalice or hasFist then
-                getgenv().config.ChestFarm["Start Farm Chest"] = false
-                getgenv().config.Setting["No Stuck Chair"]     = false
-
-                local seaCFrame = GetSeaCoordinates()
-                if seaCFrame then
-                    Tween2(seaCFrame)
-                    task.wait(1.5)
+                if not hasFist then
+                    return  
                 end
-                return
-            end
-        end
 
-        -- Kiểm tra Auto Spawn Dark Beard, nếu bật sẽ dừng farm chest
-        if getgenv().config.Premium["Auto Spawn Dark Beard"] and game.PlaceId == 4442272183 then
-            local hasFist = bp:FindFirstChild("Fist of Darkness")
-                         or (char and char:FindFirstChild("Fist of Darkness"))
-            if not hasFist then return end
-
-            local keyTool = bp:FindFirstChild("God's Chalice")
-                         or bp:FindFirstChild("Fist of Darkness")
-                         or (char and (char:FindFirstChild("God's Chalice") or char:FindFirstChild("Fist of Darkness")))
-            if keyTool then
-                getgenv().config.ChestFarm["Start Farm Chest"] = false
-                if bp:FindFirstChild(keyTool.Name) and char:FindFirstChild("Humanoid") then
-                    char.Humanoid:EquipTool(keyTool)
+                local keyTool = bp:FindFirstChild("God's Chalice")
+                             or bp:FindFirstChild("Fist of Darkness")
+                             or (char and (char:FindFirstChild("God's Chalice") or char:FindFirstChild("Fist of Darkness")))
+                if keyTool then
+                    getgenv().config.ChestFarm["Start Farm Chest"] = false
+                    if bp:FindFirstChild(keyTool.Name) and char and char:FindFirstChild("Humanoid") then
+                        char.Humanoid:EquipTool(keyTool)
+                    end
                 end
+
+                Tween2(dark)
+                return  
             end
 
-            Tween2(dark)
-            return
+        else
+            if getgenv().config.ChestFarm["Stop When Have God's Chalice or Dark Key"] then
+                local hasChalice = bp:FindFirstChild("God's Chalice")
+                                 or (char and char:FindFirstChild("God's Chalice"))
+                local hasFist    = bp:FindFirstChild("Fist of Darkness")
+                                 or (char and char:FindFirstChild("Fist of Darkness"))
+                if hasChalice or hasFist then
+                    getgenv().config.ChestFarm["Start Farm Chest"] = false
+                    getgenv().config.Setting["No Stuck Chair"]     = false
+
+                    local seaCFrame = GetSeaCoordinates()
+                    if seaCFrame then Tween2(seaCFrame); task.wait(1.5) end
+                    return
+                end
+            end
         end
     end
 end)
@@ -1072,175 +1073,157 @@ function StartCountdownAndHop(countdownTime)
 end
 
 ----------------------------------------------------------------------------------------------------
-local Players     = game:GetService("Players")
-local StarterGui  = game:GetService("StarterGui")
-local lp          = Players.LocalPlayer
+local lastPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
+local samePositionCount = 0
+local maxSamePositionCount = 10
 
-local idle = 0
-local function nofarm(x, y, z, threshold)
-    threshold = threshold or 1
-    local char = lp.Character
-    local hrp  = char and char:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
+function CheckForStuck()
+    local currentPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
 
-    local pos = hrp.Position
-    if math.abs(pos.X - x) <= threshold
-    and math.abs(pos.Y - y) <= threshold
-    and math.abs(pos.Z - z) <= threshold then
-        idle = idle + 1
+    local lastXZ = Vector2.new(lastPosition.X, lastPosition.Z)
+    local currentXZ = Vector2.new(currentPosition.X, currentPosition.Z)
+
+    if (currentXZ - lastXZ).Magnitude < 0.1 then
+        samePositionCount = samePositionCount + 1
     else
-        idle = 0
+        samePositionCount = 0
     end
 
-    if idle >= 10 then
-        warn("[nofarm] Đứng yên quá lâu, hop server...")
+    lastPosition = currentPosition
+
+    if samePositionCount >= maxSamePositionCount then
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "Teleport Loop",
+            Text = "Hop Server...",
+            Duration = 4
+        })
         StartCountdownAndHop(10)
+        samePositionCount = 0 
     end
 end
 
-local lastPos     = nil
-local stuckCount  = 0
-local function CheckForStuck()
-    local char = lp.Character
-    local hrp  = char and char:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
+spawn(function()
+    while true do
+        CheckForStuck()
+        wait(10)
+    end
+end)
 
-    if lastPos and (hrp.Position - lastPos).Magnitude < 0.5 then
-        stuckCount = stuckCount + 1
+local lastPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
+local idleTime = 0 
+
+local function CheckIdleTime()
+    local currentPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
+    if currentPosition == lastPosition then
+        idleTime = idleTime + 1
     else
-        stuckCount = 0
-        lastPos     = hrp.Position
+        idleTime = 0 
     end
-
-    if stuckCount >= 10 then
-        warn("[CheckForStuck] Đứng yên quá lâu! Hop server...")
-        StartCountdownAndHop(10)
-    end
+    lastPosition = currentPosition
 end
+
+spawn(function()
+    while true do
+        CheckIdleTime()
+
+        if idleTime >= 600 then  
+            game:GetService("StarterGui"):SetCore("SendNotification", {
+                Title = "Idle Timeout",
+                Text = "Idle Timeout. Hop Sever",
+                Duration = 4
+            })
+            
+            Hop()  
+            idleTime = 0 
+            break
+        end
+        
+        wait(1) 
+    end
+end)
 
 local function GetChest()
-    local maxDist = 500
-    local closestChest, shortest = nil, maxDist
-
-    local character = lp.Character or lp.CharacterAdded:Wait()
-    local hrp = character:FindFirstChild("HumanoidRootPart")
-    if not hrp then return nil end
-
-    local map = workspace:FindFirstChild("Map") or workspace
-    for _, part in ipairs(map:GetDescendants()) do
-        if part:IsA("BasePart") then
-            local nameLower = part.Name:lower()
-            if nameLower:find("chest") and part.Position.Y >= -100 then
-                local dist = (part.Position - hrp.Position).Magnitude
-                if dist < shortest then
-                    closestChest = part
-                    shortest = dist
-                end
+    local distance = math.huge
+    local closestChest = nil
+    for _, v in pairs(workspace.Map:GetDescendants()) do
+        if string.find(v.Name:lower(), "chest") and v:FindFirstChild("TouchInterest") and v:IsA("BasePart") then
+            if v.Position.Y < -30 then continue end
+            local d = (v.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+            if d < distance then
+                distance = d
+                closestChest = v
             end
         end
     end
-
     return closestChest
 end
 
 spawn(function()
-    local startTime    = tick()
-    local lastChestPos = nil
-    local sameChestCnt = 0
-    local maxSameCnt   = 5
-    local tol          = 1
+    local startTime = tick() 
 
     while true do
-        -- Kiểm tra nếu cần bắt đầu farm chest
         if getgenv().config.ChestFarm["Start Farm Chest"] then
-            StarterGui:SetCore("SendNotification", {
-                Title    = "Auto Chest",
-                Text     = "Finding chest...",
+            game:GetService("StarterGui"):SetCore("SendNotification", {
+                Title = "Auto Chest",
+                Text = "Find Chest...",
                 Duration = 3
             })
 
             _G.AutoCollectChest = true
-            _G.IsChestFarming  = true
+            _G.IsChestFarming = true
 
-            local timeout = 0
-            local hrp     = lp.Character and lp.Character:FindFirstChild("HumanoidRootPart")
-            local x, y, z = hrp and hrp.Position.X or 0, hrp and hrp.Position.Y or 0, hrp and hrp.Position.Z or 0
+            local function AutoChestCollect()
+                local timeout = 0
+                while getgenv().config.ChestFarm["Start Farm Chest"] do
+                    local chest = GetChest()
+                    if chest and chest:IsDescendantOf(workspace) then
+                        Tween2(chest.CFrame)
 
-            while getgenv().config.ChestFarm["Start Farm Chest"] do
-                local chest = GetChest()
+                        pcall(function()
+                            firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, chest, 0)
+                            firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, chest, 1)
+                        end)
 
-                if chest and chest:IsDescendantOf(workspace) then
-                    -- Phát hiện stuck chest
-                    local pos = chest.Position
-                    if lastChestPos and (pos - lastChestPos).Magnitude < tol then
-                        sameChestCnt = sameChestCnt + 1
+                        local start = tick()
+                        repeat task.wait(0.1) until not chest:IsDescendantOf(workspace) or tick() - start > 1
+
+                        if not chest:IsDescendantOf(workspace) then
+                            _G.LastChestCollectedTime = tick()
+                            _G.CollectedChests = (_G.CollectedChests or 0) + 1
+                            timeout = 0
+                        end
                     else
-                        sameChestCnt = 0
-                    end
-                    lastChestPos = pos
-
-                    if sameChestCnt >= maxSameCnt then
-                        warn("[AutoChest] Chest stuck → Hop server")
-                        StartCountdownAndHop(10)
-                        return
-                    end
-
-                    -- Tween đến chest và collect
-                    Tween2(chest.CFrame)
-                    pcall(function()
-                        local hrp2 = lp.Character and lp.Character:FindFirstChild("HumanoidRootPart")
-                        if hrp2 then
-                            firetouchinterest(hrp2, chest, 0)
-                            firetouchinterest(hrp2, chest, 1)
+                        timeout = timeout + 1
+                        if timeout >= 2 then
+                            StartCountdownAndHop(10) 
+                            break
                         end
-                    end)
-
-                    -- Đợi chest biến mất
-                    local t0 = tick()
-                    repeat task.wait(0.1) until not chest:IsDescendantOf(workspace) or tick() - t0 > 1
-
-                    if not chest:IsDescendantOf(workspace) then
-                        _G.LastChestCollectedTime = tick()
-                        _G.CollectedChests       = (_G.CollectedChests or 0) + 1
-                        timeout = 0
-
-                        -- Cập nhật tọa độ HRP mới
-                        hrp = lp.Character and lp.Character:FindFirstChild("HumanoidRootPart")
-                        if hrp then
-                            x, y, z = hrp.Position.X, hrp.Position.Y, hrp.Position.Z
-                        end
+                        wait(1)
                     end
-                else
-                    timeout = timeout + 1
-                    if timeout >= 2 then
-                        warn("[AutoChest] Hop server!")
+
+		    CheckForStuck()
+						
+                    if tick() - startTime >= 300 then
+                        if _G.CurrentTween then
+                            _G.CurrentTween:Cancel()
+                            _G.CurrentTween = nil
+                        end    
+                            
+                        game:GetService("StarterGui"):SetCore("SendNotification", {
+                            Title = "Vxeze Hub Auto Chest",
+                            Text = "Zzz. Hop Sever",
+                            Duration = 4
+                        })
                         StartCountdownAndHop(10)
+                        startTime = tick()    
                         break
                     end
-                    task.wait(1)
-                end
-
-                nofarm(x, y, z, 1)
-                CheckForStuck()
-
-                -- Hop server sau 5 phút
-                if tick() - startTime >= 300 then
-                    if _G.CurrentTween then
-                        _G.CurrentTween:Cancel()
-                        _G.CurrentTween = nil
-                    end
-                    StarterGui:SetCore("SendNotification", {
-                        Title    = "Vxeze Hub Auto Chest",
-                        Text     = "→ Hop server",
-                        Duration = 4
-                    })
-                    StartCountdownAndHop(10)
-                    break
                 end
             end
-        end
 
-        task.wait(1)
+            AutoChestCollect()
+        end
+        wait(1)
     end
 end)
 
@@ -1699,6 +1682,6 @@ spawn(function()
             PostWebhook(getgenv().config.Webhook["Webhook Url"], AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness))
         end
             
-        task.wait(120)
+        task.wait(60)
     end
 end)
