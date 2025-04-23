@@ -807,7 +807,7 @@ end)
 
 local seaThirdSea  = CFrame.new(-5056.14794921875, 314.68048095703125, -2985.12255859375)  -- Third Sea
 local seaSecondSea = CFrame.new(-411.2250061035156, 73.31524658203125, 371.2820129394531)    -- Second Sea
-local dark         = CFrame.new(3777.7236328125, 14.885692596435547, -3501.616455078125)    -- Dark Arena
+local dark = CFrame.new(Vector3.new(3775.4907, 14.6854, -3499.7344), Vector3.new(3775.4907, 14.6854, -3499.7344) + Vector3.new(0.9996, 0, 0.0274))    -- Dark Arena
 
 local function GetSeaCoordinates()
     if game.PlaceId == 4442272183 then
