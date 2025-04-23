@@ -27,7 +27,6 @@ getgenv().config = {
 }
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Icarus-Ezz/phatyeuem/refs/heads/main/Check.lua"))()
 ]]--
-wait(3)
 repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
 
 local HttpService = game:GetService("HttpService")
@@ -77,7 +76,7 @@ if not hwidResponse or hwidResponse.status ~= "true" then
     return
 end
 
-wait(2)
+wait(5)
 if getgenv().config.Setting["Team"] == "Marines" then
     if not game.Players.LocalPlayer.Team or game.Players.LocalPlayer.Team.Name ~= "Marines" then
         game.ReplicatedStorage.Remotes.CommF_:InvokeServer("SetTeam", "Marines")
