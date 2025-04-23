@@ -1109,21 +1109,30 @@ spawn(function()
 end)
 
 local idle = 0
-local function nofarm(x, y, z)
+local lastPosition = nil
+
+local function noFarm(x, y, z)
     local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
 
+    -- Lưu vị trí lần đầu
+    if not lastPosition then
+        lastPosition = hrp.Position
+    end
+
+    -- So sánh vị trí hiện tại với tọa độ đã lưu (x, y, z)
     if math.floor(hrp.Position.X) == math.floor(x) and
        math.floor(hrp.Position.Y) == math.floor(y) and
        math.floor(hrp.Position.Z) == math.floor(z) then
         idle = idle + 1
     else
-        idle = 0 
+        idle = 0 -- Reset nếu có di chuyển
+        lastPosition = hrp.Position -- Cập nhật lại vị trí
     end
 
-    if idle >= 18 then
-        warn("[Vxeze Hub] Hop server...")
-        StartCountdownAndHop(10)
+    if idle >= 10 then
+        warn("Đứng yên quá lâu, hop server...")
+        StartCountdownAndHop(10)  -- Gọi hàm tự nhảy server
     end
 end
 	
