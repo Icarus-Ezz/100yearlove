@@ -1072,111 +1072,59 @@ function StartCountdownAndHop(countdownTime)
 end
 
 ----------------------------------------------------------------------------------------------------
-local lastPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
-local samePositionCount = 0
-local maxSamePositionCount = 10
+local Players     = game:GetService("Players")
+local StarterGui  = game:GetService("StarterGui")
+local lp          = Players.LocalPlayer
 
-function CheckForStuck()
-    local currentPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
-
-    local lastXZ = Vector2.new(lastPosition.X, lastPosition.Z)
-    local currentXZ = Vector2.new(currentPosition.X, currentPosition.Z)
-
-    if (currentXZ - lastXZ).Magnitude < 0.1 then
-        samePositionCount = samePositionCount + 1
-    else
-        samePositionCount = 0
-    end
-
-    lastPosition = currentPosition
-
-    if samePositionCount >= maxSamePositionCount then
-        game:GetService("StarterGui"):SetCore("SendNotification", {
-            Title = "Teleport Loop",
-            Text = "Hop Server...",
-            Duration = 4
-        })
-        StartCountdownAndHop(10)
-        samePositionCount = 0 
-    end
-end
-
-spawn(function()
-    while true do
-        CheckForStuck()
-        wait(10)
-    end
-end)
-
+-- nofarm: hop server nếu đứng yên tại đúng tọa độ quá 5 giây
 local idle = 0
-local lastPosition = nil
-
-local function noFarm(x, y, z)
-    local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+local function nofarm(x, y, z, threshold)
+    threshold = threshold or 1
+    local char = lp.Character
+    local hrp  = char and char:FindFirstChild("HumanoidRootPart")
     if not hrp then return end
 
-    -- Lưu vị trí lần đầu
-    if not lastPosition then
-        lastPosition = hrp.Position
-    end
-
-    -- So sánh vị trí hiện tại với tọa độ đã lưu (x, y, z)
-    if math.floor(hrp.Position.X) == math.floor(x) and
-       math.floor(hrp.Position.Y) == math.floor(y) and
-       math.floor(hrp.Position.Z) == math.floor(z) then
+    local pos = hrp.Position
+    if math.abs(pos.X - x) <= threshold
+    and math.abs(pos.Y - y) <= threshold
+    and math.abs(pos.Z - z) <= threshold then
         idle = idle + 1
     else
-        idle = 0 -- Reset nếu có di chuyển
-        lastPosition = hrp.Position -- Cập nhật lại vị trí
+        idle = 0
     end
 
-    if idle >= 10 then
-        warn("Đứng yên quá lâu, hop server...")
-        StartCountdownAndHop(10)  -- Gọi hàm tự nhảy server
+    if idle >= 5 then
+        warn("[nofarm] Đứng yên quá lâu, hop server...")
+        StartCountdownAndHop(10)
     end
 end
-	
-local lastPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
-local idleTime = 0 
 
-local function CheckIdleTime()
-    local currentPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
-    if currentPosition == lastPosition then
-        idleTime = idleTime + 1
+-- CheckForStuck: hop server nếu HRP không di chuyển quá 0.5 studs trong 5 giây
+local lastPos     = nil
+local stuckCount  = 0
+local function CheckForStuck()
+    local char = lp.Character
+    local hrp  = char and char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+
+    if lastPos and (hrp.Position - lastPos).Magnitude < 0.5 then
+        stuckCount = stuckCount + 1
     else
-        idleTime = 0 
+        stuckCount = 0
+        lastPos     = hrp.Position
     end
-    lastPosition = currentPosition
+
+    if stuckCount >= 5 then
+        warn("[CheckForStuck] Đứng yên quá lâu! Hop server...")
+        StartCountdownAndHop(10)
+    end
 end
-
-spawn(function()
-    while true do
-        CheckIdleTime()
-
-        if idleTime >= 600 then  
-            game:GetService("StarterGui"):SetCore("SendNotification", {
-                Title = "Idle Timeout",
-                Text = "Idle Timeout.[Vxeze Hub] Hop Sever",
-                Duration = 4
-            })
-            
-            Hop()  
-            idleTime = 0 
-            break
-        end
-        
-        wait(1) 
-    end
-end)
-
-local Players = game:GetService("Players")
-local lp = Players.LocalPlayer
 
 local function GetChest()
-    local maxSearchRadius = 500   
-    local minY = -60                
-    local character = lp.Character or lp.CharacterAdded:Wait()
-    local hrp = character:FindFirstChild("HumanoidRootPart")
+    local maxSearchRadius = 500
+    local minY            = -60
+    local character       = lp.Character or lp.CharacterAdded:Wait()
+    local hrp             = character:FindFirstChild("HumanoidRootPart")
     if not hrp then return nil end
 
     local map = workspace:FindFirstChild("Map")
@@ -1202,80 +1150,101 @@ local function GetChest()
 end
 
 spawn(function()
-    local startTime = tick() 
+    local startTime    = tick()
+    local lastChestPos = nil
+    local sameChestCnt = 0
+    local maxSameCnt   = 5
+    local tol          = 1
 
     while true do
         if getgenv().config.ChestFarm["Start Farm Chest"] then
-            game:GetService("StarterGui"):SetCore("SendNotification", {
-                Title = "Auto Chest",
-                Text = "Find Chest...",
+            StarterGui:SetCore("SendNotification", {
+                Title    = "Auto Chest",
+                Text     = "Finding chest...",
                 Duration = 3
             })
 
             _G.AutoCollectChest = true
-            _G.IsChestFarming = true
+            _G.IsChestFarming  = true
 
-            local function AutoChestCollect()
-                local timeout = 0
-                local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                local x, y, z = hrp and hrp.Position.X or 0, hrp and hrp.Position.Y or 0, hrp and hrp.Position.Z or 0
+            local timeout = 0
+            local hrp     = lp.Character and lp.Character:FindFirstChild("HumanoidRootPart")
+            local x, y, z = hrp and hrp.Position.X or 0, hrp and hrp.Position.Y or 0, hrp and hrp.Position.Z or 0
 
-                while getgenv().config.ChestFarm["Start Farm Chest"] do
-                    local chest = GetChest()
-                    if chest and chest:IsDescendantOf(workspace) then
-                        Tween2(chest.CFrame)
-
-                        pcall(function()
-                            firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, chest, 0)
-                            firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, chest, 1)
-                        end)
-
-                        local start = tick()
-                        repeat task.wait(0.1) until not chest:IsDescendantOf(workspace) or tick() - start > 1
-
-                        if not chest:IsDescendantOf(workspace) then
-                            _G.LastChestCollectedTime = tick()
-                            _G.CollectedChests = (_G.CollectedChests or 0) + 1
-                            timeout = 0
-
-                            hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                            if hrp then
-                                x, y, z = hrp.Position.X, hrp.Position.Y, hrp.Position.Z
-                            end
-                        end
+            while getgenv().config.ChestFarm["Start Farm Chest"] do
+                local chest = GetChest()
+                if chest and chest:IsDescendantOf(workspace) then
+                    -- Phát hiện stuck chest
+                    local pos = chest.Position
+                    if lastChestPos and (pos - lastChestPos).Magnitude < tol then
+                        sameChestCnt = sameChestCnt + 1
                     else
-                        timeout = timeout + 1
-                        if timeout >= 2 then
-                            StartCountdownAndHop(10) 
-                            break
-                        end
-                        wait(1)
+                        sameChestCnt = 0
+                    end
+                    lastChestPos = pos
+
+                    if sameChestCnt >= maxSameCnt then
+                        warn("[AutoChest] Chest stuck → Hop server")
+                        StartCountdownAndHop(10)
+                        return
                     end
 
-                    nofarm(x, y, z, 1) 
-                    CheckForStuck()
+                    -- Tween đến chest và collect
+                    Tween2(chest.CFrame)
+                    pcall(function()
+                        local hrp2 = lp.Character and lp.Character:FindFirstChild("HumanoidRootPart")
+                        if hrp2 then
+                            firetouchinterest(hrp2, chest, 0)
+                            firetouchinterest(hrp2, chest, 1)
+                        end
+                    end)
 
-                    if tick() - startTime >= 300 then
-                        if _G.CurrentTween then
-                            _G.CurrentTween:Cancel()
-                            _G.CurrentTween = nil
-                        end    
-                            
-                        game:GetService("StarterGui"):SetCore("SendNotification", {
-                            Title = "Vxeze Hub Auto Chest",
-                            Text = "Zzz. Hop Sever",
-                            Duration = 4
-                        })
+                    -- Đợi chest biến mất
+                    local t0 = tick()
+                    repeat task.wait(0.1) until not chest:IsDescendantOf(workspace) or tick() - t0 > 1
+
+                    if not chest:IsDescendantOf(workspace) then
+                        _G.LastChestCollectedTime = tick()
+                        _G.CollectedChests       = (_G.CollectedChests or 0) + 1
+                        timeout = 0
+
+                        -- cập nhật tọa độ HRP mới
+                        hrp = lp.Character and lp.Character:FindFirstChild("HumanoidRootPart")
+                        if hrp then
+                            x, y, z = hrp.Position.X, hrp.Position.Y, hrp.Position.Z
+                        end
+                    end
+                else
+                    timeout = timeout + 1
+                    if timeout >= 2 then
                         StartCountdownAndHop(10)
-                        startTime = tick()    
                         break
                     end
+                    task.wait(1)
+                end
+
+                -- Kiểm tra đứng yên tại điểm HRP cũ
+                nofarm(x, y, z, 1)
+                CheckForStuck()
+
+                -- Hop server sau 5 phút
+                if tick() - startTime >= 300 then
+                    if _G.CurrentTween then
+                        _G.CurrentTween:Cancel()
+                        _G.CurrentTween = nil
+                    end
+                    StarterGui:SetCore("SendNotification", {
+                        Title    = "Vxeze Hub Auto Chest",
+                        Text     = "Timeout 5 phút → Hop server",
+                        Duration = 4
+                    })
+                    StartCountdownAndHop(10)
+                    break
                 end
             end
-
-            AutoChestCollect()
         end
-        wait(1)
+
+        task.wait(1)
     end
 end)
 
