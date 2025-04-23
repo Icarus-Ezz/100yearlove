@@ -764,7 +764,7 @@ function StopTween()
         local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
         
         if humanoidRootPart then
-            humanoidRootPart.Anchored = true  -- Đảm bảo không bị di chuyển
+            humanoidRootPart.Anchored = true  
             task.wait(0.1)  
             humanoidRootPart.CFrame = humanoidRootPart.CFrame  
             humanoidRootPart.Anchored = false
