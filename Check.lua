@@ -12,7 +12,7 @@ getgenv().config = {
     },
     ChestFarm = {
         ["Start Farm Chest"] = true,   
-        ["Stop When Have God's Chalice or Dark Key"] = true, 
+        ["Stop When Have Item"] = true, 
     },
     Webhook = {
         ["Webhook Url"] = "https://discord.com/api/webhooks/1360798536937246840/HBIfH0Okazx7DxPPu8rNi_jYQSMWT4eis8HSx6UW83rLMgxQn6fgWShuqBbaiwxUEXmS",          
@@ -914,7 +914,7 @@ spawn(function()
             end
 
         -- ==== Nếu Auto Spawn tắt → check God's Chalice / Fist như bình thường ====
-        elseif getgenv().config.ChestFarm["Stop When Have God's Chalice or Dark Key"] then
+        elseif getgenv().config.ChestFarm["Stop When Have Item"] then
             local hasChalice = bp:FindFirstChild("God's Chalice") or char:FindFirstChild("God's Chalice")
             local hasFist = bp:FindFirstChild("Fist of Darkness") or char:FindFirstChild("Fist of Darkness")
             if hasChalice or hasFist then
