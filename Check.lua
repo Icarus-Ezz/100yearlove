@@ -1109,6 +1109,26 @@ spawn(function()
     end
 end)
 
+local idle = 0
+local function nofarm(x, y, z)
+    local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+
+    if math.floor(hrp.Position.X) == math.floor(x) and
+       math.floor(hrp.Position.Y) == math.floor(y) and
+       math.floor(hrp.Position.Z) == math.floor(z) then
+        idle = idle + 1
+    else
+        idle = 0 -- Reset nếu có di chuyển
+    end
+
+    -- Nếu đứng yên quá 18 giây (18 lần gọi hàm mỗi giây)
+    if idle >= 18 then
+        warn("[Vxeze Hub] Hop server...")
+        StartCountdownAndHop(10)
+    end
+end
+	
 local lastPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
 local idleTime = 0 
 
@@ -1129,7 +1149,7 @@ spawn(function()
         if idleTime >= 600 then  
             game:GetService("StarterGui"):SetCore("SendNotification", {
                 Title = "Idle Timeout",
-                Text = "Idle Timeout. Hop Sever",
+                Text = "Idle Timeout.[Vxeze Hub] Hop Sever",
                 Duration = 4
             })
             
@@ -1174,6 +1194,9 @@ spawn(function()
 
             local function AutoChestCollect()
                 local timeout = 0
+                local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                local x, y, z = hrp and hrp.Position.X or 0, hrp and hrp.Position.Y or 0, hrp and hrp.Position.Z or 0
+
                 while getgenv().config.ChestFarm["Start Farm Chest"] do
                     local chest = GetChest()
                     if chest and chest:IsDescendantOf(workspace) then
@@ -1191,6 +1214,11 @@ spawn(function()
                             _G.LastChestCollectedTime = tick()
                             _G.CollectedChests = (_G.CollectedChests or 0) + 1
                             timeout = 0
+
+                            hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                            if hrp then
+                                x, y, z = hrp.Position.X, hrp.Position.Y, hrp.Position.Z
+                            end
                         end
                     else
                         timeout = timeout + 1
@@ -1201,8 +1229,9 @@ spawn(function()
                         wait(1)
                     end
 
-		    CheckForStuck()
-						
+                    nofarm(x, y, z, 1) 
+                    CheckForStuck()
+
                     if tick() - startTime >= 300 then
                         if _G.CurrentTween then
                             _G.CurrentTween:Cancel()
