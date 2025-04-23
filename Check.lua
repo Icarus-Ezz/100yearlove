@@ -291,7 +291,7 @@ spawn(function()
         end
 
         -- Check sau 120s
-        task.wait(5)   
+        task.wait(60)   
     end
 end)
 
