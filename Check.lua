@@ -1160,19 +1160,35 @@ spawn(function()
     end
 end)
 
+local Players = game:GetService("Players")
+local lp = Players.LocalPlayer
+
 local function GetChest()
-    local distance = math.huge
+    local maxSearchRadius = 500   
+    local minY = -60                
+    local character = lp.Character or lp.CharacterAdded:Wait()
+    local hrp = character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return nil end
+
+    local map = workspace:FindFirstChild("Map")
+    if not map then return nil end
+
     local closestChest = nil
-    for _, v in pairs(workspace.Map:GetDescendants()) do
-        if string.find(v.Name:lower(), "chest") and v:FindFirstChild("TouchInterest") and v:IsA("BasePart") then
-            if v.Position.Y < -60 then continue end
-            local d = (v.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
-            if d < distance then
-                distance = d
-                closestChest = v
+    local shortestDist = maxSearchRadius
+
+    for _, part in ipairs(map:GetDescendants()) do
+        if part:IsA("BasePart") and part:FindFirstChild("TouchInterest") then
+            local nameLower = part.Name:lower()
+            if nameLower:find("chest") and part.Position.Y >= minY then
+                local dist = (part.Position - hrp.Position).Magnitude
+                if dist < shortestDist then
+                    shortestDist = dist
+                    closestChest = part
+                end
             end
         end
     end
+
     return closestChest
 end
 
