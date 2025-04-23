@@ -1076,7 +1076,6 @@ local Players     = game:GetService("Players")
 local StarterGui  = game:GetService("StarterGui")
 local lp          = Players.LocalPlayer
 
--- nofarm: hop server nếu đứng yên tại đúng tọa độ quá 5 giây
 local idle = 0
 local function nofarm(x, y, z, threshold)
     threshold = threshold or 1
@@ -1093,13 +1092,12 @@ local function nofarm(x, y, z, threshold)
         idle = 0
     end
 
-    if idle >= 5 then
+    if idle >= 10 then
         warn("[nofarm] Đứng yên quá lâu, hop server...")
         StartCountdownAndHop(10)
     end
 end
 
--- CheckForStuck: hop server nếu HRP không di chuyển quá 0.5 studs trong 5 giây
 local lastPos     = nil
 local stuckCount  = 0
 local function CheckForStuck()
@@ -1114,7 +1112,7 @@ local function CheckForStuck()
         lastPos     = hrp.Position
     end
 
-    if stuckCount >= 5 then
+    if stuckCount >= 10 then
         warn("[CheckForStuck] Đứng yên quá lâu! Hop server...")
         StartCountdownAndHop(10)
     end
@@ -1157,6 +1155,7 @@ spawn(function()
     local tol          = 1
 
     while true do
+        -- Kiểm tra nếu cần bắt đầu farm chest
         if getgenv().config.ChestFarm["Start Farm Chest"] then
             StarterGui:SetCore("SendNotification", {
                 Title    = "Auto Chest",
@@ -1173,6 +1172,7 @@ spawn(function()
 
             while getgenv().config.ChestFarm["Start Farm Chest"] do
                 local chest = GetChest()
+
                 if chest and chest:IsDescendantOf(workspace) then
                     -- Phát hiện stuck chest
                     local pos = chest.Position
@@ -1208,7 +1208,7 @@ spawn(function()
                         _G.CollectedChests       = (_G.CollectedChests or 0) + 1
                         timeout = 0
 
-                        -- cập nhật tọa độ HRP mới
+                        -- Cập nhật tọa độ HRP mới
                         hrp = lp.Character and lp.Character:FindFirstChild("HumanoidRootPart")
                         if hrp then
                             x, y, z = hrp.Position.X, hrp.Position.Y, hrp.Position.Z
@@ -1217,13 +1217,13 @@ spawn(function()
                 else
                     timeout = timeout + 1
                     if timeout >= 2 then
+                        warn("[AutoChest] Hop server!")
                         StartCountdownAndHop(10)
                         break
                     end
                     task.wait(1)
                 end
 
-                -- Kiểm tra đứng yên tại điểm HRP cũ
                 nofarm(x, y, z, 1)
                 CheckForStuck()
 
@@ -1235,7 +1235,7 @@ spawn(function()
                     end
                     StarterGui:SetCore("SendNotification", {
                         Title    = "Vxeze Hub Auto Chest",
-                        Text     = "Timeout 5 phút → Hop server",
+                        Text     = "→ Hop server",
                         Duration = 4
                     })
                     StartCountdownAndHop(10)
