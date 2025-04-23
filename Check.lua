@@ -12,7 +12,7 @@ getgenv().config = {
     },
     ChestFarm = {
         ["Start Farm Chest"] = true,   
-        ["Stop When Have God's Chalice or Dark Key"] = true, 
+        ["Stop When Have God's Chalice or First Of Darkness"] = true, 
     },
     Webhook = {
         ["Webhook Url"] = "https://discord.com/api/webhooks/1360798536937246840/HBIfH0Okazx7DxPPu8rNi_jYQSMWT4eis8HSx6UW83rLMgxQn6fgWShuqBbaiwxUEXmS",          
@@ -885,7 +885,8 @@ spawn(function()
         local char = lp.Character
         local bp   = lp.Backpack
 
-        if getgenv().config.ChestFarm["Stop When Have God's Chalice or Dark Key"] then
+        -- Kiểm tra và tắt farm chest nếu có God's Chalice hoặc Fist of Darkness
+        if not getgenv().config.Premium["Auto Spawn Dark Beard"] and getgenv().config.ChestFarm["Stop When Have God's Chalice or Fist of Darkness"] then
             local hasChalice = bp:FindFirstChild("God's Chalice")
                              or (char and char:FindFirstChild("God's Chalice"))
             local hasFist    = bp:FindFirstChild("Fist of Darkness")
@@ -895,11 +896,15 @@ spawn(function()
                 getgenv().config.Setting["No Stuck Chair"]     = false
 
                 local seaCFrame = GetSeaCoordinates()
-                if seaCFrame then Tween2(seaCFrame); task.wait(1.5) end
+                if seaCFrame then
+                    Tween2(seaCFrame)
+                    task.wait(1.5)
+                end
                 return
             end
         end
 
+        -- Kiểm tra Auto Spawn Dark Beard, nếu bật sẽ dừng farm chest
         if getgenv().config.Premium["Auto Spawn Dark Beard"] and game.PlaceId == 4442272183 then
             local hasFist = bp:FindFirstChild("Fist of Darkness")
                          or (char and char:FindFirstChild("Fist of Darkness"))
@@ -910,7 +915,7 @@ spawn(function()
                          or (char and (char:FindFirstChild("God's Chalice") or char:FindFirstChild("Fist of Darkness")))
             if keyTool then
                 getgenv().config.ChestFarm["Start Farm Chest"] = false
-                if bp:FindFirstChild(keyTool.Name) and char and char:FindFirstChild("Humanoid") then
+                if bp:FindFirstChild(keyTool.Name) and char:FindFirstChild("Humanoid") then
                     char.Humanoid:EquipTool(keyTool)
                 end
             end
