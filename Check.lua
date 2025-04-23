@@ -1119,10 +1119,9 @@ local function nofarm(x, y, z)
        math.floor(hrp.Position.Z) == math.floor(z) then
         idle = idle + 1
     else
-        idle = 0 -- Reset nếu có di chuyển
+        idle = 0 
     end
 
-    -- Nếu đứng yên quá 18 giây (18 lần gọi hàm mỗi giây)
     if idle >= 18 then
         warn("[Vxeze Hub] Hop server...")
         StartCountdownAndHop(10)
@@ -1167,7 +1166,7 @@ local function GetChest()
     local closestChest = nil
     for _, v in pairs(workspace.Map:GetDescendants()) do
         if string.find(v.Name:lower(), "chest") and v:FindFirstChild("TouchInterest") and v:IsA("BasePart") then
-            if v.Position.Y < -30 then continue end
+            if v.Position.Y < -60 then continue end
             local d = (v.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
             if d < distance then
                 distance = d
