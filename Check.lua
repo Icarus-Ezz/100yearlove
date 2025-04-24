@@ -39,8 +39,9 @@ if not key then
     return
 end
 
-local keyVerifyUrl = "http://de1.bot-hosting.net:20328/check_key_ez?key=" .. key
-local hwidCheckUrl = "http://de1.bot-hosting.net:20328/Checkhwid?hwid=" .. hwid .. "&key=" .. key
+local baseUrl = "http://de1.bot-hosting.net:20328"
+local keyVerifyUrl = baseUrl .. "/check_key_ez?key=" .. key
+local hwidCheckUrl = baseUrl .. "/check_hwid?hwid=" .. hwid .. "&key=" .. key
 
 local function getData(url)
     for i = 1, 2 do 
@@ -73,7 +74,7 @@ end
 -- Check HWID
 local hwidResponse = getData(hwidCheckUrl)
 if not hwidResponse or hwidResponse.status ~= "true" then
-    game.Players.LocalPlayer:Kick(hwidResponse and hwidResponse.message or "⚠️ Invalid HWID.")
+    game.Players.LocalPlayer:Kick(hwidResponse and hwidResponse.msg or "⚠️ Invalid HWID.")
     return
 end
 
