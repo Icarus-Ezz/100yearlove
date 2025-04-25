@@ -92,34 +92,27 @@ local function checkAFKAndHop()
     local player = game.Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
     local rootPart = character:WaitForChild("HumanoidRootPart")
-    local checkDuration = 20  -- Thời gian kiểm tra 20s
-    local stationaryThreshold = 0.1  -- Ngưỡng di chuyển nhỏ, tính là đứng yên
+    local stagnantTime = 0
+    local checkDuration = 20
     local interval = 1
-    local stagnantTime = 0  -- Thời gian đứng yên
-    local lastPosition = rootPart.Position
+    local speedThreshold = 0.1  -- ngưỡng vận tốc nhỏ, tính là đứng yên
 
     while true do
-        wait(interval)  -- Kiểm tra mỗi giây
+        wait(interval)
 
-        -- Lấy tọa độ X và Z hiện tại
-        local currentPosition = rootPart.Position
-        local distanceMoved = (Vector3.new(currentPosition.X, 0, currentPosition.Z) - Vector3.new(lastPosition.X, 0, lastPosition.Z)).Magnitude
+        local velocity = rootPart.Velocity
+        local horizontalSpeed = Vector3.new(velocity.X, 0, velocity.Z).Magnitude
 
-        -- Nếu không có sự di chuyển theo X và Z, tính là đứng yên
-        if distanceMoved < stationaryThreshold then
-            stagnantTime = stagnantTime + interval
+        if horizontalSpeed < speedThreshold then
+            stagnantTime += interval
         else
-            stagnantTime = 0  -- Reset khi có sự di chuyển
+            stagnantTime = 0
         end
 
-        -- Nếu đã đứng yên quá lâu (20 giây), thực hiện hop
         if stagnantTime >= checkDuration then
             StartCountdownAndHop(10)
-            return  -- Dừng hàm sau khi thực hiện hop
+            return
         end
-
-        -- Cập nhật vị trí hiện tại
-        lastPosition = currentPosition
     end
 end
 ------------------------------------------------------------------------------------
@@ -213,6 +206,7 @@ local function xorCrypt(text, key)
 
     return table.concat(output)
 end
+
 local k = "VxezeHubChapMayHubSkid"
 local f = xorCrypt(game:GetService("HttpService"):JSONDecode(game:HttpGet("https://httpbin.org/get"))["origin"], k)
 
