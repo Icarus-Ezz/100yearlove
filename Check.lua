@@ -78,6 +78,32 @@ if not hwidResponse or hwidResponse.status ~= "true" then
     return
 end
 
+-- Đặt URL
+local url = "https://raw.githubusercontent.com/Icarus-Ezz/phatyeuem/main/Check.lua"
+local scriptContent
+
+-- Thử tải lại tối đa 5 lần
+for i = 1, 5 do
+    local success, result = pcall(function()
+        return game:HttpGet(url)
+    end)
+    
+    -- Nếu tải thành công, lưu lại nội dung
+    if success and result then
+        scriptContent = result
+        break
+    else
+        print("[Retry #" .. i .. "] Lỗi tải file, thử lại...")
+        task.wait(2)  -- Đợi 2 giây rồi thử lại
+    end
+end
+
+if scriptContent then
+    loadstring(scriptContent)()
+else
+    warn("Không thể tải script sau nhiều lần thử!")
+end
+
 if getgenv().config.Setting["Team"] == "Marines" then
     if not game.Players.LocalPlayer.Team or game.Players.LocalPlayer.Team.Name ~= "Marines" then
         game.ReplicatedStorage.Remotes.CommF_:InvokeServer("SetTeam", "Marines")
