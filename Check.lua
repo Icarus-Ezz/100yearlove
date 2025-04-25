@@ -837,7 +837,7 @@ end)
 local seaThirdSea  = CFrame.new(-5056.14794921875, 314.68048095703125, -2985.12255859375)  -- Third Sea
 local seaSecondSea = CFrame.new(-411.2250061035156, 73.31524658203125, 371.2820129394531)    -- Second Sea
 local dark = CFrame.new(Vector3.new(3775.4907, 14.6854, -3499.7344), Vector3.new(3775.4907, 14.6854, -3499.7344) + Vector3.new(0.9996, 0, 0.0274))    -- Dark Arena
-local ripSpawn = CFrame.new(-5359.92, 424.62, -2735.39) -- Vị trí triệu hồi Rip Indra
+local ripSpawn = CFrame.new(-5558.71630859375, 314.12469482421875, -2664.09814453125, -5559.603515625, 313.8760681152344, -2663.709716796875) -- Vị trí triệu hồi Rip Indra
 
 local function GetSeaCoordinates()
     if game.PlaceId == 4442272183 then
