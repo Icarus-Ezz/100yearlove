@@ -797,10 +797,12 @@ spawn(function()
     end
 end)
 
-local seaThirdSea  = CFrame.new(-5056.14794921875, 314.68048095703125, -2985.12255859375)  -- Third Sea
-local seaSecondSea = CFrame.new(-411.2250061035156, 73.31524658203125, 371.2820129394531)    -- Second Sea
-local dark = CFrame.new(Vector3.new(3775.4907, 14.6854, -3499.7344), Vector3.new(3775.4907, 14.6854, -3499.7344) + Vector3.new(0.9996, 0, 0.0274))    -- Dark Arena
-local ripSpawn = CFrame.new(-5558.71630859375, 314.12469482421875, -2664.09814453125, -5559.603515625, 313.8760681152344, -2663.709716796875) -- Vị trí triệu hồi Rip Indra
+local seaThirdSea  = CFrame.new(-5056.1479, 314.6805, -2985.1226)   -- Third Sea
+local seaSecondSea = CFrame.new(-411.2250,  73.3152,   371.2820)   -- Second Sea
+local dark         = CFrame.new(Vector3.new(3775.4907, 14.6854, -3499.7344),
+                                Vector3.new(3775.4907, 14.6854, -3499.7344) + Vector3.new(0.9996, 0, 0.0274))
+local ripSpawn     = CFrame.new(-5558.7163, 314.1247, -2664.0981,
+                                -5559.6035, 313.8760, -2663.7097)
 
 local function GetSeaCoordinates()
     if game.PlaceId == 4442272183 then
@@ -829,74 +831,70 @@ end
 
 spawn(function()
     while task.wait(1) do
-        local lp = game.Players.LocalPlayer
-        local char = lp and lp.Character
-        local bp = lp and lp.Backpack
-        if not lp or not bp or not char then continue end
+        local lp    = game.Players.LocalPlayer
+        local char  = lp and lp.Character
+        local bp    = lp and lp.Backpack
+        if not (lp and char and bp) then continue end
 
         local hasChalice = bp:FindFirstChild("God's Chalice") or char:FindFirstChild("God's Chalice")
-        local hasFist = bp:FindFirstChild("Fist of Darkness") or char:FindFirstChild("Fist of Darkness")
+        local hasFist    = bp:FindFirstChild("Fist of Darkness") or char:FindFirstChild("Fist of Darkness")
 
-        -- ==== Auto Spawn Dark Beard (ưu tiên cao nhất) ====
-        if getgenv().config.Premium["Auto Spawn Dark Beard"] and game.PlaceId == 4442272183 and hasFist then
+        -- Auto Spawn Dark Beard (nếu bật)
+        if getgenv().config.Premium["Auto Spawn Dark Beard"]
+           and game.PlaceId == 4442272183
+           and hasFist then
+
             getgenv().config.ChestFarm["Start Farm Chest"] = false
-
-            if bp:FindFirstChild("Fist of Darkness") and char:FindFirstChild("Humanoid") then
-                pcall(function() char.Humanoid:EquipTool(bp["Fist of Darkness"]) end)
-            end
-
-            Tween2(dark)
-            task.wait(2)
+            pcall(function() char.Humanoid:EquipTool(bp["Fist of Darkness"]) end)
+            Tween2(dark); task.wait(2)
 
             local vim = game:GetService("VirtualInputManager")
-            vim:SendKeyEvent(true, "A", false, game)
-            task.wait(0.2)
-            vim:SendKeyEvent(false, "A", false, game)
-            vim:SendKeyEvent(true, "D", false, game)
-            task.wait(0.2)
-            vim:SendKeyEvent(false, "D", false, game)
+            vim:SendKeyEvent(true, "A", false, game); task.wait(0.2)
+            vim:SendKeyEvent(false,"A", false, game)
+            vim:SendKeyEvent(true, "D", false, game); task.wait(0.2)
+            vim:SendKeyEvent(false,"D", false, game)
 
             return
         end
 
-        -- ==== Auto triệu hồi Rip Indra nếu có God's Chalice ====
-        if hasChalice and game.PlaceId == 7449423635 then
+        -- Auto Spawn Rip Indra (nếu bật)
+        if getgenv().config.Premium["Auto Spawn Rip Indra"]
+           and game.PlaceId == 7449423635
+           and hasChalice then
+
             getgenv().config.ChestFarm["Start Farm Chest"] = false
 
+            -- Triệu hồi lần lượt qua 3 điểm đổi Haki
             v53("Snow White", Vector3.new(-4971.718, 335.958, -3720.059))
-            while not v54(Vector3.new(-4971.718, 335.958, -3720.059), 1) do wait(0.1) end
-            wait(0.5)
+            repeat wait(0.1) until v54(Vector3.new(-4971.718, 335.958, -3720.059), 1)
+            task.wait(0.5)
 
             v53("Pure Red", Vector3.new(-5414.920, 314.258, -2212.201))
-            while not v54(Vector3.new(-5414.920, 314.258, -2212.201), 1) do wait(0.1) end
-            wait(0.5)
+            repeat wait(0.1) until v54(Vector3.new(-5414.920, 314.258, -2212.201), 1)
+            task.wait(0.5)
 
             v53("Winter Sky", Vector3.new(-5420.263, 1089.358, -2666.819))
-            while not v54(Vector3.new(-5420.263, 1089.358, -2666.819), 1) do wait(0.1) end
-            wait(0.5)
+            repeat wait(0.1) until v54(Vector3.new(-5420.263, 1089.358, -2666.819), 1)
+            task.wait(0.5)
 
-            if bp:FindFirstChild("God's Chalice") and char:FindFirstChild("Humanoid") then
-                pcall(function()
-                    char.Humanoid:EquipTool(bp["God's Chalice"])
-                end)
-            end
+            -- Sau khi đổi xong, teleport tới vị trí spawn Rip Indra
+            Tween2(ripSpawn); task.wait(1.5)
 
-            Tween2(ripSpawn)
-            wait(1.5)
+            -- Nếu không muốn lặp lại, tắt flag
+            getgenv().config.Premium["Auto Spawn Rip Indra"] = false
 
             return
         end
 
-        -- ==== Nếu tắt Auto Spawn → chỉ check để dừng farm ====
-        if getgenv().config.ChestFarm["Stop When Have Item"] and (hasChalice or hasFist) then
+        -- Nếu đã có item và cấu hình Stop When Have Item thì dừng farm
+        if getgenv().config.ChestFarm["Stop When Have Item"]
+           and (hasChalice or hasFist) then
+
             getgenv().config.ChestFarm["Start Farm Chest"] = false
-            getgenv().config.Setting["No Stuck Chair"] = false
+            getgenv().config.Setting["No Stuck Chair"]     = false
 
             local seaCFrame = GetSeaCoordinates()
-            if seaCFrame then
-                Tween2(seaCFrame)
-                task.wait(1.5)
-            end
+            if seaCFrame then Tween2(seaCFrame); task.wait(1.5) end
             return
         end
     end
