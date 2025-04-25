@@ -129,16 +129,6 @@ spawn(function()
     end
 end)
 
-local function formatNumberWithCommas(n)
-    local s = tostring(n)
-    local result = s:reverse():gsub("(%d%d%d)", "%1,")
-    result = result:reverse()
-    if result:sub(1,1) == "," then
-        result = result:sub(2)
-    end
-    return result
-end
-
 --//Code Ui
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
