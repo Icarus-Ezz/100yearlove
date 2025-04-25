@@ -809,6 +809,7 @@ end)
 local seaThirdSea  = CFrame.new(-5056.14794921875, 314.68048095703125, -2985.12255859375)  -- Third Sea
 local seaSecondSea = CFrame.new(-411.2250061035156, 73.31524658203125, 371.2820129394531)    -- Second Sea
 local dark = CFrame.new(Vector3.new(3775.4907, 14.6854, -3499.7344), Vector3.new(3775.4907, 14.6854, -3499.7344) + Vector3.new(0.9996, 0, 0.0274))    -- Dark Arena
+local ripSpawn = CFrame.new(-5359.92, 424.62, -2735.39) -- Vị trí triệu hồi Rip Indra
 
 local function GetSeaCoordinates()
     if game.PlaceId == 4442272183 then
@@ -818,55 +819,99 @@ local function GetSeaCoordinates()
     end
 end
 
+-- ===== Hàm đổi màu Haki và bay tới =====
+local function v53(color, position)
+    local args = {
+        [1] = {
+            StorageName = color,
+            Type = "AuraSkin",
+            Context = "Equip"
+        }
+    }
+    game:GetService("ReplicatedStorage").Modules.Net:FindFirstChild("RF/FruitCustomizerRF"):InvokeServer(unpack(args))
+    Tween2(CFrame.new(position))
+end
+
+-- ===== Hàm kiểm tra đã tới gần chưa =====
+local function v54(pos, range)
+    local char = game.Players.LocalPlayer.Character
+    if not char or not char:FindFirstChild("HumanoidRootPart") then
+        return false
+    end
+    return (char.HumanoidRootPart.Position - pos).Magnitude <= range
+end
+
 spawn(function()
     while task.wait(1) do
         local lp = game.Players.LocalPlayer
-        local char = lp.Character
-        local bp = lp.Backpack
-
+        local char = lp and lp.Character
+        local bp = lp and lp.Backpack
         if not lp or not bp or not char then continue end
 
-        -- ==== Auto Spawn Dark Beard ưu tiên cao hơn ====
-        if getgenv().config.Premium["Auto Spawn Dark Beard"] and game.PlaceId == 4442272183 then
-            local hasFist = bp:FindFirstChild("Fist of Darkness") or char:FindFirstChild("Fist of Darkness")
-            if hasFist then
-                getgenv().config.ChestFarm["Start Farm Chest"] = false
+        local hasChalice = bp:FindFirstChild("God's Chalice") or char:FindFirstChild("God's Chalice")
+        local hasFist = bp:FindFirstChild("Fist of Darkness") or char:FindFirstChild("Fist of Darkness")
 
-                local tool = bp:FindFirstChild("Fist of Darkness")
-                if tool and char:FindFirstChild("Humanoid") then
-                    pcall(function() char.Humanoid:EquipTool(tool) end)
-                end
+        -- ==== Auto Spawn Dark Beard (ưu tiên cao nhất) ====
+        if getgenv().config.Premium["Auto Spawn Dark Beard"] and game.PlaceId == 4442272183 and hasFist then
+            getgenv().config.ChestFarm["Start Farm Chest"] = false
 
-                if dark then
-                    Tween2(dark)
-                    task.wait(2)
-
-                    local vim = game:GetService("VirtualInputManager")
-                    vim:SendKeyEvent(true, "A", false, game)
-                    task.wait(0.2)
-                    vim:SendKeyEvent(false, "A", false, game)
-                    vim:SendKeyEvent(true, "D", false, game)
-                    task.wait(0.2)
-                    vim:SendKeyEvent(false, "D", false, game)
-                end
-                return
+            if bp:FindFirstChild("Fist of Darkness") and char:FindFirstChild("Humanoid") then
+                pcall(function() char.Humanoid:EquipTool(bp["Fist of Darkness"]) end)
             end
 
-        -- ==== Nếu Auto Spawn tắt → check God's Chalice / Fist như bình thường ====
-        elseif getgenv().config.ChestFarm["Stop When Have Item"] then
-            local hasChalice = bp:FindFirstChild("God's Chalice") or char:FindFirstChild("God's Chalice")
-            local hasFist = bp:FindFirstChild("Fist of Darkness") or char:FindFirstChild("Fist of Darkness")
-            if hasChalice or hasFist then
-                getgenv().config.ChestFarm["Start Farm Chest"] = false
-                getgenv().config.Setting["No Stuck Chair"] = false
+            Tween2(dark)
+            task.wait(2)
 
-                local seaCFrame = GetSeaCoordinates()
-                if seaCFrame then
-                    Tween2(seaCFrame)
-                    task.wait(1.5)
-                end
-                return
+            local vim = game:GetService("VirtualInputManager")
+            vim:SendKeyEvent(true, "A", false, game)
+            task.wait(0.2)
+            vim:SendKeyEvent(false, "A", false, game)
+            vim:SendKeyEvent(true, "D", false, game)
+            task.wait(0.2)
+            vim:SendKeyEvent(false, "D", false, game)
+
+            return
+        end
+
+        -- ==== Auto triệu hồi Rip Indra nếu có God's Chalice ====
+        if hasChalice and game.PlaceId == 7449423635 then
+            getgenv().config.ChestFarm["Start Farm Chest"] = false
+
+            v53("Snow White", Vector3.new(-4971.718, 335.958, -3720.059))
+            while not v54(Vector3.new(-4971.718, 335.958, -3720.059), 1) do wait(0.1) end
+            wait(0.5)
+
+            v53("Pure Red", Vector3.new(-5414.920, 314.258, -2212.201))
+            while not v54(Vector3.new(-5414.920, 314.258, -2212.201), 1) do wait(0.1) end
+            wait(0.5)
+
+            v53("Winter Sky", Vector3.new(-5420.263, 1089.358, -2666.819))
+            while not v54(Vector3.new(-5420.263, 1089.358, -2666.819), 1) do wait(0.1) end
+            wait(0.5)
+
+            if bp:FindFirstChild("God's Chalice") and char:FindFirstChild("Humanoid") then
+                pcall(function()
+                    char.Humanoid:EquipTool(bp["God's Chalice"])
+                end)
             end
+
+            Tween2(ripSpawn)
+            wait(1.5)
+
+            return
+        end
+
+        -- ==== Nếu tắt Auto Spawn → chỉ check để dừng farm ====
+        if getgenv().config.ChestFarm["Stop When Have Item"] and (hasChalice or hasFist) then
+            getgenv().config.ChestFarm["Start Farm Chest"] = false
+            getgenv().config.Setting["No Stuck Chair"] = false
+
+            local seaCFrame = GetSeaCoordinates()
+            if seaCFrame then
+                Tween2(seaCFrame)
+                task.wait(1.5)
+            end
+            return
         end
     end
 end)
