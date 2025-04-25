@@ -88,6 +88,23 @@ elseif getgenv().config.Setting["Team"] == "Pirates" then
     end
 end
 
+local function checkAFKAndHop()
+    wait(5) 
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local rootPart = character:WaitForChild("HumanoidRootPart")
+    local startPos = rootPart.Position
+    local checkDuration = 20 -- thời gian kiểm tra 20s
+    local interval = 1
+    for i = 1, checkDuration do
+        wait(interval)
+        if (rootPart.Position - startPos).magnitude > 1 then
+            return
+        end
+    end
+
+    StartCountdownAndHop(10)
+end
 ------------------------------------------------------------------------------------
 spawn(function()
     while wait() do
