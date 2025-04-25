@@ -88,33 +88,27 @@ elseif getgenv().config.Setting["Team"] == "Pirates" then
     end
 end
 
-local function checkAFKAndHop()
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local rootPart = character:WaitForChild("HumanoidRootPart")
-    local stagnantTime = 0
-    local checkDuration = 20
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local hrp = character:WaitForChild("HumanoidRootPart")
+
+local function checkNoRotationAndHop(duration)
+    local initialOrientation = hrp.Orientation
     local interval = 1
-    local speedThreshold = 0.1 
 
-    while true do
+    for i = 1, duration do
         wait(interval)
+        local currentOrientation = hrp.Orientation
 
-        local velocity = rootPart.Velocity
-        local horizontalSpeed = Vector3.new(velocity.X, 0, velocity.Z).Magnitude
-
-        if horizontalSpeed < speedThreshold then
-            stagnantTime += interval
-        else
-            stagnantTime = 0
-        end
-
-        if stagnantTime >= checkDuration then
-            StartCountdownAndHop(10)
-            return
+        if (currentOrientation - initialOrientation).magnitude > 0.1 then
+            return 
         end
     end
+
+    StartCountdownAndHop(10)
 end
+
+checkNoRotationAndHop(20) 
 ------------------------------------------------------------------------------------
 spawn(function()
     while wait() do
