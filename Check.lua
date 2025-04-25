@@ -88,27 +88,6 @@ elseif getgenv().config.Setting["Team"] == "Pirates" then
     end
 end
 
-local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local hrp = character:WaitForChild("HumanoidRootPart")
-
-local function checkNoRotationAndHop(duration)
-    local initialOrientation = hrp.Orientation
-    local interval = 1
-
-    for i = 1, duration do
-        wait(interval)
-        local currentOrientation = hrp.Orientation
-
-        if (currentOrientation - initialOrientation).magnitude > 0.1 then
-            return 
-        end
-    end
-
-    StartCountdownAndHop(10)
-end
-
-checkNoRotationAndHop(20) 
 ------------------------------------------------------------------------------------
 spawn(function()
     while wait() do
