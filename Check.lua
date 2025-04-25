@@ -1,4 +1,3 @@
-
 --[[
 repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
 getgenv().Key = "Vxeze-H4896L9ZB6KSSEVMS3PS"
