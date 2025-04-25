@@ -1559,7 +1559,7 @@ spawn(function()
 
                 if darkBeardBoss then
                     for _, v in pairs(enemies:GetChildren()) do
-                        if v.Name == "Darkbeard" and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") then
+                        if v:IsA("Model") and v.Name == "Darkbeard" and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") then
                             local humanoid = v.Humanoid
                             local humanoidRootPart = v.HumanoidRootPart
 
