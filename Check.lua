@@ -810,25 +810,20 @@ local function GetSeaCoordinates()
     end
 end
 
--- ===== Hàm đổi màu Haki và bay tới =====
 local function v53(color, position)
-    local args = {
-        [1] = {
-            StorageName = color,
-            Type = "AuraSkin",
-            Context = "Equip"
-        }
-    }
-    game:GetService("ReplicatedStorage").Modules.Net:FindFirstChild("RF/FruitCustomizerRF"):InvokeServer(unpack(args))
+    local args = {{
+        StorageName = color,
+        Type        = "AuraSkin",
+        Context     = "Equip",
+    }}
+    local rf = game.ReplicatedStorage.Modules.Net:FindFirstChild("RF/FruitCustomizerRF")
+    if rf then pcall(rf.InvokeServer, rf, args[1]) end
     Tween2(CFrame.new(position))
 end
 
--- ===== Hàm kiểm tra đã tới gần chưa =====
 local function v54(pos, range)
     local char = game.Players.LocalPlayer.Character
-    if not char or not char:FindFirstChild("HumanoidRootPart") then
-        return false
-    end
+    if not char or not char:FindFirstChild("HumanoidRootPart") then return false end
     return (char.HumanoidRootPart.Position - pos).Magnitude <= range
 end
 
