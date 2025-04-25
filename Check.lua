@@ -95,7 +95,7 @@ local function checkAFKAndHop()
     local stagnantTime = 0
     local checkDuration = 20
     local interval = 1
-    local speedThreshold = 0.1  -- ngưỡng vận tốc nhỏ, tính là đứng yên
+    local speedThreshold = 0.1 
 
     while true do
         wait(interval)
