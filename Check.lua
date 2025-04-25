@@ -92,30 +92,24 @@ local function checkAFKAndHop()
     local player = game.Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
     local rootPart = character:WaitForChild("HumanoidRootPart")
-    local humanoid = character:WaitForChild("Humanoid")
-    local checkDuration = 20 -- Thời gian kiểm tra 20s
+    local checkDuration = 20  -- Thời gian kiểm tra 20s
     local stationaryThreshold = 0.1  -- Ngưỡng di chuyển nhỏ, tính là đứng yên
     local interval = 1
-    local lastPosition = rootPart.Position
     local stagnantTime = 0  -- Thời gian đứng yên
+    local lastPosition = rootPart.Position
 
     while true do
         wait(interval)  -- Kiểm tra mỗi giây
 
-        -- Kiểm tra sự thay đổi vị trí
+        -- Lấy tọa độ X và Z hiện tại
         local currentPosition = rootPart.Position
-        local distanceMoved = (currentPosition - lastPosition).Magnitude
+        local distanceMoved = (Vector3.new(currentPosition.X, 0, currentPosition.Z) - Vector3.new(lastPosition.X, 0, lastPosition.Z)).Magnitude
 
-        -- Kiểm tra nếu tốc độ di chuyển theo trục Y (tức là sự rơi hoặc bay)
-        local velocity = rootPart.Velocity
-        local speedY = math.abs(velocity.Y)  -- Kiểm tra tốc độ theo trục Y
-
-        -- Nếu không có sự di chuyển đáng kể và không có tốc độ rơi, tính là đứng yên
-        if distanceMoved < stationaryThreshold and speedY < stationaryThreshold then
+        -- Nếu không có sự di chuyển theo X và Z, tính là đứng yên
+        if distanceMoved < stationaryThreshold then
             stagnantTime = stagnantTime + interval
         else
             stagnantTime = 0  -- Reset khi có sự di chuyển
-
         end
 
         -- Nếu đã đứng yên quá lâu (20 giây), thực hiện hop
