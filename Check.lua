@@ -1817,11 +1817,9 @@ spawn(function()
     end
 end)
 
--- Hàm kiểm tra tọa độ Y thay đổi không đáng kể
-function AutoHopIfIdleAndY(idleTime, moveThreshold, yThreshold)
+function AutoHopIfIdle(idleTime, moveThreshold)
     local player = game.Players.LocalPlayer
     local lastPos = nil
-    local lastY = nil
     local lastMoveTime = tick()
 
     spawn(function()
@@ -1830,14 +1828,11 @@ function AutoHopIfIdleAndY(idleTime, moveThreshold, yThreshold)
             local char = player.Character
             local hrp = char and char:FindFirstChild("HumanoidRootPart")
             if hrp then
-                local currentPos = hrp.Position
-                local currentY = hrp.Position.Y
-
-                if lastPos and lastY then
+                local currentPos = Vector3.new(hrp.Position.X, 0, hrp.Position.Z) -- Bỏ Y ra
+                if lastPos then
                     local distanceMoved = (currentPos - lastPos).Magnitude
-                    local yDifference = math.abs(currentY - lastY)
 
-                    if distanceMoved <= moveThreshold and yDifference <= yThreshold then
+                    if distanceMoved <= moveThreshold then
                         if tick() - lastMoveTime >= idleTime then
                             game.StarterGui:SetCore("SendNotification", {
                                 Title = "Vxeze Hub",
@@ -1853,10 +1848,9 @@ function AutoHopIfIdleAndY(idleTime, moveThreshold, yThreshold)
                 end
 
                 lastPos = currentPos
-                lastY = currentY
             end
         end
     end)
 end
 
-AutoHopIfIdleAndY(5, 2, 0.5)
+AutoHopIfIdle(5, 2) -- idle 5s, di chuyển <2 studs thì hop
