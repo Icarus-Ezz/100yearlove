@@ -332,6 +332,42 @@ if pcall(function() game:HttpGet("https://games.roblox.com/v1/games/"..game.Plac
     HopServer = SmartServerHop
 end
 
+local lastPosition = nil
+local lastMoveTime = tick()
+
+function CheckIdleAndHop()
+    local player = game.Players.LocalPlayer
+
+    spawn(function()
+        while true do
+            task.wait(1)
+
+            local character = player.Character
+            if character and character:FindFirstChild("HumanoidRootPart") then
+                local hrp = character.HumanoidRootPart
+                local currentPosition = hrp.Position
+
+                if lastPosition and (currentPosition - lastPosition).Magnitude > 0.5 then
+                    lastMoveTime = tick()
+                end
+
+                lastPosition = currentPosition
+            end
+
+            -- Nếu đứng yên > 10 giây → thông báo và hop
+            if tick() - lastMoveTime > 10 then
+                game:GetService("StarterGui"):SetCore("SendNotification", {
+                    Title = "⚠️ Đứng Yên Quá Lâu",
+                    Text = "Sẽ chuyển server trong 10 giây!",
+                    Duration = 5
+                })
+                StartCountdownAndHop(10)
+                break
+            end
+        end
+    end)
+end
+
 local function AntiKick()
     while true do
         wait(1)
