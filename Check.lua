@@ -1150,7 +1150,9 @@ local Players   = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 local player    = Players.LocalPlayer
 
--- Tìm chest gần nhất
+local maxDistance = 50
+local updateRate  = 0.5
+
 local function GetNearestChest()
     local best, bestDist = nil, math.huge
     if not (player.Character and player.Character:FindFirstChild("HumanoidRootPart")) then
@@ -1175,7 +1177,6 @@ local function GetNearestChest()
     return best, bestDist
 end
 
--- Tạo BillboardGui cho chest
 local function CreateBillboard(part)
     local bill = Instance.new("BillboardGui")
     bill.Name        = "NearestChestESP"
@@ -1185,76 +1186,43 @@ local function CreateBillboard(part)
     bill.AlwaysOnTop = true
     bill.Parent      = game.CoreGui
 
-    -- background
     local bg = Instance.new("Frame", bill)
-    bg.Size               = UDim2.new(1, 0, 1, 0)
-    bg.BackgroundColor3   = Color3.fromRGB(20, 20, 20)
+    bg.Size = UDim2.new(1, 0, 1, 0)
+    bg.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
     bg.BackgroundTransparency = 0.4
-    local cr = Instance.new("UICorner", bg)
-    cr.CornerRadius = UDim.new(0, 6)
+    Instance.new("UICorner", bg).CornerRadius = UDim.new(0, 6)
     Instance.new("UIStroke", bg).Thickness = 1
 
-    -- text
     local txt = Instance.new("TextLabel", bg)
-    txt.Size               = UDim2.new(1, -4, 1, -4)
-    txt.Position           = UDim2.new(0, 2, 0, 2)
+    txt.Size = UDim2.new(1, -4, 1, -4)
+    txt.Position = UDim2.new(0, 2, 0, 2)
     txt.BackgroundTransparency = 1
-    txt.Font               = Enum.Font.GothamBold
-    txt.TextScaled         = true
-    txt.RichText           = true
-    txt.TextXAlignment     = Enum.TextXAlignment.Center
-    txt.TextYAlignment     = Enum.TextYAlignment.Center
+    txt.Font = Enum.Font.GothamBold
+    txt.TextScaled = true
+    txt.RichText = true
+    txt.TextXAlignment = Enum.TextXAlignment.Center
+    txt.TextYAlignment = Enum.TextYAlignment.Center
 
     return bill, txt
 end
 
--- Main loop: bật/tắt ESP theo config, tìm chest gần nhất và ẩn ESP nếu xa
 spawn(function()
     local currentBill, currentTxt, lastChest = nil, nil, nil
-    local maxDistance = 50  -- Khoảng cách tối đa để hiển thị ESP (50 meters)
 
-    -- Tìm chest gần nhất ngay khi bắt đầu
-    local chest, dist = GetNearestChest()
-    if chest then
-        currentBill, currentTxt = CreateBillboard(chest)
-        lastChest = chest
-        -- Cập nhật text khoảng cách & đổi màu
-        local color =
-            dist < 15 and Color3.fromRGB(46,204,113) or
-            dist < 40 and Color3.fromRGB(241,196,15) or
-            Color3.fromRGB(231,76,60)
-
-        currentTxt.Text = string.format(
-            "<font color=\"rgb(%d,%d,%d)\">Chest\n%.1f m</font>",
-            color.R*255, color.G*255, color.B*255, dist
-        )
-        -- Ẩn ESP nếu quá xa (maxDistance)
-        if dist > maxDistance then
-            currentBill.Enabled = false  -- Ẩn ESP
-        else
-            currentBill.Enabled = true   -- Hiện ESP khi gần
-        end
-    end
-
-    -- Bắt đầu loop tìm kiếm và cập nhật ESP
     while true do
-        task.wait(0.5)
+        task.wait(updateRate)
 
-        -- Kiểm tra config, bật ESP nếu true
-        if getgenv().config
-        and getgenv().config.Setting["Esp Chest"] then
+        local chest, dist = GetNearestChest()
+        if chest then
+            if chest ~= lastChest then
+                if currentBill then currentBill:Destroy() end
+                currentBill, currentTxt = CreateBillboard(chest)
+                lastChest = chest
+            end
 
-            -- Tìm chest gần nhất
-            local chest, dist = GetNearestChest()
-            if chest then
-                -- Nếu chest mới khác chest cũ, xoá billboard cũ và tạo mới
-                if chest ~= lastChest then
-                    if currentBill then currentBill:Destroy() end
-                    currentBill, currentTxt = CreateBillboard(chest)
-                    lastChest = chest
-                end
-
-                -- Cập nhật text khoảng cách & đổi màu
+            -- Update Text
+            if getgenv().config and getgenv().config.Setting["Esp Chest"] then
+                -- Nếu bật ESP: đổi màu đẹp
                 local color =
                     dist < 15 and Color3.fromRGB(46,204,113) or
                     dist < 40 and Color3.fromRGB(241,196,15) or
@@ -1264,34 +1232,28 @@ spawn(function()
                     "<font color=\"rgb(%d,%d,%d)\">Chest\n%.1f m</font>",
                     color.R*255, color.G*255, color.B*255, dist
                 )
-
-                -- Ẩn ESP nếu quá xa (maxDistance)
-                if dist > maxDistance then
-                    currentBill.Enabled = false  -- Ẩn ESP
-                else
-                    currentBill.Enabled = true   -- Hiện ESP khi gần
-                end
             else
-                -- Nếu không tìm thấy chest, xoá billboard
-                if currentBill then
-                    currentBill:Destroy()
-                    currentBill, currentTxt, lastChest = nil, nil, nil
-                end
+                -- Nếu không bật ESP: chỉ ghi text đơn giản
+                currentTxt.Text = string.format("Chest\n%.1f m", dist)
+            end
+
+            -- Ẩn ESP nếu quá xa
+            if dist > maxDistance then
+                currentBill.Enabled = false
+            else
+                currentBill.Enabled = true
+            end
+
+            -- Nếu không bật ESP thì tự động chạm chest
+            if not (getgenv().config and getgenv().config.Setting["Esp Chest"]) then
+                firetouchinterest(player.Character.HumanoidRootPart, chest, 0)
+                firetouchinterest(player.Character.HumanoidRootPart, chest, 1)
             end
         else
-            -- Nếu ESP tắt trong config, xoá billboard
+            -- Không còn chest → xoá Billboard
             if currentBill then
                 currentBill:Destroy()
                 currentBill, currentTxt, lastChest = nil, nil, nil
-            end
-
-            -- Tìm chest gần nhất và di chuyển đến đó nếu config không bật ESP
-            local chest, dist = GetNearestChest()
-            if chest then
-                -- Di chuyển về vị trí của chest nếu cần (hoặc làm bất kỳ hành động nào với rương gần nhất)
-                -- Code di chuyển có thể ở đây, nếu cần
-                firetouchinterest(player.Character.HumanoidRootPart, chest, 0)
-                firetouchinterest(player.Character.HumanoidRootPart, chest, 1)
             end
         end
     end
