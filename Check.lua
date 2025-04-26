@@ -9,6 +9,7 @@ getgenv().config = {
         ["White Screen"] = false,
         ["No Stuck Chair"] = true, 
         ["Auto Rejoin"] = true,
+	["Esp Chest"] = true,
     },
     ChestFarm = {
         ["Start Farm Chest"] = true,   
@@ -462,6 +463,95 @@ local function Tween2(targetCFrame)
 end
 
 --------------------------------------------------------------------------------
+local espFolder = Instance.new("Folder", game.CoreGui)
+espFolder.Name = "VxezeESPChests"
+
+local function CreateESPChest()
+    if not getgenv().config.Setting["Esp Chest"] then
+        print("ESP Chest is disabled in config.")
+        return
+    end
+    
+    local player = game.Players.LocalPlayer
+    while getgenv().EnableChestESP do
+        for _, v in ipairs(workspace:GetDescendants()) do
+            if v:IsA("BasePart") and v.Name:lower():find("chest") and not espFolder:FindFirstChild(v:GetFullName()) then
+                local bill = Instance.new("BillboardGui")
+                bill.Name        = v:GetFullName()
+                bill.Adornee     = v
+                bill.Size        = UDim2.new(0, 120, 0, 50)
+                bill.StudsOffset = Vector3.new(0, 2.5, 0)
+                bill.AlwaysOnTop = true
+                bill.Parent      = espFolder
+
+                local bg = Instance.new("Frame", bill)
+                bg.Size               = UDim2.new(1, 0, 1, 0)
+                bg.Position           = UDim2.new(0, 0, 0, 0)
+                bg.BackgroundColor3   = Color3.fromRGB(30, 30, 30)
+                bg.BackgroundTransparency = 0.3
+                local cornerBg = Instance.new("UICorner", bg)
+                cornerBg.CornerRadius = UDim.new(0, 8)
+                local strokeBg = Instance.new("UIStroke", bg)
+                strokeBg.Color    = Color3.fromRGB(255, 255, 255)
+                strokeBg.Thickness = 1
+
+                local grad = Instance.new("UIGradient", bg)
+                grad.Color = ColorSequence.new{
+                    ColorSequenceKeypoint.new(0, Color3.fromRGB(40, 40, 40)),
+                    ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 20))
+                }
+                grad.Rotation = 90
+
+                local txt = Instance.new("TextLabel", bg)
+                txt.Size               = UDim2.new(1, -4, 1, -4)
+                txt.Position           = UDim2.new(0, 2, 0, 2)
+                txt.BackgroundTransparency = 1
+                txt.Font               = Enum.Font.GothamBold
+                txt.TextScaled         = true
+                txt.TextStrokeTransparency = 0.7
+                txt.TextAlignment      = Enum.TextAlignment.Center
+                txt.RichText           = true
+
+                -- Cập nhật khoảng cách & đổi màu chữ
+                spawn(function()
+                    while v.Parent and getgenv().EnableChestESP do
+                        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                            local dist = (player.Character.HumanoidRootPart.Position - v.Position).Magnitude
+                            local color
+                            if dist < 15 then
+                                color = Color3.fromRGB(46, 204, 113)   -- xanh
+                            elseif dist < 40 then
+                                color = Color3.fromRGB(241, 196, 15)   -- vàng
+                            else
+                                color = Color3.fromRGB(231, 76, 60)    -- đỏ
+                            end
+                            txt.TextColor3 = color
+                            txt.Text = string.format(
+                                "<font color=\"rgb(%d,%d,%d)\">🧰 Chest\n📏 %.1f m</font>",
+                                color.R*255, color.G*255, color.B*255, dist
+                            )
+                        end
+                        task.wait(0.2)
+                    end
+                    -- Clean up khi chest bị destroy hoặc ESP tắt
+                    if bill and bill.Parent then
+                        bill:Destroy()
+                    end
+                end)
+            end
+        end
+        task.wait(1)
+    end
+    espFolder:ClearAllChildren()
+end
+
+if getgenv().config.Setting["Esp Chest"] then
+    getgenv().EnableChestESP = true
+    CreateESPChest()
+else
+    print("ESP Chest is disabled.")
+end
+
 local Players            = game:GetService("Players")
 local TweenService       = game:GetService("TweenService")
 local UserInputService   = game:GetService("UserInputService")
