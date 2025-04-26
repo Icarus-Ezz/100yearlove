@@ -1150,7 +1150,7 @@ local Players   = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 local player    = Players.LocalPlayer
 
-local maxDistance = 50
+local maxDistance = 100
 local updateRate  = 0.5
 
 local function GetNearestChest()
