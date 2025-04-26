@@ -1150,42 +1150,19 @@ local Players   = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 local player    = Players.LocalPlayer
 
-local maxDistance = 100
-local updateRate  = 0.5
+local MaxDistance = 200  -- Chỉ hiện chest trong 200 studs
 
-local function GetNearestChest()
-    local best, bestDist = nil, math.huge
-    if not (player.Character and player.Character:FindFirstChild("HumanoidRootPart")) then
-        return nil
-    end
-    local hrpPos = player.Character.HumanoidRootPart.Position
-
-    for _, part in ipairs(Workspace.Map:GetDescendants()) do
-        if part:IsA("BasePart")
-        and part.Name:lower():find("chest")
-        and part:FindFirstChild("TouchInterest")
-        and part.Position.Y >= -30 then
-
-            local d = (part.Position - hrpPos).Magnitude
-            if d < bestDist then
-                bestDist = d
-                best = part
-            end
-        end
-    end
-
-    return best, bestDist
-end
-
+-- Tạo BillboardGui cho chest
 local function CreateBillboard(part)
     local bill = Instance.new("BillboardGui")
-    bill.Name        = "NearestChestESP"
+    bill.Name        = "ChestESP"
     bill.Adornee     = part
     bill.Size        = UDim2.new(0, 140, 0, 40)
     bill.StudsOffset = Vector3.new(0, 3, 0)
     bill.AlwaysOnTop = true
     bill.Parent      = game.CoreGui
 
+    -- background
     local bg = Instance.new("Frame", bill)
     bg.Size = UDim2.new(1, 0, 1, 0)
     bg.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
@@ -1193,6 +1170,7 @@ local function CreateBillboard(part)
     Instance.new("UICorner", bg).CornerRadius = UDim.new(0, 6)
     Instance.new("UIStroke", bg).Thickness = 1
 
+    -- text
     local txt = Instance.new("TextLabel", bg)
     txt.Size = UDim2.new(1, -4, 1, -4)
     txt.Position = UDim2.new(0, 2, 0, 2)
@@ -1206,54 +1184,60 @@ local function CreateBillboard(part)
     return bill, txt
 end
 
+-- Main
 spawn(function()
-    local currentBill, currentTxt, lastChest = nil, nil, nil
+    local bills = {}
 
     while true do
-        task.wait(updateRate)
+        task.wait(1)
 
-        local chest, dist = GetNearestChest()
-        if chest then
-            if chest ~= lastChest then
-                if currentBill then currentBill:Destroy() end
-                currentBill, currentTxt = CreateBillboard(chest)
-                lastChest = chest
+        local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+        if not hrp then continue end
+
+        -- Xóa Billboard chest quá xa hoặc chest biến mất
+        for part, data in pairs(bills) do
+            if not part:IsDescendantOf(Workspace) then
+                if data.Billboard then data.Billboard:Destroy() end
+                bills[part] = nil
+            else
+                local dist = (hrp.Position - part.Position).Magnitude
+                if dist > MaxDistance then
+                    if data.Billboard then data.Billboard.Enabled = false end
+                else
+                    if data.Billboard then data.Billboard.Enabled = true end
+                end
             end
+        end
 
-            -- Update Text
-            if getgenv().config and getgenv().config.Setting["Esp Chest"] then
-                -- Nếu bật ESP: đổi màu đẹp
+        -- Tìm chest gần mình và chưa có ESP
+        for _, part in ipairs(Workspace.Map:GetDescendants()) do
+            if part:IsA("BasePart")
+            and part.Name:lower():find("chest")
+            and part:FindFirstChild("TouchInterest")
+            and part.Position.Y >= -30 then
+                if not bills[part] then
+                    local dist = (hrp.Position - part.Position).Magnitude
+                    if dist <= MaxDistance then
+                        local bill, txt = CreateBillboard(part)
+                        bills[part] = { Billboard = bill, TextLabel = txt }
+                    end
+                end
+            end
+        end
+
+        -- Update text khoảng cách
+        for part, data in pairs(bills) do
+            if data.TextLabel then
+                local dist = (hrp.Position - part.Position).Magnitude
                 local color =
                     dist < 15 and Color3.fromRGB(46,204,113) or
                     dist < 40 and Color3.fromRGB(241,196,15) or
                     Color3.fromRGB(231,76,60)
 
-                currentTxt.Text = string.format(
+                data.TextLabel.Text = string.format(
                     "<font color=\"rgb(%d,%d,%d)\">Chest\n%.1f m</font>",
                     color.R*255, color.G*255, color.B*255, dist
                 )
-            else
-                -- Nếu không bật ESP: chỉ ghi text đơn giản
-                currentTxt.Text = string.format("Chest\n%.1f m", dist)
-            end
-
-            -- Ẩn ESP nếu quá xa
-            if dist > maxDistance then
-                currentBill.Enabled = false
-            else
-                currentBill.Enabled = true
-            end
-
-            -- Nếu không bật ESP thì tự động chạm chest
-            if not (getgenv().config and getgenv().config.Setting["Esp Chest"]) then
-                firetouchinterest(player.Character.HumanoidRootPart, chest, 0)
-                firetouchinterest(player.Character.HumanoidRootPart, chest, 1)
-            end
-        else
-            -- Không còn chest → xoá Billboard
-            if currentBill then
-                currentBill:Destroy()
-                currentBill, currentTxt, lastChest = nil, nil, nil
             end
         end
     end
