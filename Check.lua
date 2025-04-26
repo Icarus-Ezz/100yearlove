@@ -1873,3 +1873,43 @@ spawn(function()
         task.wait(60)
     end
 end)
+
+-- Hàm kiểm tra tọa độ Y thay đổi không đáng kể
+function AutoHopIfYUnchanged(idleTime, threshold)
+    local player = game.Players.LocalPlayer
+    local lastY = nil
+    local lastMoveTime = tick()
+
+    spawn(function()
+        while true do
+            task.wait(1)
+            local char = player.Character
+            local hrp = char and char:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                local currentY = hrp.Position.Y
+
+                -- Nếu tọa độ Y không thay đổi đáng kể
+                if lastY and math.abs(currentY - lastY) <= threshold then
+                    -- Nếu đứng yên quá lâu (idleTime), thì hop
+                    if tick() - lastMoveTime >= idleTime then
+                        game.StarterGui:SetCore("SendNotification", {
+                            Title = "Vxeze Hub",
+                            Text  = ("Error 404 → Hop server!"),
+                            Duration = 3
+                        })
+                        StartCountdownAndHop(idleTime)
+                        break  -- Dừng vòng lặp sau khi hop
+                    end
+                else
+                    -- Nếu có sự thay đổi lớn về Y, cập nhật thời gian di chuyển
+                    lastMoveTime = tick()
+                end
+
+                -- Cập nhật tọa độ Y cuối cùng
+                lastY = currentY
+            end
+        end
+    end)
+end
+
+AutoHopIfYUnchanged(10, 0.5)
