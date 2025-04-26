@@ -1145,7 +1145,7 @@ spawn(function()
         wait(1) 
     end
 end)
-
+--------------------------------------ESP
 local Players   = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 local player    = Players.LocalPlayer
@@ -1213,6 +1213,30 @@ spawn(function()
     local currentBill, currentTxt, lastChest = nil, nil, nil
     local maxDistance = 50  -- Khoảng cách tối đa để hiển thị ESP (50 meters)
 
+    -- Tìm chest gần nhất ngay khi bắt đầu
+    local chest, dist = GetNearestChest()
+    if chest then
+        currentBill, currentTxt = CreateBillboard(chest)
+        lastChest = chest
+        -- Cập nhật text khoảng cách & đổi màu
+        local color =
+            dist < 15 and Color3.fromRGB(46,204,113) or
+            dist < 40 and Color3.fromRGB(241,196,15) or
+            Color3.fromRGB(231,76,60)
+
+        currentTxt.Text = string.format(
+            "<font color=\"rgb(%d,%d,%d)\">Chest\n%.1f m</font>",
+            color.R*255, color.G*255, color.B*255, dist
+        )
+        -- Ẩn ESP nếu quá xa (maxDistance)
+        if dist > maxDistance then
+            currentBill.Enabled = false  -- Ẩn ESP
+        else
+            currentBill.Enabled = true   -- Hiện ESP khi gần
+        end
+    end
+
+    -- Bắt đầu loop tìm kiếm và cập nhật ESP
     while true do
         task.wait(0.5)
 
@@ -1243,13 +1267,9 @@ spawn(function()
 
                 -- Ẩn ESP nếu quá xa (maxDistance)
                 if dist > maxDistance then
-                    if currentBill then
-                        currentBill.Enabled = false  -- Ẩn ESP
-                    end
+                    currentBill.Enabled = false  -- Ẩn ESP
                 else
-                    if currentBill then
-                        currentBill.Enabled = true   -- Hiện ESP khi gần
-                    end
+                    currentBill.Enabled = true   -- Hiện ESP khi gần
                 end
             else
                 -- Nếu không tìm thấy chest, xoá billboard
