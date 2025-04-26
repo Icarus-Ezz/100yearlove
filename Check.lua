@@ -463,119 +463,6 @@ local function Tween2(targetCFrame)
 end
 
 --------------------------------------------------------------------------------
-local Players    = game:GetService("Players")
-local Workspace  = game:GetService("Workspace")
-
--- Folder chứa ESP GUI
-local espFolder = Instance.new("Folder", game.CoreGui)
-espFolder.Name = "VxezeESPChests"
-
--- Helper tạo và style billboards
-local function createBillboard(part)
-    local bill = Instance.new("BillboardGui")
-    bill.Name        = part:GetFullName()
-    bill.Adornee     = part
-    bill.Size        = UDim2.new(0, 120, 0, 50)
-    bill.StudsOffset = Vector3.new(0, 2.5, 0)
-    bill.AlwaysOnTop = true
-    bill.Parent      = espFolder
-
-    -- Background frame
-    local bg = Instance.new("Frame", bill)
-    bg.Size               = UDim2.new(1, 0, 1, 0)
-    bg.BackgroundColor3   = Color3.fromRGB(30, 30, 30)
-    bg.BackgroundTransparency = 0.3
-    local cornerBg = Instance.new("UICorner", bg)
-    cornerBg.CornerRadius = UDim.new(0, 8)
-    local strokeBg = Instance.new("UIStroke", bg)
-    strokeBg.Color    = Color3.fromRGB(255,255,255)
-    strokeBg.Thickness = 1
-
-    -- Gradient nền
-    local grad = Instance.new("UIGradient", bg)
-    grad.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(40,40,40)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(20,20,20))
-    }
-    grad.Rotation = 90
-
-    -- Label khoảng cách
-    local txt = Instance.new("TextLabel", bg)
-    txt.Size                   = UDim2.new(1, -4, 1, -4)
-    txt.Position               = UDim2.new(0, 2, 0, 2)
-    txt.BackgroundTransparency = 1
-    txt.Font                   = Enum.Font.GothamBold
-    txt.TextScaled             = true
-    txt.TextStrokeTransparency = 0.7
-    txt.RichText               = true
-
-    -- **Thay đổi ở đây**
-    txt.TextXAlignment = Enum.TextXAlignment.Center
-    txt.TextYAlignment = Enum.TextYAlignment.Center
-
-    return bill, txt
-end
-
--- Hàm cập nhật ESP mỗi frame
-local function updateESP()
-    local setting = getgenv().config.Setting["Esp Chest"]
-    local player = Players.LocalPlayer
-    if not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then return end
-
-    if not setting then
-        espFolder:ClearAllChildren()
-        return
-    end
-
-    -- Đánh dấu billboards hiện có
-    local existing = {}
-    for _, gui in ipairs(espFolder:GetChildren()) do
-        existing[gui.Name] = gui
-    end
-
-    -- Duyệt workspace để tìm chest
-    for _, part in ipairs(Workspace:GetDescendants()) do
-        if part:IsA("BasePart") and part.Name:lower():find("chest") then
-            local key = part:GetFullName()
-
-            -- Tạo billboard mới nếu chưa có
-            if not existing[key] then
-                local bill, txt = createBillboard(part)
-                existing[key] = bill
-            end
-
-            do
-                local bill = existing[key]
-                local txt = bill:FindFirstChildOfClass("Frame"):FindFirstChildOfClass("TextLabel")
-                local dist = (player.Character.HumanoidRootPart.Position - part.Position).Magnitude
-                local color
-                if dist < 15 then color = Color3.fromRGB(46,204,113)
-                elseif dist < 40 then color = Color3.fromRGB(241,196,15)
-                else color = Color3.fromRGB(231,76,60) end
-
-                txt.Text = string.format(
-                    "<font color=\"rgb(%d,%d,%d)\">🧰 Chest\n📏 %.1f m</font>",
-                    color.R*255, color.G*255, color.B*255, dist
-                )
-            end
-        end
-    end
-
-    for name, gui in pairs(existing) do
-        local part = Workspace:FindFirstChild(name, true)
-        if (not part) or (not part:IsDescendantOf(Workspace)) then
-            gui:Destroy()
-        end
-    end
-end
-
-spawn(function()
-    while true do
-        updateESP()
-        task.wait(0.5)
-    end
-end)
-
 local Players            = game:GetService("Players")
 local TweenService       = game:GetService("TweenService")
 local UserInputService   = game:GetService("UserInputService")
@@ -1259,6 +1146,41 @@ spawn(function()
     end
 end)
 
+local function CreateESP(chest)
+    -- Tạo BillboardGui để hiển thị thông tin trên chest
+    local espGui = Instance.new("BillboardGui", chest)
+    espGui.Size = UDim2.new(0, 200, 0, 50)
+    espGui.Adornee = chest
+    espGui.StudsOffset = Vector3.new(0, 3, 0)  -- Vị trí hiển thị thông tin phía trên chest
+    espGui.AlwaysOnTop = true
+    espGui.Enabled = getgenv().config.Setting["Esp Chest"]  -- Chỉ hiển thị nếu Esp Chest được bật
+
+    -- Tạo TextLabel để hiển thị thông tin khoảng cách
+    local label = Instance.new("TextLabel", espGui)
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.BackgroundTransparency = 1
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)  -- Màu chữ trắng
+    label.Font = Enum.Font.GothamSemibold
+    label.TextSize = 14
+    label.TextStrokeTransparency = 0.8
+    label.TextXAlignment = Enum.TextXAlignment.Center
+    label.TextYAlignment = Enum.TextYAlignment.Center
+    label.Text = "Chest: " .. chest.Name  -- Tên chest
+
+    -- Hàm cập nhật khoảng cách
+    local function UpdateESP()
+        while chest.Parent do
+            local playerPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
+            local chestPosition = chest.Position
+            local distance = (chestPosition - playerPosition).Magnitude
+            label.Text = string.format("Chest: %s\n%.2f meters", chest.Name, distance)
+            wait(0.1)  -- Cập nhật mỗi 0.1 giây
+        end
+    end
+
+    spawn(UpdateESP)
+end
+
 local function GetChest()
     local distance = math.huge
     local closestChest = nil
@@ -1294,6 +1216,7 @@ spawn(function()
                 while getgenv().config.ChestFarm["Start Farm Chest"] do
                     local chest = GetChest()
                     if chest and chest:IsDescendantOf(workspace) then
+			CreateESP(chest)				
                         Tween2(chest.CFrame)
 
                         pcall(function()
