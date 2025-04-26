@@ -501,14 +501,17 @@ local function createBillboard(part)
 
     -- Label khoảng cách
     local txt = Instance.new("TextLabel", bg)
-    txt.Size               = UDim2.new(1, -4, 1, -4)
-    txt.Position           = UDim2.new(0, 2, 0, 2)
+    txt.Size                   = UDim2.new(1, -4, 1, -4)
+    txt.Position               = UDim2.new(0, 2, 0, 2)
     txt.BackgroundTransparency = 1
-    txt.Font               = Enum.Font.GothamBold
-    txt.TextScaled         = true
+    txt.Font                   = Enum.Font.GothamBold
+    txt.TextScaled             = true
     txt.TextStrokeTransparency = 0.7
-    txt.TextAlignment      = Enum.TextAlignment.Center
-    txt.RichText           = true
+    txt.RichText               = true
+
+    -- **Thay đổi ở đây**
+    txt.TextXAlignment = Enum.TextXAlignment.Center
+    txt.TextYAlignment = Enum.TextYAlignment.Center
 
     return bill, txt
 end
