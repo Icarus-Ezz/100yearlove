@@ -1844,7 +1844,7 @@ function AutoHopIfIdleAndY(idleTime, moveThreshold, yThreshold)
                                 Text  = "Error 404 → Hop server!",
                                 Duration = 3
                             })
-                            StartCountdownAndHop(idleTime)
+                            StartCountdownAndHop(5)
                             break
                         end
                     else
@@ -1859,4 +1859,4 @@ function AutoHopIfIdleAndY(idleTime, moveThreshold, yThreshold)
     end)
 end
 
-AutoHopIfIdleAndY(10, 2, 0.5)
+AutoHopIfIdleAndY(5, 2, 0.5)
