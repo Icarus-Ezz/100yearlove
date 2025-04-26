@@ -1188,7 +1188,7 @@ spawn(function()
     local bills = {}
 
     while true do
-        task.wait(1)
+        task.wait(0.2)
 
         local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
         if not hrp then continue end
@@ -1224,7 +1224,6 @@ spawn(function()
             end
         end
 
-        -- Update text khoảng cách
         for part, data in pairs(bills) do
             if data.TextLabel then
                 local dist = (hrp.Position - part.Position).Magnitude
