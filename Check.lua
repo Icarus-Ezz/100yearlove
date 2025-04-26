@@ -1188,12 +1188,11 @@ spawn(function()
     local bills = {}
 
     while true do
-        task.wait(0.2)
+        task.wait(0.1)
 
         local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
         if not hrp then continue end
 
-        -- Xóa Billboard chest quá xa hoặc chest biến mất
         for part, data in pairs(bills) do
             if not part:IsDescendantOf(Workspace) then
                 if data.Billboard then data.Billboard:Destroy() end
