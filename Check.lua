@@ -463,94 +463,115 @@ local function Tween2(targetCFrame)
 end
 
 --------------------------------------------------------------------------------
+local Players    = game:GetService("Players")
+local Workspace  = game:GetService("Workspace")
+
+-- Folder chứa ESP GUI
 local espFolder = Instance.new("Folder", game.CoreGui)
 espFolder.Name = "VxezeESPChests"
 
-local function CreateESPChest()
-    if not getgenv().config.Setting["Esp Chest"] then
-        print("ESP Chest is disabled in config.")
+-- Helper tạo và style billboards
+local function createBillboard(part)
+    local bill = Instance.new("BillboardGui")
+    bill.Name        = part:GetFullName()
+    bill.Adornee     = part
+    bill.Size        = UDim2.new(0, 120, 0, 50)
+    bill.StudsOffset = Vector3.new(0, 2.5, 0)
+    bill.AlwaysOnTop = true
+    bill.Parent      = espFolder
+
+    -- Background frame
+    local bg = Instance.new("Frame", bill)
+    bg.Size               = UDim2.new(1, 0, 1, 0)
+    bg.BackgroundColor3   = Color3.fromRGB(30, 30, 30)
+    bg.BackgroundTransparency = 0.3
+    local cornerBg = Instance.new("UICorner", bg)
+    cornerBg.CornerRadius = UDim.new(0, 8)
+    local strokeBg = Instance.new("UIStroke", bg)
+    strokeBg.Color    = Color3.fromRGB(255,255,255)
+    strokeBg.Thickness = 1
+
+    -- Gradient nền
+    local grad = Instance.new("UIGradient", bg)
+    grad.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(40,40,40)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(20,20,20))
+    }
+    grad.Rotation = 90
+
+    -- Label khoảng cách
+    local txt = Instance.new("TextLabel", bg)
+    txt.Size               = UDim2.new(1, -4, 1, -4)
+    txt.Position           = UDim2.new(0, 2, 0, 2)
+    txt.BackgroundTransparency = 1
+    txt.Font               = Enum.Font.GothamBold
+    txt.TextScaled         = true
+    txt.TextStrokeTransparency = 0.7
+    txt.TextAlignment      = Enum.TextAlignment.Center
+    txt.RichText           = true
+
+    return bill, txt
+end
+
+-- Hàm cập nhật ESP mỗi frame
+local function updateESP()
+    local setting = getgenv().config.Setting["Esp Chest"]
+    local player = Players.LocalPlayer
+    if not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then return end
+
+    if not setting then
+        espFolder:ClearAllChildren()
         return
     end
-    
-    local player = game.Players.LocalPlayer
-    while getgenv().EnableChestESP do
-        for _, v in ipairs(workspace:GetDescendants()) do
-            if v:IsA("BasePart") and v.Name:lower():find("chest") and not espFolder:FindFirstChild(v:GetFullName()) then
-                local bill = Instance.new("BillboardGui")
-                bill.Name        = v:GetFullName()
-                bill.Adornee     = v
-                bill.Size        = UDim2.new(0, 120, 0, 50)
-                bill.StudsOffset = Vector3.new(0, 2.5, 0)
-                bill.AlwaysOnTop = true
-                bill.Parent      = espFolder
 
-                local bg = Instance.new("Frame", bill)
-                bg.Size               = UDim2.new(1, 0, 1, 0)
-                bg.Position           = UDim2.new(0, 0, 0, 0)
-                bg.BackgroundColor3   = Color3.fromRGB(30, 30, 30)
-                bg.BackgroundTransparency = 0.3
-                local cornerBg = Instance.new("UICorner", bg)
-                cornerBg.CornerRadius = UDim.new(0, 8)
-                local strokeBg = Instance.new("UIStroke", bg)
-                strokeBg.Color    = Color3.fromRGB(255, 255, 255)
-                strokeBg.Thickness = 1
+    -- Đánh dấu billboards hiện có
+    local existing = {}
+    for _, gui in ipairs(espFolder:GetChildren()) do
+        existing[gui.Name] = gui
+    end
 
-                local grad = Instance.new("UIGradient", bg)
-                grad.Color = ColorSequence.new{
-                    ColorSequenceKeypoint.new(0, Color3.fromRGB(40, 40, 40)),
-                    ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 20))
-                }
-                grad.Rotation = 90
+    -- Duyệt workspace để tìm chest
+    for _, part in ipairs(Workspace:GetDescendants()) do
+        if part:IsA("BasePart") and part.Name:lower():find("chest") then
+            local key = part:GetFullName()
 
-                local txt = Instance.new("TextLabel", bg)
-                txt.Size               = UDim2.new(1, -4, 1, -4)
-                txt.Position           = UDim2.new(0, 2, 0, 2)
-                txt.BackgroundTransparency = 1
-                txt.Font               = Enum.Font.GothamBold
-                txt.TextScaled         = true
-                txt.TextStrokeTransparency = 0.7
-                txt.TextAlignment      = Enum.TextAlignment.Center
-                txt.RichText           = true
+            -- Tạo billboard mới nếu chưa có
+            if not existing[key] then
+                local bill, txt = createBillboard(part)
+                existing[key] = bill
+            end
 
-                -- Cập nhật khoảng cách & đổi màu chữ
-                spawn(function()
-                    while v.Parent and getgenv().EnableChestESP do
-                        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                            local dist = (player.Character.HumanoidRootPart.Position - v.Position).Magnitude
-                            local color
-                            if dist < 15 then
-                                color = Color3.fromRGB(46, 204, 113)   -- xanh
-                            elseif dist < 40 then
-                                color = Color3.fromRGB(241, 196, 15)   -- vàng
-                            else
-                                color = Color3.fromRGB(231, 76, 60)    -- đỏ
-                            end
-                            txt.TextColor3 = color
-                            txt.Text = string.format(
-                                "<font color=\"rgb(%d,%d,%d)\">🧰 Chest\n📏 %.1f m</font>",
-                                color.R*255, color.G*255, color.B*255, dist
-                            )
-                        end
-                        task.wait(0.2)
-                    end
-                    -- Clean up khi chest bị destroy hoặc ESP tắt
-                    if bill and bill.Parent then
-                        bill:Destroy()
-                    end
-                end)
+            do
+                local bill = existing[key]
+                local txt = bill:FindFirstChildOfClass("Frame"):FindFirstChildOfClass("TextLabel")
+                local dist = (player.Character.HumanoidRootPart.Position - part.Position).Magnitude
+                local color
+                if dist < 15 then color = Color3.fromRGB(46,204,113)
+                elseif dist < 40 then color = Color3.fromRGB(241,196,15)
+                else color = Color3.fromRGB(231,76,60) end
+
+                txt.Text = string.format(
+                    "<font color=\"rgb(%d,%d,%d)\">🧰 Chest\n📏 %.1f m</font>",
+                    color.R*255, color.G*255, color.B*255, dist
+                )
             end
         end
-        task.wait(1)
     end
-    espFolder:ClearAllChildren()
+
+    for name, gui in pairs(existing) do
+        local part = Workspace:FindFirstChild(name, true)
+        if (not part) or (not part:IsDescendantOf(Workspace)) then
+            gui:Destroy()
+        end
+    end
 end
 
-if getgenv().config.Setting["Esp Chest"] then
-    getgenv().EnableChestESP = true
-    CreateESPChest()
-else
-    print("ESP Chest is disabled.")
-end
+spawn(function()
+    while true do
+        updateESP()
+        task.wait(0.5)
+    end
+end)
 
 local Players            = game:GetService("Players")
 local TweenService       = game:GetService("TweenService")
