@@ -205,7 +205,6 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
     local player = game.Players.LocalPlayer
     local beli = player:FindFirstChild("Data") and player.Data:FindFirstChild("Beli") and player.Data.Beli.Value or 0
     
-    -- Kiểm tra inventory trước khi dùng
     local inventory = getInventory() or {}
     local darkDaggerStatus = "❌"
     local valkyrieHelmStatus = "❌"
@@ -265,7 +264,6 @@ spawn(function()
         local hasGodsChalice = false
         local hasFistOfDarkness = false
 
-        -- Lặp qua các vật phẩm trong ba lô
         for _, item in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
             if item.Name == "God's Chalice" then
                 hasGodsChalice = true
@@ -275,14 +273,12 @@ spawn(function()
         end
 
         if getgenv().config.Webhook["Send Webhook"] then
-            -- Gọi hàm AdminLoggerMsg và gửi webhook
             local message = AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
             PostWebhook(getgenv().config.Webhook["Webhook Url"], message)
         else
             print("Webhook not enabled.")
         end
 
-        -- Check sau 120s
         task.wait(60)   
     end
 end)
