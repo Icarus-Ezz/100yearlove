@@ -1844,7 +1844,7 @@ function AutoHopIfIdleAndY(idleTime, moveThreshold, yThreshold)
                         if tick() - lastMoveTime >= idleTime then
                             game.StarterGui:SetCore("SendNotification", {
                                 Title = "Vxeze Hub",
-                                Text  = ("Error 404 → Hop server!"),
+                                Text  = "Error 404 → Hop server!",
                                 Duration = 3
                             })
                             StartCountdownAndHop(idleTime)
