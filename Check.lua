@@ -1175,6 +1175,7 @@ local function GetNearestChest()
     return best, bestDist
 end
 
+-- Tạo BillboardGui cho chest
 local function CreateBillboard(part)
     local bill = Instance.new("BillboardGui")
     bill.Name        = "NearestChestESP"
@@ -1207,23 +1208,29 @@ local function CreateBillboard(part)
     return bill, txt
 end
 
+-- Main loop: bật/tắt ESP theo config, tìm chest gần nhất và ẩn ESP nếu xa
 spawn(function()
     local currentBill, currentTxt, lastChest = nil, nil, nil
+    local maxDistance = 50  -- Khoảng cách tối đa để hiển thị ESP (50 meters)
 
     while true do
         task.wait(0.5)
 
+        -- Kiểm tra config, bật ESP nếu true
         if getgenv().config
         and getgenv().config.Setting["Esp Chest"] then
 
+            -- Tìm chest gần nhất
             local chest, dist = GetNearestChest()
             if chest then
+                -- Nếu chest mới khác chest cũ, xoá billboard cũ và tạo mới
                 if chest ~= lastChest then
                     if currentBill then currentBill:Destroy() end
                     currentBill, currentTxt = CreateBillboard(chest)
                     lastChest = chest
                 end
 
+                -- Cập nhật text khoảng cách & đổi màu
                 local color =
                     dist < 15 and Color3.fromRGB(46,204,113) or
                     dist < 40 and Color3.fromRGB(241,196,15) or
@@ -1233,20 +1240,36 @@ spawn(function()
                     "<font color=\"rgb(%d,%d,%d)\">Chest\n%.1f m</font>",
                     color.R*255, color.G*255, color.B*255, dist
                 )
+
+                -- Ẩn ESP nếu quá xa (maxDistance)
+                if dist > maxDistance then
+                    if currentBill then
+                        currentBill.Enabled = false  -- Ẩn ESP
+                    end
+                else
+                    if currentBill then
+                        currentBill.Enabled = true   -- Hiện ESP khi gần
+                    end
+                end
             else
+                -- Nếu không tìm thấy chest, xoá billboard
                 if currentBill then
                     currentBill:Destroy()
                     currentBill, currentTxt, lastChest = nil, nil, nil
                 end
             end
         else
+            -- Nếu ESP tắt trong config, xoá billboard
             if currentBill then
                 currentBill:Destroy()
                 currentBill, currentTxt, lastChest = nil, nil, nil
             end
 
+            -- Tìm chest gần nhất và di chuyển đến đó nếu config không bật ESP
             local chest, dist = GetNearestChest()
             if chest then
+                -- Di chuyển về vị trí của chest nếu cần (hoặc làm bất kỳ hành động nào với rương gần nhất)
+                -- Code di chuyển có thể ở đây, nếu cần
                 firetouchinterest(player.Character.HumanoidRootPart, chest, 0)
                 firetouchinterest(player.Character.HumanoidRootPart, chest, 1)
             end
