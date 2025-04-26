@@ -1150,9 +1150,8 @@ local Players   = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 local player    = Players.LocalPlayer
 
-local MaxDistance = 200  -- Chỉ hiện chest trong 200 studs
+local MaxDistance = 1000 
 
--- Tạo BillboardGui cho chest
 local function CreateBillboard(part)
     local bill = Instance.new("BillboardGui")
     bill.Name        = "ChestESP"
