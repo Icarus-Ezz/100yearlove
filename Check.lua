@@ -1146,40 +1146,113 @@ spawn(function()
     end
 end)
 
-local function CreateESP(chest)
-    -- Tạo BillboardGui để hiển thị thông tin trên chest
-    local espGui = Instance.new("BillboardGui", chest)
-    espGui.Size = UDim2.new(0, 200, 0, 50)
-    espGui.Adornee = chest
-    espGui.StudsOffset = Vector3.new(0, 3, 0)  -- Vị trí hiển thị thông tin phía trên chest
-    espGui.AlwaysOnTop = true
-    espGui.Enabled = getgenv().config.Setting["Esp Chest"]  -- Chỉ hiển thị nếu Esp Chest được bật
+local Players   = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local player    = Players.LocalPlayer
 
-    -- Tạo TextLabel để hiển thị thông tin khoảng cách
-    local label = Instance.new("TextLabel", espGui)
-    label.Size = UDim2.new(1, 0, 1, 0)
-    label.BackgroundTransparency = 1
-    label.TextColor3 = Color3.fromRGB(255, 255, 255)  -- Màu chữ trắng
-    label.Font = Enum.Font.GothamSemibold
-    label.TextSize = 14
-    label.TextStrokeTransparency = 0.8
-    label.TextXAlignment = Enum.TextXAlignment.Center
-    label.TextYAlignment = Enum.TextYAlignment.Center
-    label.Text = "Chest: " .. chest.Name  -- Tên chest
+-- Tìm chest gần nhất
+local function GetNearestChest()
+    local best, bestDist = nil, math.huge
+    if not (player.Character and player.Character:FindFirstChild("HumanoidRootPart")) then
+        return nil
+    end
+    local hrpPos = player.Character.HumanoidRootPart.Position
 
-    -- Hàm cập nhật khoảng cách
-    local function UpdateESP()
-        while chest.Parent do
-            local playerPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
-            local chestPosition = chest.Position
-            local distance = (chestPosition - playerPosition).Magnitude
-            label.Text = string.format("Chest: %s\n%.2f meters", chest.Name, distance)
-            wait(0.1)  -- Cập nhật mỗi 0.1 giây
+    for _, part in ipairs(Workspace.Map:GetDescendants()) do
+        if part:IsA("BasePart")
+        and part.Name:lower():find("chest")
+        and part:FindFirstChild("TouchInterest")
+        and part.Position.Y >= -30 then
+
+            local d = (part.Position - hrpPos).Magnitude
+            if d < bestDist then
+                bestDist = d
+                best = part
+            end
         end
     end
 
-    spawn(UpdateESP)
+    return best, bestDist
 end
+
+local function CreateBillboard(part)
+    local bill = Instance.new("BillboardGui")
+    bill.Name        = "NearestChestESP"
+    bill.Adornee     = part
+    bill.Size        = UDim2.new(0, 140, 0, 40)
+    bill.StudsOffset = Vector3.new(0, 3, 0)
+    bill.AlwaysOnTop = true
+    bill.Parent      = game.CoreGui
+
+    -- background
+    local bg = Instance.new("Frame", bill)
+    bg.Size               = UDim2.new(1, 0, 1, 0)
+    bg.BackgroundColor3   = Color3.fromRGB(20, 20, 20)
+    bg.BackgroundTransparency = 0.4
+    local cr = Instance.new("UICorner", bg)
+    cr.CornerRadius = UDim.new(0, 6)
+    Instance.new("UIStroke", bg).Thickness = 1
+
+    -- text
+    local txt = Instance.new("TextLabel", bg)
+    txt.Size               = UDim2.new(1, -4, 1, -4)
+    txt.Position           = UDim2.new(0, 2, 0, 2)
+    txt.BackgroundTransparency = 1
+    txt.Font               = Enum.Font.GothamBold
+    txt.TextScaled         = true
+    txt.RichText           = true
+    txt.TextXAlignment     = Enum.TextXAlignment.Center
+    txt.TextYAlignment     = Enum.TextYAlignment.Center
+
+    return bill, txt
+end
+
+spawn(function()
+    local currentBill, currentTxt, lastChest = nil, nil, nil
+
+    while true do
+        task.wait(0.5)
+
+        if getgenv().config
+        and getgenv().config.Setting["Esp Chest"] then
+
+            local chest, dist = GetNearestChest()
+            if chest then
+                if chest ~= lastChest then
+                    if currentBill then currentBill:Destroy() end
+                    currentBill, currentTxt = CreateBillboard(chest)
+                    lastChest = chest
+                end
+
+                local color =
+                    dist < 15 and Color3.fromRGB(46,204,113) or
+                    dist < 40 and Color3.fromRGB(241,196,15) or
+                    Color3.fromRGB(231,76,60)
+
+                currentTxt.Text = string.format(
+                    "<font color=\"rgb(%d,%d,%d)\">Chest\n%.1f m</font>",
+                    color.R*255, color.G*255, color.B*255, dist
+                )
+            else
+                if currentBill then
+                    currentBill:Destroy()
+                    currentBill, currentTxt, lastChest = nil, nil, nil
+                end
+            end
+        else
+            if currentBill then
+                currentBill:Destroy()
+                currentBill, currentTxt, lastChest = nil, nil, nil
+            end
+
+            local chest, dist = GetNearestChest()
+            if chest then
+                firetouchinterest(player.Character.HumanoidRootPart, chest, 0)
+                firetouchinterest(player.Character.HumanoidRootPart, chest, 1)
+            end
+        end
+    end
+end)
 
 local function GetChest()
     local distance = math.huge
@@ -1215,8 +1288,7 @@ spawn(function()
                 local timeout = 0
                 while getgenv().config.ChestFarm["Start Farm Chest"] do
                     local chest = GetChest()
-                    if chest and chest:IsDescendantOf(workspace) then
-			CreateESP(chest)				
+                    if chest and chest:IsDescendantOf(workspace) then				
                         Tween2(chest.CFrame)
 
                         pcall(function()
