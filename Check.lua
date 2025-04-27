@@ -870,7 +870,6 @@ spawn(function()
         local hasChalice = bp:FindFirstChild("God's Chalice") or char:FindFirstChild("God's Chalice")
         local hasFist    = bp:FindFirstChild("Fist of Darkness") or char:FindFirstChild("Fist of Darkness")
 
-        -- Auto Spawn Dark Beard (nếu bật)
         if getgenv().config.Premium["Auto Spawn Dark Beard"]
            and game.PlaceId == 4442272183
            and hasFist then
@@ -888,14 +887,12 @@ spawn(function()
             return
         end
 
-        -- Auto Spawn Rip Indra (nếu bật)
         if getgenv().config.Premium["Auto Spawn Rip Indra"]
            and game.PlaceId == 7449423635
            and hasChalice then
 
             getgenv().config.ChestFarm["Start Farm Chest"] = false
 
-            -- Triệu hồi lần lượt qua 3 điểm đổi Haki
             v53("Snow White", Vector3.new(-4971.718, 335.958, -3720.059))
             repeat wait(0.1) until v54(Vector3.new(-4971.718, 335.958, -3720.059), 1)
             task.wait(0.5)
@@ -908,16 +905,13 @@ spawn(function()
             repeat wait(0.1) until v54(Vector3.new(-5420.263, 1089.358, -2666.819), 1)
             task.wait(0.5)
 
-            -- Sau khi đổi xong, teleport tới vị trí spawn Rip Indra
             Tween2(ripSpawn); task.wait(1.5)
 
-            -- Nếu không muốn lặp lại, tắt flag
             getgenv().config.Premium["Auto Spawn Rip Indra"] = false
 
             return
         end
 
-        -- Nếu đã có item và cấu hình Stop When Have Item thì dừng farm
         if getgenv().config.ChestFarm["Stop When Have Item"]
            and (hasChalice or hasFist) then
 
@@ -1817,9 +1811,10 @@ spawn(function()
     end
 end)
 
-function AutoHopIfIdle(idleTime, moveThreshold)
+function AutoHopIfIdleAndY(idleTime, moveThreshold, yThreshold)
     local player = game.Players.LocalPlayer
     local lastPos = nil
+    local lastY = nil
     local lastMoveTime = tick()
 
     spawn(function()
@@ -1828,11 +1823,14 @@ function AutoHopIfIdle(idleTime, moveThreshold)
             local char = player.Character
             local hrp = char and char:FindFirstChild("HumanoidRootPart")
             if hrp then
-                local currentPos = Vector3.new(hrp.Position.X, 0, hrp.Position.Z) -- Bỏ Y ra
-                if lastPos then
-                    local distanceMoved = (currentPos - lastPos).Magnitude
+                local currentPos = Vector3.new(hrp.Position.X, 0, hrp.Position.Z) -- chỉ lấy X,Z
+                local currentY = hrp.Position.Y
 
-                    if distanceMoved <= moveThreshold then
+                if lastPos and lastY then
+                    local distanceMoved = (currentPos - lastPos).Magnitude
+                    local yDifference = math.abs(currentY - lastY)
+
+                    if distanceMoved <= moveThreshold and yDifference <= yThreshold then
                         if tick() - lastMoveTime >= idleTime then
                             game.StarterGui:SetCore("SendNotification", {
                                 Title = "Vxeze Hub",
@@ -1848,9 +1846,10 @@ function AutoHopIfIdle(idleTime, moveThreshold)
                 end
 
                 lastPos = currentPos
+                lastY = currentY
             end
         end
     end)
 end
 
-AutoHopIfIdle(5, 2) -- idle 5s, di chuyển <2 studs thì hop
+AutoHopIfIdleAndY(10, 2, 5)
