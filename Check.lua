@@ -273,13 +273,14 @@ spawn(function()
         end
 
         if getgenv().config.Webhook["Send Webhook"] then
+
             local message = AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
             PostWebhook(getgenv().config.Webhook["Webhook Url"], message)
         else
             print("Webhook not enabled.")
         end
 
-        task.wait(60)   
+        task.wait(60)
     end
 end)
 
