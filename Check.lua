@@ -962,7 +962,7 @@ function StartCountdownAndHop(countdownTime)
     logo.Parent = screenGui
     logo.Size = UDim2.new(0, 70, 0, 70)
     logo.Position = UDim2.new(0.5, -35, 0.3, -60)
-    logo.Image = "rbxassetid://91347148253026" -- Bạn có thể đổi ID khác nếu muốn
+    logo.Image = "rbxassetid://91347148253026"
     logo.BackgroundTransparency = 1
     logo.ZIndex = 2
 
@@ -990,11 +990,11 @@ function StartCountdownAndHop(countdownTime)
     progressBarBackground.ClipsDescendants = true
     Instance.new("UICorner", progressBarBackground).CornerRadius = UDim.new(0, 12)
 
-    -- Progress Bar
+    -- Progress Bar màu trắng
     local progressBar = Instance.new("Frame")
     progressBar.Parent = progressBarBackground
     progressBar.Size = UDim2.new(0, 0, 1, 0)
-    progressBar.BackgroundColor3 = Color3.fromRGB(0, 200, 255) -- Màu cyan
+    progressBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
     progressBar.ZIndex = 2
     Instance.new("UICorner", progressBar).CornerRadius = UDim.new(0, 12)
 
@@ -1013,17 +1013,17 @@ function StartCountdownAndHop(countdownTime)
     countdownLabel.TextStrokeTransparency = 0.6
     countdownLabel.ZIndex = 3
 
-    -- Stop Hop Button (Đẹp hơn)
+    -- Stop Hop Button màu đen + chữ trắng rõ
     local stopButton = Instance.new("TextButton")
     stopButton.Parent = screenGui
     stopButton.Size = UDim2.new(0, 140, 0, 40)
     stopButton.Position = UDim2.new(0.5, -70, 0.5, 30)
-    stopButton.BackgroundColor3 = Color3.fromRGB(255, 70, 70)
+    stopButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
     stopButton.Text = "⛔ Stop Hop"
     stopButton.Font = Enum.Font.GothamBold
     stopButton.TextSize = 20
     stopButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    stopButton.TextStrokeTransparency = 0.6
+    stopButton.TextStrokeTransparency = 0 -- không mờ, nét rõ 100%
     stopButton.ZIndex = 4
     stopButton.AutoButtonColor = false
     Instance.new("UICorner", stopButton).CornerRadius = UDim.new(0, 8)
@@ -1038,12 +1038,12 @@ function StartCountdownAndHop(countdownTime)
     local unhoverTween = TweenService:Create(stopButton, TweenInfo.new(0.2), {Size = UDim2.new(0, 140, 0, 40)})
 
     stopButton.MouseEnter:Connect(function()
-        stopButton.BackgroundColor3 = Color3.fromRGB(255, 120, 90)
+        stopButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30) -- khi hover sáng lên chút
         hoverTween:Play()
     end)
 
     stopButton.MouseLeave:Connect(function()
-        stopButton.BackgroundColor3 = Color3.fromRGB(255, 70, 70)
+        stopButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
         unhoverTween:Play()
     end)
 
