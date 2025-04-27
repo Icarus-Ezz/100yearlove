@@ -861,10 +861,10 @@ spawn(function()
             Tween2(dark); task.wait(2)
 
             local vim = game:GetService("VirtualInputManager")
-            vim:SendKeyEvent(true, "A", false, game); task.wait(0.2)
-            vim:SendKeyEvent(false,"A", false, game)
-            vim:SendKeyEvent(true, "D", false, game); task.wait(0.2)
-            vim:SendKeyEvent(false,"D", false, game)
+            vim:SendKeyEvent(true, "W", false, game); task.wait(0.2)
+            vim:SendKeyEvent(false,"W", false, game)
+            vim:SendKeyEvent(true, "W", false, game); task.wait(0.2)
+            vim:SendKeyEvent(false,"S", false, game)
 
             return
         end
