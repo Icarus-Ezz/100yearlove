@@ -248,7 +248,7 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
                 { name = "📜Join Code", value = "```lua\n" ..
                                               "game.ReplicatedStorage['__ServerBrowser']:InvokeServer(" ..
                                               "'teleport','" .. game.JobId .. "')```", inline = false },
-                { name = "️♜ God's Chalice 🔳", value = hasGodsChalice and "✅" or "❌", inline = true },
+                { name = "️♜ God's Chalice ♜", value = hasGodsChalice and "✅" or "❌", inline = true },
                 { name = "♣️ Fist of Darkness ♠️", value = hasFistOfDarkness and "✅" or "❌", inline = true },
                 { name = "🧥 Dark Coat 🧥", value = darkCoatStatus or "❌", inline = true },
                 { name = "🎓 Valkyrie Helm 🎓", value = valkyrieHelmStatus, inline = true },
