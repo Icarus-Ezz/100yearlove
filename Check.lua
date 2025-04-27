@@ -1177,7 +1177,6 @@ local function CreateBillboard(part)
     return bill, txt
 end
 
--- Main
 spawn(function()
     local bills = {}
 
@@ -1201,7 +1200,6 @@ spawn(function()
             end
         end
 
-        -- Tìm chest gần mình và chưa có ESP
         for _, part in ipairs(Workspace.Map:GetDescendants()) do
             if part:IsA("BasePart")
             and part.Name:lower():find("chest")
@@ -1823,7 +1821,7 @@ function AutoHopIfIdleAndY(idleTime, moveThreshold, yThreshold)
             local char = player.Character
             local hrp = char and char:FindFirstChild("HumanoidRootPart")
             if hrp then
-                local currentPos = Vector3.new(hrp.Position.X, 0, hrp.Position.Z) -- chỉ lấy X,Z
+                local currentPos = Vector3.new(hrp.Position.X, 0, hrp.Position.Z) 
                 local currentY = hrp.Position.Y
 
                 if lastPos and lastY then
