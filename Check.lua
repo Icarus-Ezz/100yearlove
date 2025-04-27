@@ -770,36 +770,6 @@ spawn(function()
     end)
 end)
 
-function StopTween()
-    if not getgenv().StopTween then
-        getgenv().StopTween = true            
-        if tween then
-            tween:Cancel() 
-            tween = nil
-        end            
-
-        local player = game:GetService("Players").LocalPlayer
-        local character = player and player.Character
-        local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
-        
-        if humanoidRootPart then
-            humanoidRootPart.Anchored = true  
-            task.wait(0.1)  
-            humanoidRootPart.CFrame = humanoidRootPart.CFrame  
-            humanoidRootPart.Anchored = false
-        end
-
-        local bodyClip = humanoidRootPart and humanoidRootPart:FindFirstChild("BodyClip")
-        if bodyClip then
-            bodyClip:Destroy() 
-        end
-
-        -- Reset trạng thái StopTween và Clip
-        getgenv().StopTween = false
-        getgenv().Clip = false
-    end
-end
-
 spawn(function()
     while task.wait() do
         pcall(function()
