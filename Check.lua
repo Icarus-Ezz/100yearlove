@@ -312,12 +312,12 @@ function AutoHopIfIdleAndY(idleTime, moveThreshold, yThreshold)
     local lastMoveTime = tick()
 
     spawn(function()
-        while true do
+        while getgenv().AutoHopEnabled do
             task.wait(1)
             local char = player.Character
             local hrp = char and char:FindFirstChild("HumanoidRootPart")
             if hrp then
-                local currentPos = Vector3.new(hrp.Position.X, 0, hrp.Position.Z) 
+                local currentPos = Vector3.new(hrp.Position.X, 0, hrp.Position.Z)
                 local currentY = hrp.Position.Y
 
                 if lastPos and lastY then
@@ -346,6 +346,7 @@ function AutoHopIfIdleAndY(idleTime, moveThreshold, yThreshold)
     end)
 end
 
+getgenv().AutoHopEnabled = true
 AutoHopIfIdleAndY(10, 2, 5)
 
 local function AntiKick()
@@ -737,6 +738,7 @@ spawn(function()
     -- Xử lý Start/Stop Farm nếu cần
     Converted["_StartButton"].MouseButton1Click:Connect(function()
         getgenv().config.ChestFarm["Start Farm Chest"] = true
+	getgenv().AutoHopEnabled = true			
         getgenv().config.Setting["No Stuck Chair"] = true
         game.StarterGui:SetCore("SendNotification", {
             Title = "Vxeze Hub Auto Chest",
@@ -746,6 +748,7 @@ spawn(function()
     end)
     Converted["_StopButton"].MouseButton1Click:Connect(function()
         getgenv().config.ChestFarm["Start Farm Chest"] = false
+	getgenv().AutoHopEnabled = false			
         getgenv().config.Setting["No Stuck Chair"] = false
         game.StarterGui:SetCore("SendNotification", {
             Title = "Vxeze Hub Auto Chest",
