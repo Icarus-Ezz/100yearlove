@@ -179,7 +179,6 @@ local function getInventory()
     local CommF_ = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
     local HttpService = game:GetService("HttpService")
 
-    -- Gửi yêu cầu lấy inventory từ server
     local success, inventory = pcall(function()
         return CommF_:InvokeServer("getInventory")
     end)
@@ -306,68 +305,48 @@ local function CreateSmoothCorner(instance, radius)
     return corner
 end
 
-function SmartServerHop()
-    if not _G.AutoHopEnabled then return end
-    
-    pcall(function()
-        local servers = {}
-        local req = game:HttpGet("https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Asc&limit=100")
-        local data = game:GetService("HttpService"):JSONDecode(req)
-        
-        for i,v in pairs(data.data) do
-            if v.playing < v.maxPlayers and v.id ~= game.JobId then
-                table.insert(servers, v.id)
-            end
-        end
-        
-        if #servers > 0 then
-            game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, servers[math.random(1, #servers)])
-        else
-            wait(30)
-            SmartServerHop()
-        end
-    end)
-end
-
-if pcall(function() game:HttpGet("https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Asc&limit=100") end) then
-    HopServer = SmartServerHop
-end
-
-local lastPosition = nil
-local lastMoveTime = tick()
-
-function CheckIdleAndHop()
+function AutoHopIfIdleAndY(idleTime, moveThreshold, yThreshold)
     local player = game.Players.LocalPlayer
+    local lastPos = nil
+    local lastY = nil
+    local lastMoveTime = tick()
 
     spawn(function()
         while true do
             task.wait(1)
+            local char = player.Character
+            local hrp = char and char:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                local currentPos = Vector3.new(hrp.Position.X, 0, hrp.Position.Z) 
+                local currentY = hrp.Position.Y
 
-            local character = player.Character
-            if character and character:FindFirstChild("HumanoidRootPart") then
-                local hrp = character.HumanoidRootPart
-                local currentPosition = hrp.Position
+                if lastPos and lastY then
+                    local distanceMoved = (currentPos - lastPos).Magnitude
+                    local yDifference = math.abs(currentY - lastY)
 
-                if lastPosition and (currentPosition - lastPosition).Magnitude > 0.5 then
-                    lastMoveTime = tick()
+                    if distanceMoved <= moveThreshold and yDifference <= yThreshold then
+                        if tick() - lastMoveTime >= idleTime then
+                            game.StarterGui:SetCore("SendNotification", {
+                                Title = "Vxeze Hub",
+                                Text  = "Error 404 → Hop server!",
+                                Duration = 3
+                            })
+                            StartCountdownAndHop(5)
+                            break
+                        end
+                    else
+                        lastMoveTime = tick()
+                    end
                 end
 
-                lastPosition = currentPosition
-            end
-
-            -- Nếu đứng yên > 10 giây → thông báo và hop
-            if tick() - lastMoveTime > 10 then
-                game:GetService("StarterGui"):SetCore("SendNotification", {
-                    Title = "⚠️ Đứng Yên Quá Lâu",
-                    Text = "Sẽ chuyển server trong 10 giây!",
-                    Duration = 5
-                })
-                StartCountdownAndHop(10)
-                break
+                lastPos = currentPos
+                lastY = currentY
             end
         end
     end)
 end
+
+AutoHopIfIdleAndY(10, 2, 5)
 
 local function AntiKick()
     while true do
@@ -1808,46 +1787,3 @@ spawn(function()
         task.wait(60)
     end
 end)
-
-function AutoHopIfIdleAndY(idleTime, moveThreshold, yThreshold)
-    local player = game.Players.LocalPlayer
-    local lastPos = nil
-    local lastY = nil
-    local lastMoveTime = tick()
-
-    spawn(function()
-        while true do
-            task.wait(1)
-            local char = player.Character
-            local hrp = char and char:FindFirstChild("HumanoidRootPart")
-            if hrp then
-                local currentPos = Vector3.new(hrp.Position.X, 0, hrp.Position.Z) 
-                local currentY = hrp.Position.Y
-
-                if lastPos and lastY then
-                    local distanceMoved = (currentPos - lastPos).Magnitude
-                    local yDifference = math.abs(currentY - lastY)
-
-                    if distanceMoved <= moveThreshold and yDifference <= yThreshold then
-                        if tick() - lastMoveTime >= idleTime then
-                            game.StarterGui:SetCore("SendNotification", {
-                                Title = "Vxeze Hub",
-                                Text  = "Error 404 → Hop server!",
-                                Duration = 3
-                            })
-                            StartCountdownAndHop(5)
-                            break
-                        end
-                    else
-                        lastMoveTime = tick()
-                    end
-                end
-
-                lastPos = currentPos
-                lastY = currentY
-            end
-        end
-    end)
-end
-
-AutoHopIfIdleAndY(10, 2, 5)
