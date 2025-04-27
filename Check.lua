@@ -20,15 +20,14 @@ getgenv().config = {
         ["Send Webhook"] = true,      
     },
     Premium = {
-	["Auto Spawn Dark Beard"] = true,
+	["Auto Spawn Dark Beard"] = true,   --Second Sea
         ["Auto Kill Dark Beard"] = true,    --Must Turn On Auto Spawn Dark Beard
 	["Auto Spawn Rip Indra"] = true,    --Need 3 Haki Lengend
-        ["Auto Kill Rip Indra"] = true,
+        ["Auto Kill Rip Indra"] = true,     --Third Sea
     },
 }
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Icarus-Ezz/phatyeuem/refs/heads/main/Check.lua"))()
 ]]--
-wait(3)
 repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
 
 local HttpService = game:GetService("HttpService")
@@ -89,6 +88,7 @@ elseif getgenv().config.Setting["Team"] == "Pirates" then
     end
 end
 
+wait(3)
 ------------------------------------------------------------------------------------
 spawn(function()
     while wait() do
