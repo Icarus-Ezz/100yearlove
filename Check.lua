@@ -217,14 +217,10 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
     local beli = player:FindFirstChild("Data") and player.Data:FindFirstChild("Beli") and player.Data.Beli.Value or 0
     
     local inventory = getInventory() or {}
-    local darkDaggerStatus = "❌"
     local valkyrieHelmStatus = "❌"
     local darkCoatStatus = "❌"
 
     for _, item in pairs(inventory) do
-        if item.Type == "Sword" and (item.Name == "Dark Dagger" or item.Name == "DarkDagger") then
-            darkDaggerStatus = "✅"
-        end
         if (item.Type == "Wear" or item.Type == "Accessory") and (item.Name == "Valkyrie Helm" or item.Name == "ValkyrieHelm") then
             valkyrieHelmStatus = "✅"
         end
