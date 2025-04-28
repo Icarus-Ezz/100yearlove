@@ -359,7 +359,7 @@ function AutoHopIfIdleAndY(idleTime, moveThreshold, yThreshold)
 end
 
 getgenv().AutoHopEnabled = true
-AutoHopIfIdleAndY(12, 2, 12)
+AutoHopIfIdleAndY(15, 2, 15)
 
 local function AntiKick()
     while true do
