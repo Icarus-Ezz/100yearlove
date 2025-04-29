@@ -609,7 +609,7 @@ local function UpdateTime()
     local h = math.floor(t/3600)%24
     local m = math.floor(t/60)%60
     local s = t%60
-    Converted["_TimeLabel"].Text = string.format("⏰ Time: %02d:%02d:%02d", h, m, s)
+    Converted["_TimeLabel"].Text = string.format("⏳ Time: %02d:%02d:%02d", h, m, s)
 end
 
 local function UpdateStats()
@@ -630,9 +630,9 @@ local function UpdateStats()
         end
     end
 
-    Converted["_BeliLabel"].Text       = "💰 Beli: " .. FormatNumber(beli)
-    Converted["_EarnedBeliLabel"].Text = "📈 Earned: " .. FormatNumber(earnedBeli)
-    Converted["_ChestLabel"].Text      = "🎁 Chests: " .. chestCount
+    Converted["_BeliLabel"].Text       = "💵 Beli: " .. FormatNumber(beli)
+    Converted["_EarnedBeliLabel"].Text = "📊 Earned: " .. FormatNumber(earnedBeli)
+    Converted["_ChestLabel"].Text      = "🧰 Chests: " .. chestCount
 end
 
 CreateMainGui()
@@ -646,9 +646,9 @@ spawn(function()
 end)
 
 spawn(function()
-    -- Xử lý Start/Stop Farm nếu cần
     Converted["_StartButton"].MouseButton1Click:Connect(function()
         getgenv().config.ChestFarm["Start Farm Chest"] = true
+	getgenv().AutoHopEnabled = true			
         getgenv().config.Setting["No Stuck Chair"] = true
         game.StarterGui:SetCore("SendNotification", {
             Title = "Vxeze Hub Auto Chest",
@@ -658,6 +658,7 @@ spawn(function()
     end)
     Converted["_StopButton"].MouseButton1Click:Connect(function()
         getgenv().config.ChestFarm["Start Farm Chest"] = false
+	getgenv().AutoHopEnabled = false			
         getgenv().config.Setting["No Stuck Chair"] = false
         game.StarterGui:SetCore("SendNotification", {
             Title = "Vxeze Hub Auto Chest",
@@ -666,36 +667,6 @@ spawn(function()
         })
     end)
 end)
-
-function StopTween()
-    if not getgenv().StopTween then
-        getgenv().StopTween = true            
-        if tween then
-            tween:Cancel() 
-            tween = nil
-        end            
-
-        local player = game:GetService("Players").LocalPlayer
-        local character = player and player.Character
-        local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart")
-        
-        if humanoidRootPart then
-            humanoidRootPart.Anchored = true  -- Đảm bảo không bị di chuyển
-            task.wait(0.1)  
-            humanoidRootPart.CFrame = humanoidRootPart.CFrame  
-            humanoidRootPart.Anchored = false
-        end
-
-        local bodyClip = humanoidRootPart and humanoidRootPart:FindFirstChild("BodyClip")
-        if bodyClip then
-            bodyClip:Destroy() 
-        end
-
-        -- Reset trạng thái StopTween và Clip
-        getgenv().StopTween = false
-        getgenv().Clip = false
-    end
-end
 
 spawn(function()
     while task.wait() do
