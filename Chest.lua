@@ -10,7 +10,7 @@ getgenv().config = {
     },
     ChestFarm = {
         ["Start Farm Chest"] = true,   
-        ["Stop When Have God's Chalice or Dark Key"] = true, 
+        ["Stop When Have Item"] = true, 
     },
     Webhook = {
         ["Webhook Url"] = "https://discord.com/api/webhooks/1360798536937246840/HBIfH0Okazx7DxPPu8rNi_jYQSMWT4eis8HSx6UW83rLMgxQn6fgWShuqBbaiwxUEXmS",          
@@ -708,7 +708,7 @@ end
 --Check Backpack
 spawn(function()
     while wait() do
-        if getgenv().config.ChestFarm["Stop When Have God's Chalice or Dark Key"] then
+        if getgenv().config.ChestFarm["Stop When Have Item"] then
             local hasGodsChalice = game.Players.LocalPlayer.Backpack:FindFirstChild("God's Chalice") or game.Players.LocalPlayer.Character:FindFirstChild("God's Chalice")
             local hasFistOfDarkness = game.Players.LocalPlayer.Backpack:FindFirstChild("Fist of Darkness") or game.Players.LocalPlayer.Character:FindFirstChild("Fist of Darkness")
 
