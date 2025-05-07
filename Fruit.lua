@@ -5,6 +5,7 @@ getgenv().config = {
         ["Boots FPS"] = false,         
         ["White Screen"] = false,
         ["Auto Rejoin"] = true,
+	["No Stuck Chair"] = true,
     },
     FruitFarm = {
         ["Farm Fruit"] = true,
@@ -654,6 +655,23 @@ spawn(function()
         wait(1) 
     end
 end)
+---
+function AutoJump()
+    while wait(6) do
+        if getgenv().config.Setting["No Stuck Chair"] then
+            print("Jumping...")
+            pcall(function()
+                local char = game.Players.LocalPlayer.Character
+                local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid.Jump = true
+                end
+            end)
+        end
+    end
+end
+
+spawn(AutoJump)
 --------------------------------Setting
 PosY = 30;
 Type = 1;
