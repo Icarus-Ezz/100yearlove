@@ -970,7 +970,7 @@ spawn(function()
         end
     end
 end)
---
+--Castle
 spawn(function()
     while wait() do
         if game.PlaceId == 7449423635 and getgenv().config.FruitFarm["Auto Raid Castle"] then
