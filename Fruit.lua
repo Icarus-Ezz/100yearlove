@@ -518,12 +518,18 @@ local function TweenToAllFruits()
     if #fruits == 0 then
         warn("❌ Not Found Fruit")
 
+        -- Nếu đang bận, thì đợi xong mới hop
         if getgenv().BusyFactory or getgenv().BusyCastle then
-            warn("⚠️ Skipped hopping (Busy with Factory/Castle)")
-            return
+            task.spawn(function()
+                while getgenv().BusyFactory or getgenv().BusyCastle do
+                    task.wait(1)
+                end
+                StartCountdownAndHop(10)
+            end)
+        else
+            StartCountdownAndHop(10)
         end
 
-        StartCountdownAndHop(10)
         return
     end
 
@@ -935,52 +941,46 @@ end)
 
 getgenv().BusyFactory = false
 
--- Auto Factory
 spawn(function()
     while wait() do
         if game.PlaceId == 4442272183 and getgenv().config.FruitFarm["Auto Factory"] then
             getgenv().BusyFactory = true
             local core = game.Workspace.Enemies:FindFirstChild("Core")
             if core then
-                getgenv().BusyFactory = true
                 for i, v in pairs(game.Workspace.Enemies:GetChildren()) do
                     if v.Name == "Core" and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
                         repeat
-                            wait(0)
-                            repeat
-                                Tween2(CFrame.new(448.46756, 199.356781, -441.389252))
-                                wait()
-                            until not getgenv().config.FruitFarm["Auto Factory"] or 
-                                   (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Vector3.new(448.46756, 199.356781, -441.389252)).Magnitude <= 10
+                            wait()
+                            Tween2(CFrame.new(448.46756, 199.356781, -441.389252))
+                        until not getgenv().config.FruitFarm["Auto Factory"] or 
+                               (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Vector3.new(448.46756, 199.356781, -441.389252)).Magnitude <= 10
 
-                            EquipWeapon(_G.SelectWeapon)
-                            AutoHaki()
-                            Tween2(v.HumanoidRootPart.CFrame * CFrame.new(posX, posY, posZ))
-                            v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
-                            v.HumanoidRootPart.Transparency = 1
-                            v.Humanoid.JumpPower = 0
-                            v.Humanoid.WalkSpeed = 0
-                            v.HumanoidRootPart.CanCollide = false
+                        EquipWeapon(_G.SelectWeapon)
+                        AutoHaki()
+                        Tween2(v.HumanoidRootPart.CFrame * CFrame.new(posX, posY, posZ))
+                        v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
+                        v.HumanoidRootPart.Transparency = 1
+                        v.Humanoid.JumpPower = 0
+                        v.Humanoid.WalkSpeed = 0
+                        v.HumanoidRootPart.CanCollide = false
 
-                            FarmPos = v.HumanoidRootPart.CFrame
-                            MonFarm = v.Name
-                        until not v.Parent or v.Humanoid.Health <= 0 or not getgenv().config.FruitFarm["Auto Factory"]
+                        FarmPos = v.HumanoidRootPart.CFrame
+                        MonFarm = v.Name
+                        repeat wait() until not v.Parent or v.Humanoid.Health <= 0 or not getgenv().config.FruitFarm["Auto Factory"]
                     end
                 end
-                getgenv().BusyFactory = false
             elseif game.ReplicatedStorage:FindFirstChild("Core") then
-                getgenv().BusyFactory = true
                 repeat
                     Tween2(CFrame.new(448.46756, 199.356781, -441.389252))
                     wait()
                 until not getgenv().config.FruitFarm["Auto Factory"] or 
                        (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Vector3.new(448.46756, 199.356781, -441.389252)).Magnitude <= 10
-                getgenv().BusyFactory = false
             end
+            getgenv().BusyFactory = false
         end
     end
 end)
---Castle
+
 getgenv().BusyCastle = false
 
 spawn(function()
@@ -994,7 +994,7 @@ spawn(function()
                         if v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
                             if (v.HumanoidRootPart.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < 2000 then
                                 repeat
-                                    wait(0)
+                                    wait()
                                     AutoHaki()
                                     EquipWeapon(_G.SelectWeapon)
                                     v.HumanoidRootPart.CanCollide = false
