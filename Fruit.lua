@@ -14,7 +14,7 @@ getgenv().config = {
         ["Auto Store Fruit"] = true,
     },
     Webhook = {
-        ["Webhook Url"] = "",          
+        ["Webhook Url"] = "https://discord.com/api/webhooks/1360798536937246840/HBIfH0Okazx7DxPPu8rNi_jYQSMWT4eis8HSx6UW83rLMgxQn6fgWShuqBbaiwxUEXmS",          
         ["Send Webhook"] = true,
     },
 }
