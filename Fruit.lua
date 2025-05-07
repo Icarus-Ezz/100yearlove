@@ -386,15 +386,6 @@ function StartCountdownAndHop(countdownTime)
     background.BackgroundTransparency = 0.1
     background.ZIndex = 0
 
-    -- Logo (nếu muốn giữ lại logo thì để, còn ko xóa đoạn này)
-    -- local logo = Instance.new("ImageLabel")
-    -- logo.Parent = screenGui
-    -- logo.Size = UDim2.new(0, 70, 0, 70)
-    -- logo.Position = UDim2.new(0.5, -35, 0.3, -60)
-    -- logo.Image = "rbxassetid://91347148253026"
-    -- logo.BackgroundTransparency = 1
-    -- logo.ZIndex = 2
-
     -- Sub label
     local subLabel = Instance.new("TextLabel")
     subLabel.Parent = screenGui
@@ -486,7 +477,7 @@ function StartCountdownAndHop(countdownTime)
 
     for i = countdownTime, 1, -1 do
         if stopHopping then return end
-        countdownLabel.Text = string.format("%ds | Auto Find Fruit", i)
+        countdownLabel.Text = string.format("%ds | Auto Find Fruit [Beta]", i)
         progressBar:TweenSize(UDim2.new(i / countdownTime, 0, 1, 0), "Out", "Linear", 1, true)
         wait(1)
     end
