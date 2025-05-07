@@ -328,7 +328,7 @@ local function sendWebhook(fruitName, fruitCode)
         ["username"] = "Fruit Notifier",
         ["embeds"] = {{
             ["title"] = "🥭 Found Fruit!",
-            ["description"] = "**Name:** " .. fruitName .. ",
+            ["description"] = "**Name:** " .. fruitName,
             ["color"] = 16753920,
             ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%SZ"),
         }}
