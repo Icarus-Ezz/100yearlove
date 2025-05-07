@@ -349,7 +349,7 @@ backpack.ChildAdded:Connect(function(child)
         local fruitCode = fruitCodes[child.Name]
 
         if config.Webhook["Send Webhook"] then
-            sendWebhook(child.Name, fruitCode)
+            sendWebhook(child.Name)
         end
 
         if config.FruitFarm["Auto Store Fruit"] then
