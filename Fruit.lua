@@ -445,7 +445,7 @@ function StartCountdownAndHop(countdownTime)
         wait(1)
     end
 
-    if stopHopping or getgenv().BusyFighting then
+    if stopHopping then
 	print("⛔ No Hop")
 	if screenGui then screenGui:Destroy() end
 	return
@@ -517,6 +517,12 @@ local function TweenToAllFruits()
     local fruits = FindAllFruits()
     if #fruits == 0 then
         warn("❌ Not Found Fruit")
+
+        if getgenv().BusyFactory or getgenv().BusyCastle then
+            warn("⚠️ Skipped hopping (Busy with Factory/Castle)")
+            return
+        end
+
         StartCountdownAndHop(10)
         return
     end
@@ -927,16 +933,16 @@ spawn(function()
 	end
 end)
 
-getgenv().BusyFighting = true
+getgenv().BusyFactory = true
 
 -- Auto Factory
 spawn(function()
     while wait() do
         if game.PlaceId == 4442272183 and getgenv().config.FruitFarm["Auto Factory"] then
-            getgenv().BusyFighting = false -- reset mặc định
+            getgenv().BusyFactory = true
             local core = game.Workspace.Enemies:FindFirstChild("Core")
             if core then
-                getgenv().BusyFighting = true
+                getgenv().BusyFactory = true
                 for i, v in pairs(game.Workspace.Enemies:GetChildren()) do
                     if v.Name == "Core" and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
                         repeat
@@ -961,27 +967,29 @@ spawn(function()
                         until not v.Parent or v.Humanoid.Health <= 0 or not getgenv().config.FruitFarm["Auto Factory"]
                     end
                 end
-                getgenv().BusyFighting = false
+                getgenv().BusyFactory = false
             elseif game.ReplicatedStorage:FindFirstChild("Core") then
-                getgenv().BusyFighting = true
+                getgenv().BusyFactory = true
                 repeat
                     Tween2(CFrame.new(448.46756, 199.356781, -441.389252))
                     wait()
                 until not getgenv().config.FruitFarm["Auto Factory"] or 
                        (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Vector3.new(448.46756, 199.356781, -441.389252)).Magnitude <= 10
-                getgenv().BusyFighting = false
+                getgenv().BusyFactory = false
             end
         end
     end
 end)
 --Castle
+getgenv().BusyCastle = true
+
 spawn(function()
     while wait() do
         if game.PlaceId == 7449423635 and getgenv().config.FruitFarm["Auto Raid Castle"] then
             pcall(function()
                 local CFrameCastleRaid = CFrame.new(-5075.50927734375, 314.5155029296875, -3150.0224609375)
                 if (CFrameCastleRaid.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= 500 then
-                    getgenv().BusyFighting = true
+                    getgenv().BusyCastle = true
                     for i, v in pairs(workspace.Enemies:GetChildren()) do
                         if v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
                             if (v.HumanoidRootPart.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < 2000 then
@@ -996,9 +1004,9 @@ spawn(function()
                             end
                         end
                     end
-                    getgenv().BusyFighting = false
+                    getgenv().BusyCastle = false
                 else
-                    getgenv().BusyFighting = false
+                    getgenv().BusyCastle = false
                     Tween2(CFrameCastleRaid)
                 end
             end)
