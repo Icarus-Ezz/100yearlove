@@ -62,8 +62,8 @@ end)
 spawn(function()
     while wait() do
         if getgenv().config.Setting["Auto Rejoin"] then
-            if not getgenv().rejoin then 
-                getgenv().rejoin = game:GetService("CoreGui").RobloxPromptGui.promptOverlay.ChildAdded:Connect(function(child)
+            if not getgenv().config.Setting["Auto Rejoin"] then 
+                getgenv().config.Setting["Auto Rejoin"] = game:GetService("CoreGui").RobloxPromptGui.promptOverlay.ChildAdded:Connect(function(child)
                     if child.Name == 'ErrorPrompt' and child:FindFirstChild('MessageArea') and child.MessageArea:FindFirstChild("ErrorFrame") then
                         game:GetService("TeleportService"):Teleport(game.PlaceId)
                     end
