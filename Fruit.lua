@@ -221,6 +221,10 @@ spawn(
     end
 )
 
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
 local fruitCodes = {
     ["Rocket Fruit"] = "Rocket-Rocket",
     ["Spin Fruit"] = "Spin-Spin",
@@ -265,69 +269,68 @@ local fruitCodes = {
     ["Dragon Fruit"] = "Dragon-Dragon",
 }
 
+-- Hàm gửi webhook
 local function sendWebhook(fruitName, stored)
     local config = getgenv().config
     if not config or not config.Webhook["Send Webhook"] or config.Webhook["Webhook Url"] == "" then return end
 
-    local HttpService = game:GetService("HttpService")
-    local url = config.Webhook["Webhook Url"]
-
-    local description = "**Name:** " .. fruitName
-    if stored then
-        description = description .. "\n📦 **Stored to Backpack**"
-    end
-
     local data = {
-        ["username"] = "Fruit Notifier",
+        ["username"] = "Fruit Notifier 🍎",
         ["embeds"] = {{
             ["title"] = "🥭 Found Fruit (Equipped)",
-            ["description"] = description,
+            ["description"] = string.format("**Name:** %s\n📦 **Stored:** %s", fruitName, stored and "Yes ✅" or "No ❌"),
             ["color"] = 16753920,
-            ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%SZ"),
+            ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%SZ")
         }}
     }
 
     pcall(function()
-        HttpService:PostAsync(url, HttpService:JSONEncode(data))
+        HttpService:PostAsync(config.Webhook["Webhook Url"], HttpService:JSONEncode(data))
     end)
 end
 
+-- Theo dõi trái cây khi vào người
 local function watchCharacter(character)
     character.ChildAdded:Connect(function(child)
-
         local config = getgenv().config
         if not config then return end
 
         if fruitCodes[child.Name] then
-            print("Fruit:", child.Name)
-
+            print("🍇 Fruit Detected:", child.Name)
             local stored = false
+
             if config.FruitFarm["Auto Store Fruit"] then
-                task.wait(0.2)
-                local success = pcall(function()
+                task.wait(0.5)
+
+                pcall(function()
                     game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StoreFruit", fruitCodes[child.Name], child)
                 end)
-                stored = success
-                print("📦 Store status:", success)
+
+                local start = tick()
+                repeat
+                    task.wait(0.3)
+                until not character:FindFirstChild(child.Name) or tick() - start > 5
+
+                if not character:FindFirstChild(child.Name) then
+                    stored = true
+                    print("✅ Fruit stored successfully.")
+                else
+                    print("❌ Fruit still in inventory.")
+                end
             end
 
-            if config.Webhook["Send Webhook"] then
-                print("🌐 Gửi webhook...")
-                sendWebhook(child.Name, stored)
-            end
+            sendWebhook(child.Name, stored)
         end
     end)
 end
 
-local player = game:GetService("Players").LocalPlayer
-
+-- Gán cho nhân vật hiện tại
 if player.Character then
     watchCharacter(player.Character)
 end
 
-player.CharacterAdded:Connect(function(char)
-    watchCharacter(char)
-end)
+-- Theo dõi khi nhân vật mới xuất hiện
+player.CharacterAdded:Connect(watchCharacter)
 --------------------------------------------Ui Hop
 function StartCountdownAndHop(countdownTime)
     local stopHopping = false
