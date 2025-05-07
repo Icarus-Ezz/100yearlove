@@ -933,7 +933,7 @@ spawn(function()
 	end
 end)
 
-getgenv().BusyFactory = true
+getgenv().BusyFactory = false
 
 -- Auto Factory
 spawn(function()
@@ -981,7 +981,7 @@ spawn(function()
     end
 end)
 --Castle
-getgenv().BusyCastle = true
+getgenv().BusyCastle = false
 
 spawn(function()
     while wait() do
