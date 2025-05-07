@@ -425,7 +425,7 @@ function StartCountdownAndHop(countdownTime)
     end
 
     if stopHopping or getgenv().BusyFighting then
-	print("⛔ Đang đánh boss - Huỷ Hop")
+	print("⛔ No Hop")
 	if screenGui then screenGui:Destroy() end
 	return
     end		
@@ -943,7 +943,7 @@ spawn(function()
                             until not getgenv().config.FruitFarm["Auto Factory"] or 
                                    (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Vector3.new(448.46756, 199.356781, -441.389252)).Magnitude <= 10
 
-                            EquipTool(SelectWeapon)
+                            EquipWeapon(_G.SelectWeapon)
                             AutoHaki()
                             Tween2(v.HumanoidRootPart.CFrame * CFrame.new(posX, posY, posZ))
                             v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
@@ -984,7 +984,7 @@ spawn(function()
                                 repeat
                                     wait(0)
                                     AutoHaki()
-                                    EquipTool(SelectWeapon)
+                                    EquipWeapon(_G.SelectWeapon)
                                     v.HumanoidRootPart.CanCollide = false
                                     v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
                                     Tween2(v.HumanoidRootPart.CFrame * CFrame.new(posX, posY, posZ))
