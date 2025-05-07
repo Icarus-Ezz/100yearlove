@@ -965,9 +965,10 @@ spawn(function()
                         v.Humanoid.JumpPower = 0
                         v.Humanoid.WalkSpeed = 0
                         v.HumanoidRootPart.CanCollide = false
-
                         FarmPos = v.HumanoidRootPart.CFrame
                         MonFarm = v.Name
+			sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)
+
                         repeat wait() until not v.Parent or v.Humanoid.Health <= 0 or not getgenv().config.FruitFarm["Auto Factory"]
                     end
                 end
@@ -1002,6 +1003,7 @@ spawn(function()
                                     v.HumanoidRootPart.CanCollide = false
                                     v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
                                     Tween2(v.HumanoidRootPart.CFrame * CFrame.new(posX, posY, posZ))
+				    sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)							
                                 until v.Humanoid.Health <= 0 or not v.Parent or not getgenv().config.FruitFarm["Auto Raid Castle"]
                             end
                         end
