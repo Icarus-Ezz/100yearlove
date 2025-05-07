@@ -271,109 +271,93 @@ spawn(function()
     end
 end)
 --Webhook
-function sendWebhookWithDecor(webhookUrl, fruitsFound)
-    local httpService = game:GetService("HttpService")
+-- Danh sách mã trái
+local fruitCodes = {
+    ["Rocket Fruit"] = "Rocket-Rocket",
+    ["Spin Fruit"] = "Spin-Spin",
+    ["Blade Fruit"] = "Blade-Blade",
+    ["Spring Fruit"] = "Spring-Spring",
+    ["Bomb Fruit"] = "Bomb-Bomb",
+    ["Smoke Fruit"] = "Smoke-Smoke",
+    ["Spike Fruit"] = "Spike-Spike",
+    ["Flame Fruit"] = "Flame-Flame",
+    ["Falcon Fruit"] = "Falcon-Falcon",
+    ["Ice Fruit"] = "Ice-Ice",
+    ["Sand Fruit"] = "Sand-Sand",
+    ["Dark Fruit"] = "Dark-Dark",
+    ["Diamond Fruit"] = "Diamond-Diamond",
+    ["Light Fruit"] = "Light-Light",
+    ["Rubber Fruit"] = "Rubber-Rubber",
+    ["Barrier Fruit"] = "Barrier-Barrier",
+    ["Ghost Fruit"] = "Ghost-Ghost",
+    ["Magma Fruit"] = "Magma-Magma",
+    ["Quake Fruit"] = "Quake-Quake",
+    ["Buddha Fruit"] = "Buddha-Buddha",
+    ["Love Fruit"] = "Love-Love",
+    ["Spider Fruit"] = "Spider-Spider",
+    ["Sound Fruit"] = "Sound-Sound",
+    ["Phoenix Fruit"] = "Phoenix-Phoenix",
+    ["Portal Fruit"] = "Portal-Portal",
+    ["Rumble Fruit"] = "Rumble-Rumble",
+    ["Pain Fruit"] = "Pain-Pain",
+    ["Blizzard Fruit"] = "Blizzard-Blizzard",
+    ["Gravity Fruit"] = "Gravity-Gravity",
+    ["Mammoth Fruit"] = "Mammoth-Mammoth",
+    ["T-Rex Fruit"] = "T-Rex-T-Rex",
+    ["Dough Fruit"] = "Dough-Dough",
+    ["Shadow Fruit"] = "Shadow-Shadow",
+    ["Venom Fruit"] = "Venom-Venom",
+    ["Gas Fruit"] = "Gas-Gas",
+    ["Control Fruit"] = "Control-Control",
+    ["Spirit Fruit"] = "Spirit-Spirit",
+    ["Leopard Fruit"] = "Leopard-Leopard",
+    ["Yeti Fruit"] = "Yeti-Yeti",
+    ["Kitsune Fruit"] = "Kitsune-Kitsune",
+    ["Dragon Fruit"] = "Dragon-Dragon",
+}
+
+-- Hàm gửi Webhook
+local function sendWebhook(fruitName, fruitCode)
+    local config = getgenv().config
+    if not config or not config.Webhook["Send Webhook"] or config.Webhook["Webhook Url"] == "" then return end
+
+    local HttpService = game:GetService("HttpService")
+    local url = config.Webhook["Webhook Url"]
 
     local data = {
-        ["username"] = "Auto Farm Fruit",
-        ["avatar_url"] = "https://i.pinimg.com/280x280_RS/a0/12/0a/a0120ab6bf14c369cdb67a334fc2a978.jpg",  
-        ["embeds"] = {
-            {
-                ["title"] = "🍉Fruit Found🍉",  
-                ["description"] = "Fruit In Backpack: \n" .. table.concat(fruitsFound, ", "),
-                ["color"] = 5763719,  
-                ["footer"] = {
-                    ["text"] = "PhatCrystal Notification",  
-                },
-                ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%S")
-            }
-        }
+        ["username"] = "Fruit Notifier",
+        ["embeds"] = {{
+            ["title"] = "🥭 Found Fruit!",
+            ["description"] = "**Name:** " .. fruitName .. ",
+            ["color"] = 16753920,
+            ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%SZ"),
+        }}
     }
 
-    local jsonData = httpService:JSONEncode(data)
-
     pcall(function()
-        httpService:PostAsync(webhookUrl, jsonData)
+        HttpService:PostAsync(url, HttpService:JSONEncode(data))
     end)
 end
 
---Store Fruit+Post Webhook
-spawn(function()
-    local foundFruits = {} 
-    
-    while task.wait(0.2) do
-        if getgenv().config.FruitFarm["Auto Store Fruit"] then
+local backpack = game:GetService("Players").LocalPlayer:WaitForChild("Backpack")
+
+backpack.ChildAdded:Connect(function(child)
+    local config = getgenv().config
+    if not config then return end
+
+    if fruitCodes[child.Name] then
+        local fruitCode = fruitCodes[child.Name]
+
+        if config.Webhook["Send Webhook"] then
+            sendWebhook(child.Name, fruitCode)
+        end
+
+        if config.FruitFarm["Auto Store Fruit"] then
+            task.wait(0.2)
             pcall(function()
-                if getgenv().config.FruitFarm["Auto Store Fruit"] then
-                    local player = game:GetService("Players").LocalPlayer
-                    local character = player.Character
-                    local backpack = player.Backpack
-                    local fruits = {
-                        {"Rocket Fruit", "Rocket-Rocket"},
-                        {"Spin Fruit", "Spin-Spin"},
-                        {"Blade Fruit", "Blade-Blade"},
-                        {"Spring Fruit", "Spring-Spring"},
-                        {"Bomb Fruit", "Bomb-Bomb"},
-                        {"Smoke Fruit", "Smoke-Smoke"},
-                        {"Spike Fruit", "Spike-Spike"},
-                        {"Flame Fruit", "Flame-Flame"},
-                        {"Falcon Fruit", "Falcon-Falcon"},
-                        {"Ice Fruit", "Ice-Ice"},
-                        {"Sand Fruit", "Sand-Sand"},
-                        {"Dark Fruit", "Dark-Dark"},
-                        {"Diamond Fruit", "Diamond-Diamond"},
-                        {"Light Fruit", "Light-Light"},
-                        {"Rubber Fruit", "Rubber-Rubber"},
-                        {"Barrier Fruit", "Barrier-Barrier"},
-                        {"Ghost Fruit", "Ghost-Ghost"},
-                        {"Magma Fruit", "Magma-Magma"},
-                        {"Quake Fruit", "Quake-Quake"},
-                        {"Buddha Fruit", "Buddha-Buddha"},
-                        {"Love Fruit", "Love-Love"},
-                        {"Spider Fruit", "Spider-Spider"},
-                        {"Sound Fruit", "Sound-Sound"},
-                        {"Phoenix Fruit", "Phoenix-Phoenix"},
-                        {"Portal Fruit", "Portal-Portal"},
-                        {"Rumble Fruit", "Rumble-Rumble"},
-                        {"Pain Fruit", "Pain-Pain"},
-                        {"Blizzard Fruit", "Blizzard-Blizzard"},
-                        {"Gravity Fruit", "Gravity-Gravity"},
-                        {"Mammoth Fruit", "Mammoth-Mammoth"},
-                        {"T-Rex Fruit", "T-Rex-T-Rex"},
-                        {"Dough Fruit", "Dough-Dough"},
-                        {"Shadow Fruit", "Shadow-Shadow"},
-                        {"Venom Fruit", "Venom-Venom"},
-                        {"Gas Fruit", "Gas-Gas"},
-                        {"Control Fruit", "Control-Control"},
-                        {"Spirit Fruit", "Spirit-Spirit"},
-                        {"Leopard Fruit", "Leopard-Leopard"},
-                        {"Yeti Fruit", "Yeti-Yeti"},
-                        {"Kitsune Fruit", "Kitsune-Kitsune"},
-                        {"Dragon Fruit", "Dragon-Dragon"},
-                    }
-
-                    for _, fruit in ipairs(fruits) do
-                        local fruitName, serverName = fruit[1], fruit[2]
-                        local fruitInBackpack = backpack:FindFirstChild(fruitName)
-                        local fruitInCharacter = character:FindFirstChild(fruitName)
-                        
-                        if fruitInBackpack or fruitInCharacter then
-                            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StoreFruit", serverName, fruitInBackpack or fruitInCharacter)
-
-                            table.insert(foundFruits, fruitName)
-                            
-                            local webhookUrl = getgenv().config.Webhook["Webhook Url"]
-                            if webhookUrl ~= "" and getgenv().config.Webhook["Send Webhook"] then
-                                sendWebhookWithDecor(webhookUrl, foundFruits)
-                            end
-
-                            task.wait(0.1)  
-                        end
-                    end
-                end
+                game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StoreFruit", fruitCode, child)
             end)
         end
-        task.wait(0.1)
     end
 end)
 --------------------------------------------Ui Hop
