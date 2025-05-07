@@ -294,13 +294,12 @@ end
 
 local function watchCharacter(character)
     character.ChildAdded:Connect(function(child)
-        print("🧍 Có vật phẩm trong người:", child.Name)
 
         local config = getgenv().config
         if not config then return end
 
         if fruitCodes[child.Name] then
-            print("🍎 Là trái cây:", child.Name)
+            print("Fruit:", child.Name)
 
             local stored = false
             if config.FruitFarm["Auto Store Fruit"] then
