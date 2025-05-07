@@ -15,7 +15,7 @@ getgenv().config = {
     },
     Webhook = {
         ["Webhook Url"] = "",          
-        ["Send Webhook"] = true,      
+        ["Send Webhook"] = true,
     },
 }
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Icarus-Ezz/phatyeuem/refs/heads/main/Fruit.lua"))()
