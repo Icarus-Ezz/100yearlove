@@ -486,7 +486,7 @@ function StartCountdownAndHop(countdownTime)
 
     for i = countdownTime, 1, -1 do
         if stopHopping then return end
-        countdownLabel.Text = string.format("%ds | Vxeze Hop Chest", i)
+        countdownLabel.Text = string.format("%ds | Auto Find Fruit", i)
         progressBar:TweenSize(UDim2.new(i / countdownTime, 0, 1, 0), "Out", "Linear", 1, true)
         wait(1)
     end
