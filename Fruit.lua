@@ -271,8 +271,13 @@ spawn(function()
         end
     end
 end)
---Webhook
--- Danh sách mã trái
+if not (
+    (game.PlaceId == 4442272183 and getgenv().config.FruitFarm["Auto Factory"]) or
+    (game.PlaceId == 7449423635 and getgenv().config.FruitFarm["Auto Raid Castle"])
+) then
+    Hop()
+end
+
 local fruitCodes = {
     ["Rocket Fruit"] = "Rocket-Rocket",
     ["Spin Fruit"] = "Spin-Spin",
@@ -584,8 +589,6 @@ task.spawn(function()
         end
     end
 end)
-
-
 -----------------------
 local lastPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
 local samePositionCount = 0
