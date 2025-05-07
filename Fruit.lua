@@ -371,6 +371,7 @@ function StartCountdownAndHop(countdownTime)
     screenGui.Name = "VxezeHopUI"
     screenGui.IgnoreGuiInset = true
 
+    -- Background mờ
     local background = Instance.new("Frame")
     background.Parent = screenGui
     background.Size = UDim2.new(1, 0, 1, 0)
@@ -379,27 +380,30 @@ function StartCountdownAndHop(countdownTime)
     background.BackgroundTransparency = 0.1
     background.ZIndex = 0
 
-    local logo = Instance.new("ImageLabel")
-    logo.Parent = screenGui
-    logo.Size = UDim2.new(0, 70, 0, 70)
-    logo.Position = UDim2.new(0.5, -35, 0.3, -60)
-    logo.Image = "rbxassetid://91347148253026"
-    logo.BackgroundTransparency = 1
-    logo.ZIndex = 2
+    -- Logo (nếu muốn giữ lại logo thì để, còn ko xóa đoạn này)
+    -- local logo = Instance.new("ImageLabel")
+    -- logo.Parent = screenGui
+    -- logo.Size = UDim2.new(0, 70, 0, 70)
+    -- logo.Position = UDim2.new(0.5, -35, 0.3, -60)
+    -- logo.Image = "rbxassetid://91347148253026"
+    -- logo.BackgroundTransparency = 1
+    -- logo.ZIndex = 2
 
+    -- Sub label
     local subLabel = Instance.new("TextLabel")
     subLabel.Parent = screenGui
     subLabel.Size = UDim2.new(0, 300, 0, 20)
-    subLabel.Position = UDim2.new(0.5, -150, 0.3, 60) 
+    subLabel.Position = UDim2.new(0.5, -150, 0.3, 60)
     subLabel.BackgroundTransparency = 1
     subLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
     subLabel.TextSize = 18
     subLabel.Font = Enum.Font.Gotham
-    subLabel.Text = "Find New Server"
+    subLabel.Text = "Finding New Server..."
     subLabel.TextStrokeTransparency = 0.8
     subLabel.TextScaled = false
     subLabel.ZIndex = 3
 
+    -- Progress Bar nền
     local progressBarBackground = Instance.new("Frame")
     progressBarBackground.Parent = screenGui
     progressBarBackground.Size = UDim2.new(0, 350, 0, 20)
@@ -410,6 +414,7 @@ function StartCountdownAndHop(countdownTime)
     progressBarBackground.ClipsDescendants = true
     Instance.new("UICorner", progressBarBackground).CornerRadius = UDim.new(0, 12)
 
+    -- Progress Bar chạy
     local progressBar = Instance.new("Frame")
     progressBar.Parent = progressBarBackground
     progressBar.Size = UDim2.new(0, 0, 1, 0)
@@ -417,75 +422,81 @@ function StartCountdownAndHop(countdownTime)
     progressBar.ZIndex = 2
     Instance.new("UICorner", progressBar).CornerRadius = UDim.new(0, 12)
 
+    -- Thêm viền trắng cho progress bar
+    local progressStroke = Instance.new("UIStroke")
+    progressStroke.Parent = progressBar
+    progressStroke.Color = Color3.fromRGB(220, 220, 220)
+    progressStroke.Thickness = 2
+
+    local progressShadow = Instance.new("ImageLabel")
+    progressShadow.Parent = progressBar
+    progressShadow.BackgroundTransparency = 1
+    progressShadow.Size = UDim2.new(1, 10, 1, 10)
+    progressShadow.Position = UDim2.new(0, -5, 0, -5)
+    progressShadow.Image = "rbxassetid://1316045217" -- asset bóng mờ
+    progressShadow.ImageTransparency = 0.7
+    progressShadow.ZIndex = 1
+
     local countdownLabel = Instance.new("TextLabel")
     countdownLabel.Parent = screenGui
-    countdownLabel.Size = UDim2.new(0, 350, 0, 50)                -- rộng hơn để chứa cả chuỗi
+    countdownLabel.Size = UDim2.new(0, 350, 0, 50)
     countdownLabel.Position = UDim2.new(0.5, -175, 0.5, -60)
     countdownLabel.BackgroundTransparency = 1
     countdownLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     countdownLabel.Font = Enum.Font.GothamBold
     countdownLabel.TextSize = 28
-    countdownLabel.TextWrapped = false                            -- không wrap
-    countdownLabel.TextXAlignment = Enum.TextXAlignment.Center   -- căn giữa ngang
-    countdownLabel.TextYAlignment = Enum.TextYAlignment.Center   -- căn giữa dọc
+    countdownLabel.TextXAlignment = Enum.TextXAlignment.Center
+    countdownLabel.TextYAlignment = Enum.TextYAlignment.Center
     countdownLabel.TextStrokeTransparency = 0.6
     countdownLabel.ZIndex = 3
-    
-    local stopButton = Instance.new("ImageButton") 
+
+    local stopButton = Instance.new("TextButton")
     stopButton.Parent = screenGui
     stopButton.Size = UDim2.new(0, 140, 0, 40)
     stopButton.Position = UDim2.new(0.5, -70, 0.5, 30)
-    stopButton.Image = "rbxassetid://122225757659866" 
-    stopButton.ScaleType = Enum.ScaleType.Stretch
-    stopButton.BackgroundTransparency = 1
+    stopButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    stopButton.Text = "⛔ Stop Hop"
+    stopButton.Font = Enum.Font.GothamBold
+    stopButton.TextSize = 20
+    stopButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    stopButton.TextStrokeTransparency = 0.5
     stopButton.ZIndex = 4
-    stopButton.AutoButtonColor = false
-
-    local stopText = Instance.new("TextLabel")
-    stopText.Parent = stopButton
-    stopText.Size = UDim2.new(1, 0, 1, 0)
-    stopText.BackgroundTransparency = 1
-    stopText.Text = "⛔ Stop Hop"
-    stopText.Font = Enum.Font.GothamBold
-    stopText.TextSize = 20
-    stopText.TextColor3 = Color3.fromRGB(255, 255, 255)
-    stopText.TextStrokeTransparency = 0.6
-    stopText.ZIndex = 5
+    Instance.new("UICorner", stopButton).CornerRadius = UDim.new(0, 8)
 
     stopButton.MouseEnter:Connect(function()
-        stopText.TextColor3 = Color3.fromRGB(255, 200, 200)
+        stopButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     end)
     stopButton.MouseLeave:Connect(function()
-        stopText.TextColor3 = Color3.fromRGB(255, 255, 255)
+        stopButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
     end)
 
     stopButton.MouseButton1Click:Connect(function()
         stopHopping = true
-        stopText.Text = "Stopped"
-        stopText.TextColor3 = Color3.fromRGB(150, 150, 150)
-        stopButton.Image = ""
+        stopButton.Text = "Stopped"
+        stopButton.TextColor3 = Color3.fromRGB(150, 150, 150)
+        stopButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
         if screenGui then screenGui:Destroy() end
     end)
 
     for i = countdownTime, 1, -1 do
         if stopHopping then return end
-        countdownLabel.Text = string.format("%ds | Vxeze Hop Fruit", i)
-        progressBar:TweenSize(UDim2.new(i/countdownTime, 0, 1, 0), "Out", "Linear", 1, true)
+        countdownLabel.Text = string.format("%ds | Vxeze Hop Chest", i)
+        progressBar:TweenSize(UDim2.new(i / countdownTime, 0, 1, 0), "Out", "Linear", 1, true)
         wait(1)
     end
 
     if stopHopping then return end
 
-    countdownLabel.Text = "Hopping"
+    countdownLabel.Text = "Vxeze Hopping"
     game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Hello",
-        Text = "Sibidi",
+        Title = "PhatCrystal Notification",
+        Text = "Hopping...",
         Duration = 4
     })
 
     wait(1)
     if screenGui then screenGui:Destroy() end
-    Hop()
+    Hop() 
 end
 
 local lastPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
