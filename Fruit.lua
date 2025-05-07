@@ -327,18 +327,23 @@ local fruitCodes = {
     ["Dragon Fruit"] = "Dragon-Dragon",
 }
 
-local function sendWebhook(fruitName)
+local function sendWebhook(fruitName, stored)
     local config = getgenv().config
     if not config or not config.Webhook["Send Webhook"] or config.Webhook["Webhook Url"] == "" then return end
 
     local HttpService = game:GetService("HttpService")
     local url = config.Webhook["Webhook Url"]
 
+    local description = "**Name:** " .. fruitName
+    if stored then
+        description = description .. "\n📦 **Stored to Backpack**"
+    end
+
     local data = {
         ["username"] = "Fruit Notifier",
         ["embeds"] = {{
-            ["title"] = "🥭 Found Fruit!",
-            ["description"] = "**Name:** " .. fruitName,
+            ["title"] = "🥭 Found Fruit (Equipped)",
+            ["description"] = description,
             ["color"] = 16753920,
             ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%SZ"),
         }}
@@ -349,24 +354,38 @@ local function sendWebhook(fruitName)
     end)
 end
 
-local backpack = game:GetService("Players").LocalPlayer:WaitForChild("Backpack")
+-- Theo dõi trái cây trong người (Character)
+local function watchCharacter(character)
+    character.ChildAdded:Connect(function(child)
+        local config = getgenv().config
+        if not config then return end
 
-backpack.ChildAdded:Connect(function(child)
-    local config = getgenv().config
-    if not config then return end
+        if fruitCodes[child.Name] then
+            local stored = false
 
-    if fruitCodes[child.Name] then
-        if config.Webhook["Send Webhook"] then
-            sendWebhook(child.Name)
+            if config.FruitFarm["Auto Store Fruit"] then
+                task.wait(0.2)
+                local success = pcall(function()
+                    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StoreFruit", fruitCodes[child.Name], child)
+                end)
+                stored = success
+            end
+
+            if config.Webhook["Send Webhook"] then
+                sendWebhook(child.Name, stored)
+            end
         end
+    end)
+end
 
-        if config.FruitFarm["Auto Store Fruit"] then
-            task.wait(0.2)
-            pcall(function()
-                game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StoreFruit", fruitCodes[child.Name], child)
-            end)
-        end
-    end
+local player = game:GetService("Players").LocalPlayer
+
+if player.Character then
+    watchCharacter(player.Character)
+end
+
+player.CharacterAdded:Connect(function(char)
+    watchCharacter(char)
 end)
 --------------------------------------------Ui Hop
 function StartCountdownAndHop(countdownTime)
