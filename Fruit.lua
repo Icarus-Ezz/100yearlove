@@ -275,24 +275,28 @@ local function sendWebhook(fruitName, stored)
     end)
 end
 
--- Theo dõi trái cây trong người (Character)
 local function watchCharacter(character)
     character.ChildAdded:Connect(function(child)
+        print("🧍 Có vật phẩm trong người:", child.Name)
+
         local config = getgenv().config
         if not config then return end
 
         if fruitCodes[child.Name] then
-            local stored = false
+            print("🍎 Là trái cây:", child.Name)
 
+            local stored = false
             if config.FruitFarm["Auto Store Fruit"] then
                 task.wait(0.2)
                 local success = pcall(function()
                     game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StoreFruit", fruitCodes[child.Name], child)
                 end)
                 stored = success
+                print("📦 Store status:", success)
             end
 
             if config.Webhook["Send Webhook"] then
+                print("🌐 Gửi webhook...")
                 sendWebhook(child.Name, stored)
             end
         end
