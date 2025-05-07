@@ -327,8 +327,7 @@ local fruitCodes = {
     ["Dragon Fruit"] = "Dragon-Dragon",
 }
 
--- Hàm gửi Webhook
-local function sendWebhook(fruitName, fruitCode)
+local function sendWebhook(fruitName)
     local config = getgenv().config
     if not config or not config.Webhook["Send Webhook"] or config.Webhook["Webhook Url"] == "" then return end
 
@@ -357,8 +356,6 @@ backpack.ChildAdded:Connect(function(child)
     if not config then return end
 
     if fruitCodes[child.Name] then
-        local fruitCode = fruitCodes[child.Name]
-
         if config.Webhook["Send Webhook"] then
             sendWebhook(child.Name)
         end
@@ -366,7 +363,7 @@ backpack.ChildAdded:Connect(function(child)
         if config.FruitFarm["Auto Store Fruit"] then
             task.wait(0.2)
             pcall(function()
-                game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StoreFruit", fruitCode, child)
+                game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StoreFruit", fruitCodes[child.Name], child)
             end)
         end
     end
