@@ -121,7 +121,7 @@ function AutoHopIfIdleAndY(idleTime, moveThreshold, yThreshold)
 end
 
 getgenv().AutoHopEnabled = true
-AutoHopIfIdleAndY(15, 2, 15)
+AutoHopIfIdleAndY(20, 2, 20)
 
 function AutoJump()
     while wait(6) do
