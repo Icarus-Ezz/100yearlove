@@ -520,7 +520,6 @@ local function TweenToAllFruits()
     if #fruits == 0 then
         warn("❌ Not Found Fruit")
 
-        -- Nếu đang bận, thì đợi xong mới hop
         if getgenv().BusyFactory or getgenv().BusyCastle then
             task.spawn(function()
                 while getgenv().BusyFactory or getgenv().BusyCastle do
@@ -888,6 +887,7 @@ task.spawn(function()
 		end
 	end
 end)
+
 getgenv().AutoTurnOnV3 = true;
 
 spawn(function()
