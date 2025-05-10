@@ -223,7 +223,9 @@ spawn(
 
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local player = Players.LocalPlayer
+local backpack = player:WaitForChild("Backpack")
 
 local fruitCodes = {
     ["Rocket Fruit"] = "Rocket-Rocket",
@@ -234,19 +236,19 @@ local fruitCodes = {
     ["Smoke Fruit"] = "Smoke-Smoke",
     ["Spike Fruit"] = "Spike-Spike",
     ["Flame Fruit"] = "Flame-Flame",
-    ["Falcon Fruit"] = "Falcon-Falcon",
-    ["Ice Fruit"] = "Ice-Ice",
+    ["Ice Fruit"] = "Ice-Ice",   	
     ["Sand Fruit"] = "Sand-Sand",
-    ["Dark Fruit"] = "Dark-Dark",
+    ["Dark Fruit"] = "Dark-Dark",	
+    ["Eagle Fruit"] = "Eagle-Eagle",
     ["Diamond Fruit"] = "Diamond-Diamond",
     ["Light Fruit"] = "Light-Light",
     ["Rubber Fruit"] = "Rubber-Rubber",
-    ["Barrier Fruit"] = "Barrier-Barrier",
     ["Ghost Fruit"] = "Ghost-Ghost",
     ["Magma Fruit"] = "Magma-Magma",
     ["Quake Fruit"] = "Quake-Quake",
     ["Buddha Fruit"] = "Buddha-Buddha",
-    ["Love Fruit"] = "Love-Love",
+    ["Love Fruit"] = "Love-Love",	
+    ["Barrier Fruit"] = "Barrier-Barrier",
     ["Spider Fruit"] = "Spider-Spider",
     ["Sound Fruit"] = "Sound-Sound",
     ["Phoenix Fruit"] = "Phoenix-Phoenix",
@@ -260,8 +262,8 @@ local fruitCodes = {
     ["Dough Fruit"] = "Dough-Dough",
     ["Shadow Fruit"] = "Shadow-Shadow",
     ["Venom Fruit"] = "Venom-Venom",
+    ["Control Fruit"] = "Control-Control",	
     ["Gas Fruit"] = "Gas-Gas",
-    ["Control Fruit"] = "Control-Control",
     ["Spirit Fruit"] = "Spirit-Spirit",
     ["Leopard Fruit"] = "Leopard-Leopard",
     ["Yeti Fruit"] = "Yeti-Yeti",
@@ -269,7 +271,6 @@ local fruitCodes = {
     ["Dragon Fruit"] = "Dragon-Dragon",
 }
 
--- Hàm gửi webhook
 local function sendWebhook(fruitName, stored)
     local config = getgenv().config
     if not config or not config.Webhook["Send Webhook"] or config.Webhook["Webhook Url"] == "" then return end
@@ -277,60 +278,91 @@ local function sendWebhook(fruitName, stored)
     local data = {
         ["username"] = "Fruit Notifier 🍎",
         ["embeds"] = {{
-            ["title"] = "🥭 Found Fruit (Equipped)",
-            ["description"] = string.format("**Name:** %s\n📦 **Stored:** %s", fruitName, stored and "Yes ✅" or "No ❌"),
+            ["title"] = "🥭 Found Fruit",
+            ["description"] = string.format("**Name:** %s\n📦 **Stored:** %s\n👤 **Player:** %s", fruitName, stored and "Yes ✅" or "No ❌", player.Name),
             ["color"] = 16753920,
             ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%SZ")
         }}
     }
 
-    pcall(function()
+    local success, err = pcall(function()
         HttpService:PostAsync(config.Webhook["Webhook Url"], HttpService:JSONEncode(data))
     end)
+
+    if success then
+        print("✅ Webhook sent for:", fruitName)
+    else
+        warn("❌ Failed to send webhook:", err)
+    end
 end
 
--- Theo dõi trái cây khi vào người
+-- Kiểm tra trong Backpack nếu có trái
+local function checkBackpackFruits()
+    for _, item in pairs(backpack:GetChildren()) do
+        if item:IsA("Tool") and fruitCodes[item.Name] then
+            print("📦 Fruit in backpack:", item.Name)
+            sendWebhook(item.Name, false)
+
+            local config = getgenv().config
+            if config.FruitFarm["Auto Store Fruit"] then
+                task.wait(1)
+                pcall(function()
+                    ReplicatedStorage.Remotes.CommF_:InvokeServer("StoreFruit", fruitCodes[item.Name], item)
+                end)
+
+                local start = tick()
+                repeat task.wait(0.3) until not backpack:FindFirstChild(item.Name) or tick() - start > 5
+
+                if not backpack:FindFirstChild(item.Name) then
+                    print("✅ Stored:", item.Name)
+                    sendWebhook(item.Name, true)
+                else
+                    print("❌ Failed to store:", item.Name)
+                end
+            end
+        end
+    end
+end
+
+-- Theo dõi khi fruit vào người
 local function watchCharacter(character)
     character.ChildAdded:Connect(function(child)
         local config = getgenv().config
         if not config then return end
 
-        if fruitCodes[child.Name] then
-            print("🍇 Fruit Detected:", child.Name)
-            local stored = false
+        if child:IsA("Tool") and fruitCodes[child.Name] then
+            print("🍇 Equipped fruit:", child.Name)
+            sendWebhook(child.Name, false)
 
             if config.FruitFarm["Auto Store Fruit"] then
-                task.wait(0.5)
-
+                task.wait(1)
                 pcall(function()
-                    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StoreFruit", fruitCodes[child.Name], child)
+                    ReplicatedStorage.Remotes.CommF_:InvokeServer("StoreFruit", fruitCodes[child.Name], child)
                 end)
 
                 local start = tick()
-                repeat
-                    task.wait(0.3)
-                until not character:FindFirstChild(child.Name) or tick() - start > 5
+                repeat task.wait(0.3) until not character:FindFirstChild(child.Name) or tick() - start > 5
 
-                if not character:FindFirstChild(child.Name) then
-                    stored = true
-                    print("✅ Fruit stored successfully.")
+                local stored = not character:FindFirstChild(child.Name)
+                if stored then
+                    print("✅ Stored from character:", child.Name)
                 else
-                    print("❌ Fruit still in inventory.")
+                    print("❌ Still in character:", child.Name)
                 end
-            end
 
-            sendWebhook(child.Name, stored)
+                sendWebhook(child.Name, stored)
+            end
         end
     end)
 end
 
--- Gán cho nhân vật hiện tại
 if player.Character then
     watchCharacter(player.Character)
 end
 
--- Theo dõi khi nhân vật mới xuất hiện
 player.CharacterAdded:Connect(watchCharacter)
+
+checkBackpackFruits()
 --------------------------------------------Ui Hop
 function StartCountdownAndHop(countdownTime)
     local stopHopping = false
