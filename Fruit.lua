@@ -19,7 +19,7 @@ getgenv().config = {
         ["Send Webhook"] = true,
     },
 }
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Icarus-Ezz/phatyeuem/refs/heads/main/Fruit.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Icarus-Ezz/100yearlove/refs/heads/main/Fruit.lua"))()
 ]]--
 
 if getgenv().config.Setting["Team"] == "Marines" then
