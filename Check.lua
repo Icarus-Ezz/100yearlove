@@ -1932,6 +1932,7 @@ spawn(function()
                             local humanoidRootPart = v.HumanoidRootPart
 
                             if humanoid and humanoidRootPart and humanoid.Health > 0 then
+				SetStatus("⚔️ Farm Dark Beard")							
                                 repeat
                                     wait(1)
                                     AutoHaki()
@@ -1942,7 +1943,6 @@ spawn(function()
                                     sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)
                                 until not _G.DarkFull or not v.Parent or humanoid.Health <= 0
 
-                                -- Dừng lại sau khi boss chết hoặc không còn hợp lệ
                                 _G.DarkFull = false 
                                 getgenv().config.ChestFarm["Start Farm Chest"] = true
                             end
@@ -1966,6 +1966,7 @@ spawn(function()
 				if enemies:FindFirstChild("rip_indra True Form") then
 					for _, v in pairs(enemies:GetChildren()) do
 						if ((v.Name == "rip_indra True Form") and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and (v.Humanoid.Health > 0)) then
+							SetStatus("⚔️ Farm Rip Indra")		
 							repeat
 								task.wait(1)
 								AutoHaki()
