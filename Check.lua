@@ -352,7 +352,7 @@ function AutoHopIfIdleAndY(idleTime, moveThreshold, yThreshold)
                                 Text  = "Error 404 → Hop server!",
                                 Duration = 3
                             })
-                            StartCountdownAndHop(5)
+                            StartCountdownAndHop(10)
                             break
                         end
                     else
@@ -1171,16 +1171,6 @@ function StartCountdownAndHop(countdownTime)
     background.BackgroundTransparency = 0.1
     background.ZIndex = 0
 
-    -- Logo (nếu muốn giữ lại logo thì để, còn ko xóa đoạn này)
-    -- local logo = Instance.new("ImageLabel")
-    -- logo.Parent = screenGui
-    -- logo.Size = UDim2.new(0, 70, 0, 70)
-    -- logo.Position = UDim2.new(0.5, -35, 0.3, -60)
-    -- logo.Image = "rbxassetid://91347148253026"
-    -- logo.BackgroundTransparency = 1
-    -- logo.ZIndex = 2
-
-    -- Sub label
     local subLabel = Instance.new("TextLabel")
     subLabel.Parent = screenGui
     subLabel.Size = UDim2.new(0, 300, 0, 20)
