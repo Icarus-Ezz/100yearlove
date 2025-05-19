@@ -10,7 +10,7 @@ getgenv().config = {
 	["Black Screen"] = false,
         ["No Stuck Chair"] = true, 
         ["Auto Rejoin"] = true,
-	["Esp Chest"] = true,
+	["Esp Chest"] = false,
     },
     ChestFarm = {
         ["Start Farm Chest"] = true,   
