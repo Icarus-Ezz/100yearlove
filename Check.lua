@@ -1403,7 +1403,6 @@ end
 local Players   = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 local player    = Players.LocalPlayer
-
 local MaxDistance = 1000 
 
 local function CreateBillboard(part)
@@ -1413,7 +1412,7 @@ local function CreateBillboard(part)
     bill.Size        = UDim2.new(0, 140, 0, 40)
     bill.StudsOffset = Vector3.new(0, 3, 0)
     bill.AlwaysOnTop = true
-    bill.Parent      = game.CoreGui
+    bill.Parent      = part  -- ✅ FIX quan trọng
 
     local bg = Instance.new("Frame", bill)
     bg.Size = UDim2.new(1, 0, 1, 0)
@@ -1431,6 +1430,11 @@ local function CreateBillboard(part)
     txt.RichText = true
     txt.TextXAlignment = Enum.TextXAlignment.Center
     txt.TextYAlignment = Enum.TextYAlignment.Center
+
+    local tsc = Instance.new("UITextSizeConstraint")
+    tsc.MaxTextSize = 20
+    tsc.MinTextSize = 10
+    tsc.Parent = txt
 
     return bill, txt
 end
@@ -1450,11 +1454,7 @@ spawn(function()
                 bills[part] = nil
             else
                 local dist = (hrp.Position - part.Position).Magnitude
-                if dist > MaxDistance then
-                    if data.Billboard then data.Billboard.Enabled = false end
-                else
-                    if data.Billboard then data.Billboard.Enabled = true end
-                end
+                data.Billboard.Enabled = dist <= MaxDistance
             end
         end
 
@@ -1462,30 +1462,27 @@ spawn(function()
             if part:IsA("BasePart")
             and part.Name:lower():find("chest")
             and part:FindFirstChild("TouchInterest")
-            and part.Position.Y >= -30 then
-                if not bills[part] then
-                    local dist = (hrp.Position - part.Position).Magnitude
-                    if dist <= MaxDistance then
-                        local bill, txt = CreateBillboard(part)
-                        bills[part] = { Billboard = bill, TextLabel = txt }
-                    end
+            and part.Position.Y >= -30
+            and not bills[part] then
+                local dist = (hrp.Position - part.Position).Magnitude
+                if dist <= MaxDistance then
+                    local bill, txt = CreateBillboard(part)
+                    bills[part] = { Billboard = bill, TextLabel = txt }
                 end
             end
         end
 
         for part, data in pairs(bills) do
-            if data.TextLabel then
-                local dist = (hrp.Position - part.Position).Magnitude
-                local color =
-                    dist < 15 and Color3.fromRGB(46,204,113) or
-                    dist < 40 and Color3.fromRGB(241,196,15) or
-                    Color3.fromRGB(231,76,60)
+            local dist = (hrp.Position - part.Position).Magnitude
+            local color =
+                dist < 15 and Color3.fromRGB(46,204,113) or
+                dist < 40 and Color3.fromRGB(241,196,15) or
+                Color3.fromRGB(231,76,60)
 
-                data.TextLabel.Text = string.format(
-                    "<font color=\"rgb(%d,%d,%d)\">Chest\n%.1f m</font>",
-                    color.R*255, color.G*255, color.B*255, dist
-                )
-            end
+            data.TextLabel.Text = string.format(
+                "<font color=\"rgb(%d,%d,%d)\">Chest\n%.1f m</font>",
+                color.R*255, color.G*255, color.B*255, dist
+            )
         end
     end
 end)
