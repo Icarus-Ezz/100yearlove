@@ -268,6 +268,7 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
 end
 
 spawn(function()
+    task.wait(10)
     while true do
         local hasGodsChalice = false
         local hasFistOfDarkness = false
