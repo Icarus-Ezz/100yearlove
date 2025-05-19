@@ -1282,11 +1282,9 @@ local Time1 = Instance.new("Frame")
 local UICorner214 = Instance.new("UICorner")
 local Texttime = Instance.new("TextLabel")
 local Frame = Instance.new("UIStroke")
-
 Time.Name = "Time"
 Time.Parent = game.CoreGui
 Time.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
 Time1.Name = "Time1"
 Time1.Parent = Time
 Time1.AnchorPoint = Vector2.new(0.53, 0.5)
@@ -1294,10 +1292,8 @@ Time1.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 Time1.BorderSizePixel = 0
 Time1.Position = UDim2.new(0.72, 0, -0.12, 0)
 Time1.Size = UDim2.new(0, 335, 0, 22)
-
 UICorner214.CornerRadius = UDim.new(0, 4)
 UICorner214.Parent = Time1
-
 Frame.Thickness = 1
 Frame.Name = ""
 Frame.Parent = Time1
@@ -1305,7 +1301,6 @@ Frame.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 Frame.LineJoinMode = Enum.LineJoinMode.Round
 Frame.Color = Color3.fromRGB(255, 255, 255)
 Frame.Transparency = 0
-
 Texttime.Name = "Texttime"
 Texttime.Parent = Time1
 Texttime.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -1317,7 +1312,6 @@ Texttime.Text = ""
 Texttime.TextColor3 = Color3.fromRGB(255, 255, 255)
 Texttime.TextSize = 12
 Texttime.TextXAlignment = Enum.TextXAlignment.Center
-
 spawn(function()
     while task.wait(0.1) do
         pcall(function()
@@ -1403,7 +1397,7 @@ spawn(function()
 end)
 --------------------------------------ESP
 if not (getgenv().config and getgenv().config.Setting and getgenv().config.Setting["Esp Chest"]) then
-    return -- Dừng nếu không bật
+    return 
 end
 
 local Players   = game:GetService("Players")
@@ -1525,15 +1519,14 @@ spawn(function()
 
             _G.AutoCollectChest = true
             _G.IsChestFarming = true
-
-	    SetStatus("Start Farm Chest")
-				
+		
             local function AutoChestCollect()
                 local timeout = 0
                 while getgenv().config.ChestFarm["Start Farm Chest"] do
                     local chest = GetChest()
                     if chest and chest:IsDescendantOf(workspace) then				
                         topos(chest.CFrame)
+							
 			SetStatus("Collecting Chest...")				
 
                         pcall(function()
