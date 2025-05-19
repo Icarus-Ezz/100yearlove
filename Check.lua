@@ -1282,9 +1282,11 @@ local Time1 = Instance.new("Frame")
 local UICorner214 = Instance.new("UICorner")
 local Texttime = Instance.new("TextLabel")
 local Frame = Instance.new("UIStroke")
+
 Time.Name = "Time"
 Time.Parent = game.CoreGui
 Time.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
 Time1.Name = "Time1"
 Time1.Parent = Time
 Time1.AnchorPoint = Vector2.new(0.53, 0.5)
@@ -1292,8 +1294,10 @@ Time1.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 Time1.BorderSizePixel = 0
 Time1.Position = UDim2.new(0.72, 0, -0.12, 0)
 Time1.Size = UDim2.new(0, 335, 0, 22)
+
 UICorner214.CornerRadius = UDim.new(0, 4)
 UICorner214.Parent = Time1
+
 Frame.Thickness = 1
 Frame.Name = ""
 Frame.Parent = Time1
@@ -1301,6 +1305,7 @@ Frame.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 Frame.LineJoinMode = Enum.LineJoinMode.Round
 Frame.Color = Color3.fromRGB(255, 255, 255)
 Frame.Transparency = 0
+
 Texttime.Name = "Texttime"
 Texttime.Parent = Time1
 Texttime.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -1312,19 +1317,21 @@ Texttime.Text = ""
 Texttime.TextColor3 = Color3.fromRGB(255, 255, 255)
 Texttime.TextSize = 12
 Texttime.TextXAlignment = Enum.TextXAlignment.Center
+
+getgenv().Status = "Waiting..."
+
 spawn(function()
-    while wait(0.1) do
+    while task.wait(0.1) do
         pcall(function()
-            local scripttime = game.Workspace.DistributedGameTime
-            local seconds = scripttime % 60
-            local minutes = math.floor(scripttime / 60 % 60)
-            local hours = math.floor(scripttime / 3600)
             local fps = string.format("FPS: %d", workspace:GetRealPhysicsFPS())
-            local tempo = string.format(" |  %.0f Hour's , %.0f Minute , %.0f Second", hours, minutes, seconds)
-            Texttime.Text = string.format("Vxeze Hub-Auto Chest | %s %s", fps, tempo)
+            Texttime.Text = string.format("Vxeze Hub - Auto Chest | %s | Status: %s", fps, getgenv().Status)
         end)
     end
 end)
+
+getgenv().SetStatus = function(text)
+    getgenv().Status = tostring(text)
+end
 
 ----------------------------------------------------------------------------------------------------
 local lastPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
@@ -1520,12 +1527,15 @@ spawn(function()
             _G.AutoCollectChest = true
             _G.IsChestFarming = true
 
+	    SetStatus("Start Farm Chest")
+				
             local function AutoChestCollect()
                 local timeout = 0
                 while getgenv().config.ChestFarm["Start Farm Chest"] do
                     local chest = GetChest()
                     if chest and chest:IsDescendantOf(workspace) then				
                         topos(chest.CFrame)
+			SetStatus("Collecting Chest...")				
 
                         pcall(function()
                             firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, chest, 0)
@@ -1543,6 +1553,7 @@ spawn(function()
                     else
                         timeout = timeout + 1
                         if timeout >= 2 then
+			    SetStatus("Hopping server...")					
                             StartCountdownAndHop(10) 
                             break
                         end
