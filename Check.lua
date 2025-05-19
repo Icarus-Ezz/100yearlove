@@ -1396,6 +1396,10 @@ spawn(function()
     end
 end)
 --------------------------------------ESP
+if not (getgenv().config and getgenv().config.Setting and getgenv().config.Setting["Esp Chest"]) then
+    return -- Dừng nếu không bật
+end
+
 local Players   = game:GetService("Players")
 local Workspace = game:GetService("Workspace")
 local player    = Players.LocalPlayer
@@ -1411,7 +1415,6 @@ local function CreateBillboard(part)
     bill.AlwaysOnTop = true
     bill.Parent      = game.CoreGui
 
-    -- background
     local bg = Instance.new("Frame", bill)
     bg.Size = UDim2.new(1, 0, 1, 0)
     bg.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
@@ -1419,7 +1422,6 @@ local function CreateBillboard(part)
     Instance.new("UICorner", bg).CornerRadius = UDim.new(0, 6)
     Instance.new("UIStroke", bg).Thickness = 1
 
-    -- text
     local txt = Instance.new("TextLabel", bg)
     txt.Size = UDim2.new(1, -4, 1, -4)
     txt.Position = UDim2.new(0, 2, 0, 2)
