@@ -92,42 +92,37 @@ end
 wait(3)
 ------------------------------------------------------------------------------------
 spawn(function()
-    local fpsBoosted = false
-    while task.wait(1) do
-        if getgenv().config.Setting["Boots FPS"] and not fpsBoosted then
-            fpsBoosted = true
-
-            local animate = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Animate")
-            if animate then
-                animate.Disabled = true
+    while wait() do
+        if getgenv().config.Setting["Boots FPS"] then
+            if game.Players.LocalPlayer.Character:FindFirstChild("Pants") then
+                game.Players.LocalPlayer.Character.Pants:Destroy()
             end
 
-            pcall(function()
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/JewhisKids/NewFreeScript/main/Misc/SuperFpsBoost.lua"))()
-            end)
+            game.Players.LocalPlayer.Character.Animate.Disabled = true
 
-            -- Set FPS cap
-            pcall(function()
-                setfpscap(59)
-            end)
+            wait()
+
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/JewhisKids/NewFreeScript/main/Misc/SuperFpsBoost.lua"))()
+
+            setfpscap(59)
         end
     end
 end)
 
 spawn(function()
-    while task.wait(1) do
+    while wait() do
         if getgenv().config.Setting["White Screen"] then
-            RunService:Set3dRenderingEnabled(true)
+            game:GetService("RunService"):Set3dRenderingEnabled(true)
         end
     end
 end)
 
 spawn(function()
-    while task.wait(2) do
+    while wait() do
         if getgenv().config.Setting["Disabled Notify"] then
-            local playerGui = LocalPlayer:FindFirstChild("PlayerGui")
-            if playerGui then
-                local notifications = playerGui:FindFirstChild("Notifications")
+            local player = game:GetService("Players").LocalPlayer
+            if player and player.PlayerGui then
+                local notifications = player.PlayerGui:FindFirstChild("Notifications")
                 if notifications then
                     notifications:Destroy()
                 end
@@ -137,21 +132,13 @@ spawn(function()
 end)
 
 spawn(function()
-    local lastState = nil
-    while task.wait(1) do
-        local blackEnabled = getgenv().config.Setting["Black Screen"]
-        if blackEnabled ~= lastState then
-            lastState = blackEnabled
-            local main = LocalPlayer:FindFirstChild("PlayerGui") and LocalPlayer.PlayerGui:FindFirstChild("Main")
-            if main and main:FindFirstChild("Blackscreen") then
-                if blackEnabled then
-                    main.Blackscreen.Size = UDim2.new(500, 0, 500, 500)
-                else
-                    main.Blackscreen.Size = UDim2.new(1, 0, 500, 500)
-                end
-            end
-        end
-    end
+   while wait() do
+       if getgenv().config.Setting["Black Screen"] then
+           game:GetService("Players").LocalPlayer.PlayerGui.Main.Blackscreen.Size = UDim2.new(500, 0, 500, 500)
+       else
+           game:GetService("Players").LocalPlayer.PlayerGui.Main.Blackscreen.Size = UDim2.new(1, 0, 500, 500)
+       end
+   end
 end)
 
 --//Code Ui
