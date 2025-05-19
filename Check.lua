@@ -450,6 +450,242 @@ local function Tween2(targetCFrame)
     end)
 end
 
+--// Tween
+
+local isTeleporting = false
+
+function WaitHRP(q0)
+    if not q0 then return end
+    return q0.Character:WaitForChild("HumanoidRootPart", 9)
+end
+
+function CheckNearestTeleporter(aI)
+    local vcspos = aI.Position
+    local minDist = math.huge
+    local chosenTeleport = nil
+    local y = game.PlaceId
+
+    local TableLocations = {}
+
+    if y == 2753915549 then
+        TableLocations = {
+            ["Sky3"] = Vector3.new(-7894, 5547, -380),
+            ["Sky3Exit"] = Vector3.new(-4607, 874, -1667),
+            ["UnderWater"] = Vector3.new(61163, 11, 1819),
+            ["Underwater City"] = Vector3.new(61165.19140625, 0.18704631924629211, 1897.379150390625),
+            ["Pirate Village"] = Vector3.new(-1242.4625244140625, 4.787059783935547, 3901.282958984375),
+            ["UnderwaterExit"] = Vector3.new(4050, -1, -1814)
+        }
+    elseif y == 4442272183 then
+        TableLocations = {
+            ["Swan Mansion"] = Vector3.new(-390, 332, 673),
+            ["Swan Room"] = Vector3.new(2285, 15, 905),
+            ["Cursed Ship"] = Vector3.new(923, 126, 32852),
+            ["Zombie Island"] = Vector3.new(-6509, 83, -133)
+        }
+    elseif y == 7449423635 then
+        TableLocations = {
+            ["Floating Turtle"] = Vector3.new(-12462, 375, -7552),
+            ["Hydra Island"] = Vector3.new(5657.88623046875, 1013.0790405273438, -335.4996337890625),
+            ["Mansion"] = Vector3.new(-12462, 375, -7552),
+            ["Castle"] = Vector3.new(-5036, 315, -3179),
+            ["Dimensional Shift"] = Vector3.new(-2097.3447265625, 4776.24462890625, -15013.4990234375),
+            ["Beautiful Pirate"] = Vector3.new(5319, 23, -93),
+            ["Beautiful Room"] = Vector3.new(5314.58203, 22.5364361, -125.942276, 1, 2.14762768e-08, -1.99111154e-13, -2.14762768e-08, 1, -3.0510602e-08, 1.98455903e-13, 3.0510602e-08, 1),
+            ["Temple of Time"] = Vector3.new(28286, 14897, 103)
+        }
+    end
+
+    for _, v in pairs(TableLocations) do
+        local dist = (v - vcspos).Magnitude
+        if dist < minDist then
+            minDist = dist
+            chosenTeleport = v
+        end
+    end
+
+    local playerPos = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
+    if minDist <= (vcspos - playerPos).Magnitude then
+        return chosenTeleport
+    end
+end
+
+
+function requestEntrance(teleportPos)
+    game.ReplicatedStorage.Remotes.CommF_:InvokeServer("requestEntrance", teleportPos)
+    local char = game.Players.LocalPlayer.Character.HumanoidRootPart
+    char.CFrame = char.CFrame + Vector3.new(0, 50, 0)
+    task.wait(0.5)
+end
+
+function TelePPlayer(P)
+	game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = P
+end
+    
+        
+local isTeleporting = false
+local currentTween = nil
+
+local function createCombinedEffect(character)
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        
+        if not character:FindFirstChild("AuraHighlight") then
+            local highlight = Instance.new("Highlight", character)
+            highlight.Name = "AuraHighlight"
+            highlight.Adornee = character
+            highlight.FillColor = Color3.fromRGB(255, 255, 255) highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+            highlight.FillTransparency = 0.5
+            highlight.OutlineTransparency = 0
+        end
+        if not character.HumanoidRootPart:FindFirstChild("AuraEffect") then
+            local aura = Instance.new("ParticleEmitter", character.HumanoidRootPart)
+            aura.Name = "AuraEffect"
+            aura.Texture = "rbxassetid://discord.gg/vxezehub"
+            aura.Size = NumberSequence.new(1, 0.5)
+            aura.Transparency = NumberSequence.new(0.3, 0.8)
+            aura.Lifetime = NumberRange.new(0.5, 1)
+            aura.Rate = 50
+            aura.Speed = NumberRange.new(5, 10)
+            aura.SpreadAngle = Vector2.new(-360, 360)
+            aura.Color = ColorSequence.new(Color3.fromRGB(255, 255, 255))
+        end
+    end
+end
+
+local function removeCombinedEffect(character)
+    if character then
+        if character:FindFirstChild("AuraHighlight") then
+            character.AuraHighlight:Destroy()
+        end
+        if character:FindFirstChild("HumanoidRootPart") and character.HumanoidRootPart:FindFirstChild("AuraEffect") then
+            character.HumanoidRootPart.AuraEffect:Destroy()
+        end
+    end
+end
+
+function topos(Pos)
+    local plr = game.Players.LocalPlayer
+    if plr.Character and plr.Character.Humanoid.Health > 0 and plr.Character:FindFirstChild("HumanoidRootPart") then
+        local Distance = (Pos.Position - plr.Character.HumanoidRootPart.Position).Magnitude
+        if not Pos then 
+            return 
+        end
+        local nearestTeleport = CheckNearestTeleporter(Pos)
+        if nearestTeleport then
+            requestEntrance(nearestTeleport)
+        end
+        if not plr.Character:FindFirstChild("PartTele") then
+            local PartTele = Instance.new("Part", plr.Character)
+            PartTele.Size = Vector3.new(10, 1, 10)
+            PartTele.Name = "PartTele"
+            PartTele.Anchored = true
+            PartTele.Transparency = 1
+            PartTele.CanCollide = true
+            PartTele.CFrame = WaitHRP(plr).CFrame 
+            PartTele:GetPropertyChangedSignal("CFrame"):Connect(function()
+                if not isTeleporting then return end
+                task.wait()
+                if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+                    WaitHRP(plr).CFrame = PartTele.CFrame
+                end
+            end)
+        end
+        createCombinedEffect(plr.Character)
+        isTeleporting = true
+        if currentTween then
+            currentTween:Cancel()
+            currentTween = nil
+        end
+        local Tween = game:GetService("TweenService"):Create(plr.Character.PartTele, TweenInfo.new(Distance / 360, Enum.EasingStyle.Linear), {CFrame = Pos})
+        currentTween = Tween
+        Tween:Play()
+        Tween.Completed:Connect(function(status)
+            if status == Enum.PlaybackState.Completed then
+                if plr.Character:FindFirstChild("PartTele") then
+                    plr.Character.PartTele:Destroy()
+                end
+                removeCombinedEffect(plr.Character)
+                isTeleporting = false
+                currentTween = nil
+            end
+        end)
+    end
+end
+
+function stopTeleport()
+    isTeleporting = false
+    local plr = game.Players.LocalPlayer
+    if currentTween then
+        currentTween:Cancel()
+        currentTween = nil
+    end
+    if plr.Character then
+        if plr.Character:FindFirstChild("PartTele") then
+            plr.Character.PartTele:Destroy()
+        end
+        removeCombinedEffect(plr.Character)
+    end
+end
+
+spawn(function()
+    local plr = game.Players.LocalPlayer
+    while task.wait(0.1) do 
+        pcall(function()
+            if plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+
+                if plr.Character:FindFirstChild("PartTele") then
+                    if (plr.Character.HumanoidRootPart.Position - plr.Character.PartTele.Position).Magnitude >= 100 then
+                        stopTeleport()
+                    end
+                end
+                if isTeleporting then
+                    local hasAura = plr.Character.HumanoidRootPart:FindFirstChild("AuraEffect")
+                    local hasHighlight = plr.Character:FindFirstChild("AuraHighlight")
+
+                    if (not hasAura or not hasHighlight) then
+                        removeCombinedEffect(plr.Character)
+                        createCombinedEffect(plr.Character)
+                    end
+                else
+                    removeCombinedEffect(plr.Character)
+                end
+            end
+        end)
+    end
+end)
+
+local plr = game.Players.LocalPlayer
+local function onCharacterAdded(character)
+    local humanoid = character:WaitForChild("Humanoid")
+    humanoid.Died:Connect(function()
+        stopTeleport()
+    end)
+end
+plr.CharacterAdded:Connect(onCharacterAdded)
+if plr.Character then
+    onCharacterAdded(plr.Character)
+end
+
+function TP1(Pos)
+    topos(Pos)
+end
+
+    spawn(function()
+        while wait() do
+            if _G.SpinPos then
+                Pos = CFrame.new(0,PosY,-20)
+                wait(0.1)
+                Pos = CFrame.new(-20,PosY,0)
+                wait(0.1)
+                Pos = CFrame.new(0,PosY,20)
+                wait(0.1)
+                Pos = CFrame.new(20,PosY,0)
+            else
+                Pos = CFrame.new(0,PosY,0)
+            end
+        end
+    end)
+
 --------------------------------------------------------------------------------
 local Players            = game:GetService("Players")
 local TweenService       = game:GetService("TweenService")
@@ -1040,6 +1276,55 @@ function StartCountdownAndHop(countdownTime)
     if screenGui then screenGui:Destroy() end
     Hop() 
 end
+----------------------------------------------UI FPS
+local Time = Instance.new("ScreenGui")
+local Time1 = Instance.new("Frame")
+local UICorner214 = Instance.new("UICorner")
+local Texttime = Instance.new("TextLabel")
+local Frame = Instance.new("UIStroke")
+Time.Name = "Time"
+Time.Parent = game.CoreGui
+Time.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+Time1.Name = "Time1"
+Time1.Parent = Time
+Time1.AnchorPoint = Vector2.new(0.53, 0.5)
+Time1.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Time1.BorderSizePixel = 0
+Time1.Position = UDim2.new(0.72, 0, -0.12, 0)
+Time1.Size = UDim2.new(0, 335, 0, 22)
+UICorner214.CornerRadius = UDim.new(0, 4)
+UICorner214.Parent = Time1
+Frame.Thickness = 1
+Frame.Name = ""
+Frame.Parent = Time1
+Frame.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+Frame.LineJoinMode = Enum.LineJoinMode.Round
+Frame.Color = Color3.fromRGB(255, 255, 255)
+Frame.Transparency = 0
+Texttime.Name = "Texttime"
+Texttime.Parent = Time1
+Texttime.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Texttime.BackgroundTransparency = 1
+Texttime.Position = UDim2.new(0, 0, 0, 0)
+Texttime.Size = UDim2.new(1, 0, 1, 0)
+Texttime.Font = Enum.Font.Ubuntu
+Texttime.Text = ""
+Texttime.TextColor3 = Color3.fromRGB(255, 255, 255)
+Texttime.TextSize = 12
+Texttime.TextXAlignment = Enum.TextXAlignment.Center
+spawn(function()
+    while wait(0.1) do
+        pcall(function()
+            local scripttime = game.Workspace.DistributedGameTime
+            local seconds = scripttime % 60
+            local minutes = math.floor(scripttime / 60 % 60)
+            local hours = math.floor(scripttime / 3600)
+            local fps = string.format("FPS: %d", workspace:GetRealPhysicsFPS())
+            local tempo = string.format(" |  %.0f Hour's , %.0f Minute , %.0f Second", hours, minutes, seconds)
+            Texttime.Text = string.format("Vxeze Hub-Auto Chest | %s %s", fps, tempo)
+        end)
+    end
+end)
 
 ----------------------------------------------------------------------------------------------------
 local lastPosition = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
@@ -1238,7 +1523,7 @@ spawn(function()
                 while getgenv().config.ChestFarm["Start Farm Chest"] do
                     local chest = GetChest()
                     if chest and chest:IsDescendantOf(workspace) then				
-                        Tween2(chest.CFrame)
+                        topos(chest.CFrame)
 
                         pcall(function()
                             firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, chest, 0)
