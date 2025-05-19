@@ -79,6 +79,7 @@ if not hwidResponse or hwidResponse.status ~= "true" then
     return
 end
 
+wait(3)
 if getgenv().config.Setting["Team"] == "Marines" then
     if not game.Players.LocalPlayer.Team or game.Players.LocalPlayer.Team.Name ~= "Marines" then
         game.ReplicatedStorage.Remotes.CommF_:InvokeServer("SetTeam", "Marines")
@@ -89,7 +90,7 @@ elseif getgenv().config.Setting["Team"] == "Pirates" then
     end
 end
 
-wait(5)
+wait(3)
 ------------------------------------------------------------------------------------
 spawn(function()
     local fpsBoosted = false
