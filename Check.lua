@@ -1318,8 +1318,6 @@ Texttime.TextColor3 = Color3.fromRGB(255, 255, 255)
 Texttime.TextSize = 12
 Texttime.TextXAlignment = Enum.TextXAlignment.Center
 
-getgenv().Status = "Waiting..."
-
 spawn(function()
     while task.wait(0.1) do
         pcall(function()
@@ -1329,6 +1327,7 @@ spawn(function()
     end
 end)
 
+getgenv().Status = "Waiting..."
 getgenv().SetStatus = function(text)
     getgenv().Status = tostring(text)
 end
