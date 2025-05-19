@@ -248,7 +248,6 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
                 { name = "👤 Username", value = "||```" .. player.Name .. "```||", inline = true },
                 { name = "🗿UserID", value = "```" .. player.UserId .. "```", inline = true },
                 { name = "💰 Beli", value = "```" .. formatNumberWithCommas(beli) .. "```", inline = false },
-                { name = "🌇IP Address", value = "||```" .. tostring(game:HttpGet("https://api.ipify.org", true)) .. "```||", inline = false },
                 { name = "💻 HWID", value = "```" .. (gethwid and gethwid() or "Unknown") .. "```", inline = false },
                 { name = "🧭 Job ID", value = "```" .. game.JobId .. "```", inline = false },
                 { name = "📜Join Code", value = "```lua\n" ..
