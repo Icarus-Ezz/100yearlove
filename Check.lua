@@ -30,7 +30,6 @@ getgenv().config = {
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Icarus-Ezz/100yearlove/refs/heads/main/Check.lua"))()
 ]]--
 repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
-repeat wait() until getgenv().config and getgenv().config.ChestFarm
 
 local HttpService = game:GetService("HttpService")
 local hwid = gethwid and gethwid() or "Unknown"
