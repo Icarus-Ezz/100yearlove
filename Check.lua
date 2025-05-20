@@ -264,33 +264,7 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
 
     return AdminMessage
 end
-
-spawn(function()
-    task.wait(10)
-    while true do
-        local hasGodsChalice = false
-        local hasFistOfDarkness = false
-
-        for _, item in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
-            if item.Name == "God's Chalice" then
-                hasGodsChalice = true
-            elseif item.Name == "Fist of Darkness" then
-                hasFistOfDarkness = true
-            end
-        end
-
-        if getgenv().config.Webhook["Send Webhook"] then
-
-            local message = AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
-            PostWebhook(getgenv().config.Webhook["Webhook Url"], message)
-        else
-            print("Webhook not enabled.")
-        end
-
-        task.wait(60)
-    end
-end)
-
+-----------------------------------------------------------------------------------------------------------------------------------------------
 spawn(function()
     local runService = game:GetService("RunService")
     local player = game.Players.LocalPlayer
@@ -2038,6 +2012,7 @@ end
 
 --Post Webhook
 spawn(function()
+    task.wait(5)		
     while true do
         local hasGodsChalice = false
         local hasFistOfDarkness = false
