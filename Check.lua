@@ -1950,7 +1950,7 @@ _G.RipFull = true;
 wait(1)
 spawn(function()
 	while wait() do
-		if _G.RipFull then
+		if _G.RipFull and AutoKillRipIndra then
 			pcall(function()
 				local enemies = game:GetService("Workspace").Enemies;
 				if enemies:FindFirstChild("rip_indra True Form") then
