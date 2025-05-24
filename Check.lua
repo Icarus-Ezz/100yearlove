@@ -1949,61 +1949,59 @@ spawn(function()
 end)
 
 --HOP Server
-function Hop()
-    local PlaceID = game.PlaceId
-    local AllIDs = {}
-    local foundAnything = ""
-    local actualHour = os.date("!*t").hour
+local PlaceID = game.PlaceId
+local AllIDs = {}
+local foundAnything = ""
 
-    function TPReturner()
-        local Site
-        if foundAnything == "" then
-            Site = game.HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100"))
-        else
-            Site = game.HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100&cursor=" .. foundAnything))
-        end
+local function TPReturner()
+    local Site
+    if foundAnything == "" then
+        Site = game.HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100"))
+    else
+        Site = game.HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100&cursor=" .. foundAnything))
+    end
 
-        if Site.nextPageCursor and Site.nextPageCursor ~= "null" and Site.nextPageCursor ~= nil then
-            foundAnything = Site.nextPageCursor
-        end
+    if Site.nextPageCursor and Site.nextPageCursor ~= "null" then
+        foundAnything = Site.nextPageCursor
+    end
 
-        for _, v in pairs(Site.data) do
-            local ID = tostring(v.id)
-            local Possible = true
-
-            if tonumber(v.maxPlayers) > tonumber(v.playing) then
-                for _, Existing in pairs(AllIDs) do
-                    if ID == tostring(Existing) then
-                        Possible = false
-                        break
-                    end
+    for _, v in pairs(Site.data) do
+        local ID = tostring(v.id)
+        local Possible = true
+        if tonumber(v.maxPlayers) > tonumber(v.playing) then
+            for _, Existing in pairs(AllIDs) do
+                if ID == tostring(Existing) then
+                    Possible = false
+                    break
                 end
+            end
 
-                if Possible then
-                    table.insert(AllIDs, ID)
-                    wait(1)
-                    pcall(function()
-                        game:GetService("TeleportService"):TeleportToPlaceInstance(PlaceID, ID, game.Players.LocalPlayer)
-                    end)
-                    wait(4)
-                    return
-                end
+            if Possible then
+                table.insert(AllIDs, ID)
+                wait(1)
+                pcall(function()
+                    game:GetService("TeleportService"):TeleportToPlaceInstance(PlaceID, ID, game.Players.LocalPlayer)
+                end)
+                wait(4)
+                return
             end
         end
     end
+end
 
-    function Teleport()
-        while true do
-            pcall(function()
+local function Teleport()
+    while true do
+        pcall(function()
+            TPReturner()
+            if foundAnything ~= "" then
                 TPReturner()
-                if foundAnything ~= "" then
-                    TPReturner()
-                end
-            end)
-            wait(5)
-        end
+            end
+        end)
+        wait(5)
     end
+end
 
+function Hop()
     Teleport()
 end
 
