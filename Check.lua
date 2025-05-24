@@ -14,7 +14,7 @@ getgenv().config = {
     },
     ChestFarm = {
         ["Start Farm Chest"] = true,   
-        ["Stop When Have Item"] = true, 
+        ["Stop When Have Item"] = false, 
     },
     Webhook = {
         ["Webhook Url"] = "https://discord.com/api/webhooks/1375706865559670854/N1jBmqaqmFxEwT0eIoi3RHR0Qzb5agN_Nr1t52yoIFq-KvAeinA9H5VhsXDtGD35Msdt",          
