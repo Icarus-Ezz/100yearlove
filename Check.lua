@@ -1,5 +1,5 @@
 --[[
-repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
+repeat wait() until game:IsLoaded() and game.Players.LocalPlayer and game.Players.LocalPlayer.Character
 getgenv().Key = "Vxeze-H4896L9ZB6KSSEVMS3PS"
 getgenv().config = {
     Setting = {
@@ -1260,6 +1260,7 @@ spawn(function()
                 while getgenv().config.ChestFarm["Start Farm Chest"] do
                     local chest = GetChest()
                     if chest and chest:IsDescendantOf(workspace) then
+			getgenv().SetStatus("Đang tìm rương...")				
                         Tween2(chest.CFrame)
 
                         pcall(function()
