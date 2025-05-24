@@ -1460,13 +1460,19 @@ spawn(function()
     end
 end)
 
+local Player = game.Players.LocalPlayer
+
 local function GetClosestChest()
     local distance = math.huge
     local closest = nil
-    for _, v in pairs(workspace.Map:GetDescendants()) do
-        if v:IsA("BasePart") and v:FindFirstChild("TouchInterest") and string.find(v.Name:lower(), "chest") then
-            if v.Position.Y < -10 then continue end
-            local d = (v.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+    if not Player.Character or not Player.Character:FindFirstChild("HumanoidRootPart") then
+        return closest
+    end
+    local hrp = Player.Character.HumanoidRootPart
+
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("BasePart") and (v.Name == "Chest1" or v.Name == "Chest2" or v.Name == "Chest3") then
+            local d = (v.Position - hrp.Position).Magnitude
             if d < distance then
                 distance = d
                 closest = v
@@ -1489,14 +1495,16 @@ spawn(function()
                 local chest = GetClosestChest()
 
                 if chest and chest:IsDescendantOf(workspace) then
-		    getgenv().SetStatus("Farm Chest")			
-                    topos(CFrame.new(chest.Position + Vector3.new(0, 30, 0)))				
+                    getgenv().SetStatus("Farm Chest")
+
+                    -- Dịch chuyển lên trên chest 30 đơn vị cao hơn (giả sử có hàm topos xử lý)
+                    topos(CFrame.new(chest.Position + Vector3.new(0, 30, 0)))
 
                     repeat task.wait() until not isTeleporting
 
                     pcall(function()
-                        firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, chest, 0)
-                        firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, chest, 1)
+                        firetouchinterest(Player.Character.HumanoidRootPart, chest, 0)
+                        firetouchinterest(Player.Character.HumanoidRootPart, chest, 1)
                     end)
 
                     local waitStart = tick()
@@ -1523,8 +1531,8 @@ spawn(function()
                     end
 
                     game:GetService("StarterGui"):SetCore("SendNotification", {
-                        Title = "Vxeze Hub Auto Chest",
-                        Text = "Zzz. Đang chuyển server...",
+                        Title = "Auto Chest",
+                        Text = "Đang chuyển server...",
                         Duration = 4
                     })
                     StartCountdownAndHop(10)
