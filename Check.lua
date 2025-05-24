@@ -774,21 +774,6 @@ function topos(Pos)
     end
 end
 
-function stopTeleport()
-    isTeleporting = false
-    local plr = game.Players.LocalPlayer
-    if currentTween then
-        currentTween:Cancel()
-        currentTween = nil
-    end
-    if plr.Character then
-        if plr.Character:FindFirstChild("PartTele") then
-            plr.Character.PartTele:Destroy()
-        end
-        removeCombinedEffect(plr.Character)
-    end
-end
-
 spawn(function()
     local plr = game.Players.LocalPlayer
     while task.wait(0.1) do 
@@ -1539,7 +1524,7 @@ end
 
 spawn(function()
     while true do
-        if getgenv().config.ChestFarm["Start Farm Chest"] then
+        if getgenv().config and getgenv().config.ChestFarm["Start Farm Chest"] then
             _G.AutoCollectChest = true
             _G.IsChestFarming = true
             getgenv().SetStatus("Farm Chest")
@@ -1551,14 +1536,27 @@ spawn(function()
                 local chest = GetClosestChest()
                 if chest and chest:IsDescendantOf(workspace) then
                     getgenv().SetStatus("Teleporting to chest")
-                    topos(CFrame.new(chest.Position + Vector3.new(0, 0, 0)))
-                    repeat task.wait() until not isTeleporting
+                    if typeof(topos) == "function" then
+                        topos(CFrame.new(chest.Position))
+                    else
+                        warn("⚠️ Hàm 'topos' chưa được khai báo!")
+                        break
+                    end
 
+                    -- Nếu có biến kiểm soát teleport thì check
+                    if typeof(isTeleporting) ~= "nil" then
+                        repeat task.wait() until not isTeleporting
+                    else
+                        task.wait(1)
+                    end
+
+                    -- Chạm vào rương
                     pcall(function()
                         firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, chest, 0)
                         firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, chest, 1)
                     end)
 
+                    -- Chờ kiểm tra xem rương đã biến mất
                     local waitStart = tick()
                     repeat task.wait(0.1) until not chest:IsDescendantOf(workspace) or tick() - waitStart > 1
 
@@ -1569,7 +1567,7 @@ spawn(function()
                     end
                 else
                     timeout = timeout + 1
-                    getgenv().SetStatus("Tìm không thấy rương...")
+                    getgenv().SetStatus("Tìm không thấy rương... (" .. timeout .. ")")
                     if timeout >= 2 then
                         StartCountdownAndHop(10)
                         break
@@ -1579,10 +1577,6 @@ spawn(function()
 
                 if tick() - startTime >= 300 then
                     getgenv().SetStatus("Timeout. Đang hop server...")
-                    if currentTween then
-                        currentTween:Cancel()
-                        currentTween = nil
-                    end
                     StartCountdownAndHop(10)
                     break
                 end
