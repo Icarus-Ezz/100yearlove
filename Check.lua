@@ -79,6 +79,7 @@ if not hwidResponse or hwidResponse.status ~= "true" then
     return
 end
 
+wait(3)
 if getgenv().config.Setting["Team"] == "Marines" then
     if not game.Players.LocalPlayer.Team or game.Players.LocalPlayer.Team.Name ~= "Marines" then
         game.ReplicatedStorage.Remotes.CommF_:InvokeServer("SetTeam", "Marines")
@@ -89,7 +90,7 @@ elseif getgenv().config.Setting["Team"] == "Pirates" then
     end
 end
 
-wait(3)
+wait(5)
 ------------------------------------------------------------------------------------
 spawn(function()
     while wait() do
@@ -1497,8 +1498,7 @@ spawn(function()
                 if chest and chest:IsDescendantOf(workspace) then
                     getgenv().SetStatus("Farm Chest")
 
-                    -- Dịch chuyển lên trên chest 30 đơn vị cao hơn (giả sử có hàm topos xử lý)
-                    topos(CFrame.new(chest.Position + Vector3.new(0, 30, 0)))
+                    topos(CFrame.new(chest.Position + Vector3.new(0, 0, 0)))
 
                     repeat task.wait() until not isTeleporting
 
