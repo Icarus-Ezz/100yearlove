@@ -1456,7 +1456,7 @@ local function GetChest()
     local closestChest = nil
     for _, v in pairs(workspace.Map:GetDescendants()) do
         if string.find(v.Name:lower(), "chest") and v:FindFirstChild("TouchInterest") and v:IsA("BasePart") then
-            if v.Position.Y < -30 then continue end
+            if v.Position.Y < -10 then continue end
             local d = (v.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
             if d < distance then
                 distance = d
@@ -1480,15 +1480,13 @@ spawn(function()
 
             _G.AutoCollectChest = true
             _G.IsChestFarming = true
-		
+
             local function AutoChestCollect()
                 local timeout = 0
                 while getgenv().config.ChestFarm["Start Farm Chest"] do
                     local chest = GetChest()
-                    if chest and chest:IsDescendantOf(workspace) then				
+                    if chest and chest:IsDescendantOf(workspace) then
                         topos(chest.CFrame)
-							
-			SetStatus("Collecting Chest...")				
 
                         pcall(function()
                             firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, chest, 0)
@@ -1506,19 +1504,16 @@ spawn(function()
                     else
                         timeout = timeout + 1
                         if timeout >= 2 then
-			    SetStatus("Hopping server...")					
                             StartCountdownAndHop(10) 
                             break
                         end
                         wait(1)
                     end
 
-		    CheckForStuck()
-						
                     if tick() - startTime >= 300 then
-                        if _G.CurrentTween then
-                            _G.CurrentTween:Cancel()
-                            _G.CurrentTween = nil
+                        if currentTween then
+                            currentTween:Cancel()
+                            currentTween = nil
                         end    
                             
                         game:GetService("StarterGui"):SetCore("SendNotification", {
