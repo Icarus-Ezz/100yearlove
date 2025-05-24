@@ -1283,6 +1283,7 @@ Texttime.TextSize = 12
 Texttime.TextXAlignment = Enum.TextXAlignment.Center
 
 getgenv().Status = "Waiting..."
+
 getgenv().SetStatus = function(text)
     getgenv().Status = tostring(text)
 end
@@ -1384,7 +1385,6 @@ local function CreateBillboard(part)
     bill.AlwaysOnTop = true
     bill.Parent      = game.CoreGui
 
-    -- background
     local bg = Instance.new("Frame", bill)
     bg.Size = UDim2.new(1, 0, 1, 0)
     bg.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
@@ -1392,7 +1392,6 @@ local function CreateBillboard(part)
     Instance.new("UICorner", bg).CornerRadius = UDim.new(0, 6)
     Instance.new("UIStroke", bg).Thickness = 1
 
-    -- text
     local txt = Instance.new("TextLabel", bg)
     txt.Size = UDim2.new(1, -4, 1, -4)
     txt.Position = UDim2.new(0, 2, 0, 2)
@@ -1901,7 +1900,7 @@ spawn(function()
                             local humanoidRootPart = v.HumanoidRootPart
 
                             if humanoid and humanoidRootPart and humanoid.Health > 0 then
-				getgenv().SetStatus("⚔️ Farm Dark Beard")													
+				getgenv().SetStatus("Farm Dark Beard")													
                                 repeat
                                     wait(1)
                                     AutoHaki()
@@ -1935,7 +1934,7 @@ spawn(function()
 				if enemies:FindFirstChild("rip_indra True Form") then
 					for _, v in pairs(enemies:GetChildren()) do
 						if ((v.Name == "rip_indra True Form") and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and (v.Humanoid.Health > 0)) then
-							getgenv().SetStatus("⚔️ Farm Rip Indra")				
+							getgenv().SetStatus("Farm Rip Indra")				
 							repeat
 								task.wait(1)
 								AutoHaki()
@@ -1957,59 +1956,61 @@ spawn(function()
 end)
 
 --HOP Server
-local PlaceID = game.PlaceId
-local AllIDs = {}
-local foundAnything = ""
+function Hop()
+    local PlaceID = game.PlaceId
+    local AllIDs = {}
+    local foundAnything = ""
+    local actualHour = os.date("!*t").hour
 
-local function TPReturner()
-    local Site
-    if foundAnything == "" then
-        Site = game.HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100"))
-    else
-        Site = game.HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100&cursor=" .. foundAnything))
-    end
+    function TPReturner()
+        local Site
+        if foundAnything == "" then
+            Site = game.HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100"))
+        else
+            Site = game.HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100&cursor=" .. foundAnything))
+        end
 
-    if Site.nextPageCursor and Site.nextPageCursor ~= "null" then
-        foundAnything = Site.nextPageCursor
-    end
+        if Site.nextPageCursor and Site.nextPageCursor ~= "null" and Site.nextPageCursor ~= nil then
+            foundAnything = Site.nextPageCursor
+        end
 
-    for _, v in pairs(Site.data) do
-        local ID = tostring(v.id)
-        local Possible = true
-        if tonumber(v.maxPlayers) > tonumber(v.playing) then
-            for _, Existing in pairs(AllIDs) do
-                if ID == tostring(Existing) then
-                    Possible = false
-                    break
+        for _, v in pairs(Site.data) do
+            local ID = tostring(v.id)
+            local Possible = true
+
+            if tonumber(v.maxPlayers) > tonumber(v.playing) then
+                for _, Existing in pairs(AllIDs) do
+                    if ID == tostring(Existing) then
+                        Possible = false
+                        break
+                    end
                 end
-            end
 
-            if Possible then
-                table.insert(AllIDs, ID)
-                wait(1)
-                pcall(function()
-                    game:GetService("TeleportService"):TeleportToPlaceInstance(PlaceID, ID, game.Players.LocalPlayer)
-                end)
-                wait(4)
-                return
+                if Possible then
+                    table.insert(AllIDs, ID)
+                    wait(1)
+                    pcall(function()
+                        game:GetService("TeleportService"):TeleportToPlaceInstance(PlaceID, ID, game.Players.LocalPlayer)
+                    end)
+                    wait(4)
+                    return
+                end
             end
         end
     end
-end
 
-local function Teleport()
-    while true do
-        pcall(function()
-            TPReturner()
-            if foundAnything ~= "" then
+    function Teleport()
+        while true do
+            pcall(function()
                 TPReturner()
-            end
-        end)
-        wait(5)
+                if foundAnything ~= "" then
+                    TPReturner()
+                end
+            end)
+            wait(5)
+        end
     end
-end
 
-function Hop()
     Teleport()
 end
 
