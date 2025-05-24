@@ -378,192 +378,6 @@ spawn(function()
     end
 end)
 
---HOP Server
-function Hop()
-    local PlaceID = game.PlaceId
-    local AllIDs = {}
-    local foundAnything = ""
-    local actualHour = os.date("!*t").hour
-
-    function TPReturner()
-        local Site
-        if foundAnything == "" then
-            Site = game.HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100"))
-        else
-            Site = game.HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100&cursor=" .. foundAnything))
-        end
-
-        if Site.nextPageCursor and Site.nextPageCursor ~= "null" and Site.nextPageCursor ~= nil then
-            foundAnything = Site.nextPageCursor
-        end
-
-        for _, v in pairs(Site.data) do
-            local ID = tostring(v.id)
-            local Possible = true
-
-            if tonumber(v.maxPlayers) > tonumber(v.playing) then
-                for _, Existing in pairs(AllIDs) do
-                    if ID == tostring(Existing) then
-                        Possible = false
-                        break
-                    end
-                end
-
-                if Possible then
-                    table.insert(AllIDs, ID)
-                    wait(1)
-                    pcall(function()
-                        game:GetService("TeleportService"):TeleportToPlaceInstance(PlaceID, ID, game.Players.LocalPlayer)
-                    end)
-                    wait(4)
-                    return
-                end
-            end
-        end
-    end
-
-    function Teleport()
-        while true do
-            pcall(function()
-                TPReturner()
-                if foundAnything ~= "" then
-                    TPReturner()
-                end
-            end)
-            wait(5)
-        end
-    end
-
-    Teleport()
-end
-
-function StartCountdownAndHop(countdownTime)
-    local stopHopping = false
-
-    local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-    local screenGui = Instance.new("ScreenGui")
-    screenGui.Parent = playerGui
-    screenGui.ResetOnSpawn = false
-    screenGui.Name = "VxezeHopUI"
-    screenGui.IgnoreGuiInset = true
-
-    -- Background mờ
-    local background = Instance.new("Frame")
-    background.Parent = screenGui
-    background.Size = UDim2.new(1, 0, 1, 0)
-    background.Position = UDim2.new(0, 0, 0, 0)
-    background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    background.BackgroundTransparency = 0.1
-    background.ZIndex = 0
-
-    local subLabel = Instance.new("TextLabel")
-    subLabel.Parent = screenGui
-    subLabel.Size = UDim2.new(0, 300, 0, 20)
-    subLabel.Position = UDim2.new(0.5, -150, 0.3, 60)
-    subLabel.BackgroundTransparency = 1
-    subLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
-    subLabel.TextSize = 18
-    subLabel.Font = Enum.Font.Gotham
-    subLabel.Text = "Finding New Server..."
-    subLabel.TextStrokeTransparency = 0.8
-    subLabel.TextScaled = false
-    subLabel.ZIndex = 3
-
-    -- Progress Bar nền
-    local progressBarBackground = Instance.new("Frame")
-    progressBarBackground.Parent = screenGui
-    progressBarBackground.Size = UDim2.new(0, 350, 0, 20)
-    progressBarBackground.Position = UDim2.new(0.5, -175, 0.5, -10)
-    progressBarBackground.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    progressBarBackground.BorderSizePixel = 0
-    progressBarBackground.ZIndex = 1
-    progressBarBackground.ClipsDescendants = true
-    Instance.new("UICorner", progressBarBackground).CornerRadius = UDim.new(0, 12)
-
-    -- Progress Bar chạy
-    local progressBar = Instance.new("Frame")
-    progressBar.Parent = progressBarBackground
-    progressBar.Size = UDim2.new(0, 0, 1, 0)
-    progressBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    progressBar.ZIndex = 2
-    Instance.new("UICorner", progressBar).CornerRadius = UDim.new(0, 12)
-
-    -- Thêm viền trắng cho progress bar
-    local progressStroke = Instance.new("UIStroke")
-    progressStroke.Parent = progressBar
-    progressStroke.Color = Color3.fromRGB(220, 220, 220)
-    progressStroke.Thickness = 2
-
-    local progressShadow = Instance.new("ImageLabel")
-    progressShadow.Parent = progressBar
-    progressShadow.BackgroundTransparency = 1
-    progressShadow.Size = UDim2.new(1, 10, 1, 10)
-    progressShadow.Position = UDim2.new(0, -5, 0, -5)
-    progressShadow.Image = "rbxassetid://1316045217" -- asset bóng mờ
-    progressShadow.ImageTransparency = 0.7
-    progressShadow.ZIndex = 1
-
-    local countdownLabel = Instance.new("TextLabel")
-    countdownLabel.Parent = screenGui
-    countdownLabel.Size = UDim2.new(0, 350, 0, 50)
-    countdownLabel.Position = UDim2.new(0.5, -175, 0.5, -60)
-    countdownLabel.BackgroundTransparency = 1
-    countdownLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    countdownLabel.Font = Enum.Font.GothamBold
-    countdownLabel.TextSize = 28
-    countdownLabel.TextXAlignment = Enum.TextXAlignment.Center
-    countdownLabel.TextYAlignment = Enum.TextYAlignment.Center
-    countdownLabel.TextStrokeTransparency = 0.6
-    countdownLabel.ZIndex = 3
-
-    local stopButton = Instance.new("TextButton")
-    stopButton.Parent = screenGui
-    stopButton.Size = UDim2.new(0, 140, 0, 40)
-    stopButton.Position = UDim2.new(0.5, -70, 0.5, 30)
-    stopButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    stopButton.Text = "⛔ Stop Hop"
-    stopButton.Font = Enum.Font.GothamBold
-    stopButton.TextSize = 20
-    stopButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    stopButton.TextStrokeTransparency = 0.5
-    stopButton.ZIndex = 4
-    Instance.new("UICorner", stopButton).CornerRadius = UDim.new(0, 8)
-
-    stopButton.MouseEnter:Connect(function()
-        stopButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    end)
-    stopButton.MouseLeave:Connect(function()
-        stopButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    end)
-
-    stopButton.MouseButton1Click:Connect(function()
-        stopHopping = true
-        stopButton.Text = "Stopped"
-        stopButton.TextColor3 = Color3.fromRGB(150, 150, 150)
-        stopButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-        if screenGui then screenGui:Destroy() end
-    end)
-
-    for i = countdownTime, 1, -1 do
-        if stopHopping then return end
-        countdownLabel.Text = string.format("%ds | Vxeze Hop Chest", i)
-        progressBar:TweenSize(UDim2.new(i / countdownTime, 0, 1, 0), "Out", "Linear", 1, true)
-        wait(1)
-    end
-
-    if stopHopping then return end
-
-    countdownLabel.Text = "Vxeze Hopping"
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Vxeze Hub",
-        Text = "Vxeze Hopping...",
-        Duration = 4
-    })
-
-    wait(1)
-    if screenGui then screenGui:Destroy() end
-    Hop() 
-end
 ----------------------------------------------------------------------------------------
 local function Tween2(targetCFrame)
     pcall(function()
@@ -2022,3 +1836,189 @@ spawn(function()
         task.wait(60)
     end
 end)
+--HOP Server
+function Hop()
+    local PlaceID = game.PlaceId
+    local AllIDs = {}
+    local foundAnything = ""
+    local actualHour = os.date("!*t").hour
+
+    function TPReturner()
+        local Site
+        if foundAnything == "" then
+            Site = game.HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100"))
+        else
+            Site = game.HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100&cursor=" .. foundAnything))
+        end
+
+        if Site.nextPageCursor and Site.nextPageCursor ~= "null" and Site.nextPageCursor ~= nil then
+            foundAnything = Site.nextPageCursor
+        end
+
+        for _, v in pairs(Site.data) do
+            local ID = tostring(v.id)
+            local Possible = true
+
+            if tonumber(v.maxPlayers) > tonumber(v.playing) then
+                for _, Existing in pairs(AllIDs) do
+                    if ID == tostring(Existing) then
+                        Possible = false
+                        break
+                    end
+                end
+
+                if Possible then
+                    table.insert(AllIDs, ID)
+                    wait(1)
+                    pcall(function()
+                        game:GetService("TeleportService"):TeleportToPlaceInstance(PlaceID, ID, game.Players.LocalPlayer)
+                    end)
+                    wait(4)
+                    return
+                end
+            end
+        end
+    end
+
+    function Teleport()
+        while true do
+            pcall(function()
+                TPReturner()
+                if foundAnything ~= "" then
+                    TPReturner()
+                end
+            end)
+            wait(5)
+        end
+    end
+
+    Teleport()
+end
+
+function StartCountdownAndHop(countdownTime)
+    local stopHopping = false
+
+    local playerGui = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Parent = playerGui
+    screenGui.ResetOnSpawn = false
+    screenGui.Name = "VxezeHopUI"
+    screenGui.IgnoreGuiInset = true
+
+    -- Background mờ
+    local background = Instance.new("Frame")
+    background.Parent = screenGui
+    background.Size = UDim2.new(1, 0, 1, 0)
+    background.Position = UDim2.new(0, 0, 0, 0)
+    background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    background.BackgroundTransparency = 0.1
+    background.ZIndex = 0
+
+    local subLabel = Instance.new("TextLabel")
+    subLabel.Parent = screenGui
+    subLabel.Size = UDim2.new(0, 300, 0, 20)
+    subLabel.Position = UDim2.new(0.5, -150, 0.3, 60)
+    subLabel.BackgroundTransparency = 1
+    subLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+    subLabel.TextSize = 18
+    subLabel.Font = Enum.Font.Gotham
+    subLabel.Text = "Finding New Server..."
+    subLabel.TextStrokeTransparency = 0.8
+    subLabel.TextScaled = false
+    subLabel.ZIndex = 3
+
+    -- Progress Bar nền
+    local progressBarBackground = Instance.new("Frame")
+    progressBarBackground.Parent = screenGui
+    progressBarBackground.Size = UDim2.new(0, 350, 0, 20)
+    progressBarBackground.Position = UDim2.new(0.5, -175, 0.5, -10)
+    progressBarBackground.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    progressBarBackground.BorderSizePixel = 0
+    progressBarBackground.ZIndex = 1
+    progressBarBackground.ClipsDescendants = true
+    Instance.new("UICorner", progressBarBackground).CornerRadius = UDim.new(0, 12)
+
+    -- Progress Bar chạy
+    local progressBar = Instance.new("Frame")
+    progressBar.Parent = progressBarBackground
+    progressBar.Size = UDim2.new(0, 0, 1, 0)
+    progressBar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    progressBar.ZIndex = 2
+    Instance.new("UICorner", progressBar).CornerRadius = UDim.new(0, 12)
+
+    -- Thêm viền trắng cho progress bar
+    local progressStroke = Instance.new("UIStroke")
+    progressStroke.Parent = progressBar
+    progressStroke.Color = Color3.fromRGB(220, 220, 220)
+    progressStroke.Thickness = 2
+
+    local progressShadow = Instance.new("ImageLabel")
+    progressShadow.Parent = progressBar
+    progressShadow.BackgroundTransparency = 1
+    progressShadow.Size = UDim2.new(1, 10, 1, 10)
+    progressShadow.Position = UDim2.new(0, -5, 0, -5)
+    progressShadow.Image = "rbxassetid://1316045217" -- asset bóng mờ
+    progressShadow.ImageTransparency = 0.7
+    progressShadow.ZIndex = 1
+
+    local countdownLabel = Instance.new("TextLabel")
+    countdownLabel.Parent = screenGui
+    countdownLabel.Size = UDim2.new(0, 350, 0, 50)
+    countdownLabel.Position = UDim2.new(0.5, -175, 0.5, -60)
+    countdownLabel.BackgroundTransparency = 1
+    countdownLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    countdownLabel.Font = Enum.Font.GothamBold
+    countdownLabel.TextSize = 28
+    countdownLabel.TextXAlignment = Enum.TextXAlignment.Center
+    countdownLabel.TextYAlignment = Enum.TextYAlignment.Center
+    countdownLabel.TextStrokeTransparency = 0.6
+    countdownLabel.ZIndex = 3
+
+    local stopButton = Instance.new("TextButton")
+    stopButton.Parent = screenGui
+    stopButton.Size = UDim2.new(0, 140, 0, 40)
+    stopButton.Position = UDim2.new(0.5, -70, 0.5, 30)
+    stopButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    stopButton.Text = "⛔ Stop Hop"
+    stopButton.Font = Enum.Font.GothamBold
+    stopButton.TextSize = 20
+    stopButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    stopButton.TextStrokeTransparency = 0.5
+    stopButton.ZIndex = 4
+    Instance.new("UICorner", stopButton).CornerRadius = UDim.new(0, 8)
+
+    stopButton.MouseEnter:Connect(function()
+        stopButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    end)
+    stopButton.MouseLeave:Connect(function()
+        stopButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    end)
+
+    stopButton.MouseButton1Click:Connect(function()
+        stopHopping = true
+        stopButton.Text = "Stopped"
+        stopButton.TextColor3 = Color3.fromRGB(150, 150, 150)
+        stopButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+        if screenGui then screenGui:Destroy() end
+    end)
+
+    for i = countdownTime, 1, -1 do
+        if stopHopping then return end
+        countdownLabel.Text = string.format("%ds | Vxeze Hop Chest", i)
+        progressBar:TweenSize(UDim2.new(i / countdownTime, 0, 1, 0), "Out", "Linear", 1, true)
+        wait(1)
+    end
+
+    if stopHopping then return end
+
+    countdownLabel.Text = "Vxeze Hopping"
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Vxeze Hub",
+        Text = "Vxeze Hopping...",
+        Duration = 4
+    })
+
+    wait(1)
+    if screenGui then screenGui:Destroy() end
+    Hop() 
+end
