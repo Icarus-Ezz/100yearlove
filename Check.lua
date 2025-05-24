@@ -1,5 +1,5 @@
 --[[
-repeat wait() until game:IsLoaded() and game.Players.LocalPlayer and game.Players.LocalPlayer.Character
+repeat wait() until game:IsLoaded() and game.Players.LocalPlayer
 getgenv().Key = "Vxeze-H4896L9ZB6KSSEVMS3PS"
 getgenv().config = {
     Setting = {
@@ -1243,7 +1243,7 @@ end
 
 spawn(function()
     local startTime = tick() 
-
+    repeat wait() until game:IsLoaded() and game.Players.LocalPlayer and game.Players.LocalPlayer.Character
     while true do
         if getgenv().config.ChestFarm["Start Farm Chest"] then
             game:GetService("StarterGui"):SetCore("SendNotification", {
