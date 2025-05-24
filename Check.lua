@@ -1489,7 +1489,7 @@ spawn(function()
                 local chest = GetClosestChest()
 
                 if chest and chest:IsDescendantOf(workspace) then
-		    SetStatus("Farm Chest")				
+		    getgenv().SetStatus("Farm Chest")			
                     topos(CFrame.new(chest.Position + Vector3.new(0, 30, 0)))				
 
                     repeat task.wait() until not isTeleporting
@@ -1893,7 +1893,7 @@ spawn(function()
                             local humanoidRootPart = v.HumanoidRootPart
 
                             if humanoid and humanoidRootPart and humanoid.Health > 0 then
-				SetStatus("⚔️ Farm Dark Beard")							
+				getgenv().SetStatus("⚔️ Farm Dark Beard")													
                                 repeat
                                     wait(1)
                                     AutoHaki()
@@ -1927,7 +1927,7 @@ spawn(function()
 				if enemies:FindFirstChild("rip_indra True Form") then
 					for _, v in pairs(enemies:GetChildren()) do
 						if ((v.Name == "rip_indra True Form") and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and (v.Humanoid.Health > 0)) then
-							SetStatus("⚔️ Farm Rip Indra")		
+							getgenv().SetStatus("⚔️ Farm Rip Indra")				
 							repeat
 								task.wait(1)
 								AutoHaki()
