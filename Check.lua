@@ -1228,10 +1228,13 @@ end)
 local function GetChest()
     local distance = math.huge
     local closestChest = nil
+    local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return nil end
+
     for _, v in pairs(workspace.Map:GetDescendants()) do
         if string.find(v.Name:lower(), "chest") and v:FindFirstChild("TouchInterest") and v:IsA("BasePart") then
             if v.Position.Y < -10 then continue end
-            local d = (v.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+            local d = (v.Position - hrp.Position).Magnitude
             if d < distance then
                 distance = d
                 closestChest = v
@@ -1242,73 +1245,83 @@ local function GetChest()
 end
 
 spawn(function()
-    local startTime = tick() 
-    repeat wait() until game:IsLoaded() and game.Players.LocalPlayer and game.Players.LocalPlayer.Character
+    repeat wait() until game:IsLoaded() and game.Players.LocalPlayer and game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    
+    local startTime = tick()
+
     while true do
-        if getgenv().config.ChestFarm["Start Farm Chest"] then
-            game:GetService("StarterGui"):SetCore("SendNotification", {
-                Title = "Auto Chest",
-                Text = "Find Chest...",
-                Duration = 3
-            })
+        if getgenv().config and getgenv().config.ChestFarm and getgenv().config.ChestFarm["Start Farm Chest"] then
+            getgenv().SetStatus("🔎 Đang bật Auto Farm Rương...")
 
             _G.AutoCollectChest = true
             _G.IsChestFarming = true
 
-            local function AutoChestCollect()
-                local timeout = 0
-                while getgenv().config.ChestFarm["Start Farm Chest"] do
-                    local chest = GetChest()
-                    if chest and chest:IsDescendantOf(workspace) then
-			getgenv().SetStatus("Đang tìm rương...")				
+            local timeout = 0
+
+            while getgenv().config.ChestFarm["Start Farm Chest"] do
+                local chest = GetChest()
+
+                if chest and chest:IsDescendantOf(workspace) then
+                    getgenv().SetStatus("📦 Đang tới rương: " .. chest.Name)
+
+                    if typeof(Tween2) == "function" then
                         Tween2(chest.CFrame)
-
-                        pcall(function()
-                            firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, chest, 0)
-                            firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, chest, 1)
-                        end)
-
-                        local start = tick()
-                        repeat task.wait(0.1) until not chest:IsDescendantOf(workspace) or tick() - start > 1
-
-                        if not chest:IsDescendantOf(workspace) then
-                            _G.LastChestCollectedTime = tick()
-                            _G.CollectedChests = (_G.CollectedChests or 0) + 1
-                            timeout = 0
-                        end
                     else
-                        timeout = timeout + 1
-                        if timeout >= 2 then
-                            StartCountdownAndHop(10) 
-                            break
-                        end
-                        wait(1)
+                        warn("⚠️ Hàm Tween2 chưa được định nghĩa!")
+                        break
                     end
 
-                    if tick() - startTime >= 300 then
-                        if _G.CurrentTween then
-                            _G.CurrentTween:Cancel()
-                            _G.CurrentTween = nil
-                        end    
-                            
-                        game:GetService("StarterGui"):SetCore("SendNotification", {
-                            Title = "Vxeze Hub Auto Chest",
-                            Text = "Zzz. Hop Sever",
-                            Duration = 4
-                        })
-                        StartCountdownAndHop(10)
-                        startTime = tick()    
+                    pcall(function()
+                        local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                        if hrp then
+                            firetouchinterest(hrp, chest, 0)
+                            firetouchinterest(hrp, chest, 1)
+                        end
+                    end)
+
+                    local start = tick()
+                    repeat wait(0.1) until not chest:IsDescendantOf(workspace) or tick() - start > 1
+
+                    if not chest:IsDescendantOf(workspace) then
+                        _G.LastChestCollectedTime = tick()
+                        _G.CollectedChests = (_G.CollectedChests or 0) + 1
+                        timeout = 0
+                    end
+                else
+                    timeout = timeout + 1
+                    getgenv().SetStatus("❌ Không tìm thấy rương! [" .. timeout .. "]")
+                    wait(1)
+                    if timeout >= 2 then
+                        getgenv().SetStatus("🔁 Không có rương, chuyển server...")
+                        if typeof(StartCountdownAndHop) == "function" then
+                            StartCountdownAndHop(10)
+                        else
+                            warn("⚠️ Hàm StartCountdownAndHop chưa được định nghĩa!")
+                        end
                         break
                     end
                 end
-            end
 
-            AutoChestCollect()
+                if tick() - startTime >= 300 then
+                    getgenv().SetStatus("⏰ 5 phút rồi, đang hop server...")
+                    if _G.CurrentTween then
+                        _G.CurrentTween:Cancel()
+                        _G.CurrentTween = nil
+                    end
+                    if typeof(StartCountdownAndHop) == "function" then
+                        StartCountdownAndHop(10)
+                    end
+                    startTime = tick()
+                    break
+                end
+            end
+        else
+            getgenv().SetStatus("⏸ Waiting...")
         end
         wait(1)
     end
 end)
-
+--Hop
 function Hop()
     local PlaceID = game.PlaceId
     local AllIDs = {}
