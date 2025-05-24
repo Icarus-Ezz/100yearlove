@@ -17,7 +17,7 @@ getgenv().config = {
         ["Stop When Have Item"] = true, 
     },
     Webhook = {
-        ["Webhook Url"] = "https://discord.com/api/webhooks/1360798536937246840/HBIfH0Okazx7DxPPu8rNi_jYQSMWT4eis8HSx6UW83rLMgxQn6fgWShuqBbaiwxUEXmS",          
+        ["Webhook Url"] = "https://discord.com/api/webhooks/1375706865559670854/N1jBmqaqmFxEwT0eIoi3RHR0Qzb5agN_Nr1t52yoIFq-KvAeinA9H5VhsXDtGD35Msdt",          
         ["Send Webhook"] = true,      
     },
     Premium = {
