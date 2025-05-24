@@ -1460,86 +1460,86 @@ spawn(function()
     end
 end)
 
-local Player = game.Players.LocalPlayer
-
-local function GetClosestChest()
+local function GetChest()
     local distance = math.huge
-    local closest = nil
-    if not Player.Character or not Player.Character:FindFirstChild("HumanoidRootPart") then
-        return closest
-    end
-    local hrp = Player.Character.HumanoidRootPart
-
-    for _, v in pairs(workspace:GetDescendants()) do
-        if v:IsA("BasePart") and (v.Name == "Chest1" or v.Name == "Chest2" or v.Name == "Chest3") then
-            local d = (v.Position - hrp.Position).Magnitude
+    local closestChest = nil
+    for _, v in pairs(workspace.Map:GetDescendants()) do
+        if string.find(v.Name:lower(), "chest") and v:FindFirstChild("TouchInterest") and v:IsA("BasePart") then
+            if v.Position.Y < -10 then continue end
+            local d = (v.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
             if d < distance then
                 distance = d
-                closest = v
+                closestChest = v
             end
         end
     end
-    return closest
+    return closestChest
 end
 
 spawn(function()
+    local startTime = tick() 
+
     while true do
         if getgenv().config.ChestFarm["Start Farm Chest"] then
+            game:GetService("StarterGui"):SetCore("SendNotification", {
+                Title = "Auto Chest",
+                Text = "Find Chest...",
+                Duration = 3
+            })
+
             _G.AutoCollectChest = true
             _G.IsChestFarming = true
 
-            local startTime = tick()
-            local timeout = 0
+            local function AutoChestCollect()
+                local timeout = 0
+                while getgenv().config.ChestFarm["Start Farm Chest"] do
+                    local chest = GetChest()
+                    if chest and chest:IsDescendantOf(workspace) then
+                        Tween2(chest.CFrame)
 
-            while getgenv().config.ChestFarm["Start Farm Chest"] do
-                local chest = GetClosestChest()
+                        pcall(function()
+                            firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, chest, 0)
+                            firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, chest, 1)
+                        end)
 
-                if chest and chest:IsDescendantOf(workspace) then
-                    getgenv().SetStatus("Farm Chest")
+                        local start = tick()
+                        repeat task.wait(0.1) until not chest:IsDescendantOf(workspace) or tick() - start > 1
 
-                    topos(CFrame.new(chest.Position + Vector3.new(0, 0, 0)))
-
-                    repeat task.wait() until not isTeleporting
-
-                    pcall(function()
-                        firetouchinterest(Player.Character.HumanoidRootPart, chest, 0)
-                        firetouchinterest(Player.Character.HumanoidRootPart, chest, 1)
-                    end)
-
-                    local waitStart = tick()
-                    repeat task.wait(0.1) until not chest:IsDescendantOf(workspace) or tick() - waitStart > 1
-
-                    if not chest:IsDescendantOf(workspace) then
-                        _G.CollectedChests = (_G.CollectedChests or 0) + 1
-                        _G.LastChestCollectedTime = tick()
-                        timeout = 0
+                        if not chest:IsDescendantOf(workspace) then
+                            _G.LastChestCollectedTime = tick()
+                            _G.CollectedChests = (_G.CollectedChests or 0) + 1
+                            timeout = 0
+                        end
+                    else
+                        timeout = timeout + 1
+                        if timeout >= 2 then
+                            StartCountdownAndHop(10) 
+                            break
+                        end
+                        wait(1)
                     end
-                else
-                    timeout = timeout + 1
-                    if timeout >= 2 then
+
+                    if tick() - startTime >= 300 then
+                        if _G.CurrentTween then
+                            _G.CurrentTween:Cancel()
+                            _G.CurrentTween = nil
+                        end    
+                            
+                        game:GetService("StarterGui"):SetCore("SendNotification", {
+                            Title = "Vxeze Hub Auto Chest",
+                            Text = "Zzz. Hop Sever",
+                            Duration = 4
+                        })
                         StartCountdownAndHop(10)
+                        startTime = tick()    
                         break
                     end
-                    task.wait(1)
-                end
-
-                if tick() - startTime >= 300 then
-                    if currentTween then
-                        currentTween:Cancel()
-                        currentTween = nil
-                    end
-
-                    game:GetService("StarterGui"):SetCore("SendNotification", {
-                        Title = "Auto Chest",
-                        Text = "Đang chuyển server...",
-                        Duration = 4
-                    })
-                    StartCountdownAndHop(10)
-                    break
                 end
             end
+
+            AutoChestCollect()
         end
-        task.wait(1)
+        wait(1)
     end
 end)
 
