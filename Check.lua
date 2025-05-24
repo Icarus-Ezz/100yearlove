@@ -1097,7 +1097,7 @@ end)
 
 -- ========== Auto Jump nếu kẹt ghế ==========
 function AutoJump()
-    while wait(6) do
+    while wait(10) do
         if getgenv().config.Setting["No Stuck Chair"] then
             print("Jumping...")
             pcall(function()
