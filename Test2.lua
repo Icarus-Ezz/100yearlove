@@ -10,7 +10,7 @@ getgenv().config = {
         ["Black Screen"] = false,
         ["No Stuck Chair"] = true, 
         ["Auto Rejoin"] = true,
-        ["Esp Chest"] = true,
+        ["Esp Chest"] = false,
     },
     ChestFarm = {
         ["Start Farm Chest"] = true,   
@@ -97,9 +97,11 @@ local Time1 = Instance.new("Frame")
 local UICorner214 = Instance.new("UICorner")
 local Texttime = Instance.new("TextLabel")
 local Frame = Instance.new("UIStroke")
+
 Time.Name = "Time"
 Time.Parent = game.CoreGui
 Time.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
 Time1.Name = "Time1"
 Time1.Parent = Time
 Time1.AnchorPoint = Vector2.new(0.53, 0.5)
@@ -107,8 +109,10 @@ Time1.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 Time1.BorderSizePixel = 0
 Time1.Position = UDim2.new(0.72, 0, -0.12, 0)
 Time1.Size = UDim2.new(0, 335, 0, 22)
+
 UICorner214.CornerRadius = UDim.new(0, 4)
 UICorner214.Parent = Time1
+
 Frame.Thickness = 1
 Frame.Name = ""
 Frame.Parent = Time1
@@ -116,6 +120,7 @@ Frame.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 Frame.LineJoinMode = Enum.LineJoinMode.Round
 Frame.Color = Color3.fromRGB(255, 255, 255)
 Frame.Transparency = 0
+
 Texttime.Name = "Texttime"
 Texttime.Parent = Time1
 Texttime.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -127,19 +132,23 @@ Texttime.Text = ""
 Texttime.TextColor3 = Color3.fromRGB(255, 255, 255)
 Texttime.TextSize = 12
 Texttime.TextXAlignment = Enum.TextXAlignment.Center
+
+getgenv().currentActivity = "Idle"
+
+function setActivity(text)
+    getgenv().currentActivity = text
+end
+
 spawn(function()
-    while wait(0.1) do
+    while task.wait(0.1) do
         pcall(function()
-            local scripttime = game.Workspace.DistributedGameTime
-            local seconds = scripttime % 60
-            local minutes = math.floor(scripttime / 60 % 60)
-            local hours = math.floor(scripttime / 3600)
             local fps = string.format("FPS: %d", workspace:GetRealPhysicsFPS())
-            local tempo = string.format(" |  %.0f Hour's , %.0f Minute , %.0f Second", hours, minutes, seconds)
-            Texttime.Text = string.format("Vxeze Hub-Auto Chest | %s %s", fps, tempo)
+            local activity = getgenv().currentActivity or "Idle"
+            Texttime.Text = string.format("Vxeze Hub - Auto Chest | %s | %s", fps, activity)
         end)
     end
 end)
+
 ------------------------------------------------------------------------------------
 spawn(function()
     while wait() do
@@ -1297,6 +1306,14 @@ spawn(function()
     while true do
         task.wait(0.1)
 
+        if not getgenv().config or not getgenv().config.Setting or not getgenv().config.Setting["Esp Chest"] then
+            for part, data in pairs(bills) do
+                if data.Billboard then data.Billboard:Destroy() end
+            end
+            bills = {}
+            continue
+        end
+
         local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
         if not hrp then continue end
 
@@ -1339,7 +1356,7 @@ spawn(function()
 
                 data.TextLabel.Text = string.format(
                     "<font color=\"rgb(%d,%d,%d)\">Chest\n%.1f m</font>",
-                    color.R*255, color.G*255, color.B*255, dist
+                    color.R * 255, color.G * 255, color.B * 255, dist
                 )
             end
         end
@@ -1380,7 +1397,8 @@ spawn(function()
                 local timeout = 0
                 while getgenv().config.ChestFarm["Start Farm Chest"] do
                     local chest = GetChest()
-                    if chest and chest:IsDescendantOf(workspace) then				
+                    if chest and chest:IsDescendantOf(workspace) then
+			setActivity("Collecting Chest")				
                         Tween2(chest.CFrame)
 
                         pcall(function()
