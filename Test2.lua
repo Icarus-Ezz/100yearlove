@@ -480,12 +480,10 @@ function CheckNearestTeleporter(aI)
     elseif y == 7449423635 then
         TableLocations = {
             ["Floating Turtle"] = Vector3.new(-12462, 375, -7552),
-            ["Hydra Island"] = Vector3.new(5657.88623046875, 1013.0790405273438, -335.4996337890625),
             ["Mansion"] = Vector3.new(-12462, 375, -7552),
             ["Castle"] = Vector3.new(-5036, 315, -3179),
             ["Dimensional Shift"] = Vector3.new(-2097.3447265625, 4776.24462890625, -15013.4990234375),
             ["Beautiful Pirate"] = Vector3.new(5319, 23, -93),
-            ["Beautiful Room"] = Vector3.new(5314.58203, 22.5364361, -125.942276),
             ["Temple of Time"] = Vector3.new(28286, 14897, 103)
         }
     end
