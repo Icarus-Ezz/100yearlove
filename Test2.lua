@@ -1436,6 +1436,7 @@ spawn(function()
                             Text = "Zzz. Hop Sever",
                             Duration = 4
                         })
+			setActivity("Hopping Sever")					
                         StartCountdownAndHop(10)
                         startTime = tick()    
                         break
