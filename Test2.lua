@@ -7,10 +7,10 @@ getgenv().config = {
         ["Disabled Notify"] = false,  
         ["Boots FPS"] = false,         
         ["White Screen"] = false,
-	["Black Screen"] = false,
+        ["Black Screen"] = false,
         ["No Stuck Chair"] = true, 
         ["Auto Rejoin"] = true,
-	["Esp Chest"] = true,
+        ["Esp Chest"] = true,
     },
     ChestFarm = {
         ["Start Farm Chest"] = true,   
@@ -21,9 +21,9 @@ getgenv().config = {
         ["Send Webhook"] = true,      
     },
     Premium = {
-	["Auto Spawn Dark Beard"] = true,   --Second Sea
+        ["Auto Spawn Dark Beard"] = true,   --Second Sea
         ["Auto Kill Dark Beard"] = true,    --Must Turn On Auto Spawn Dark Beard
-	["Auto Spawn Rip Indra"] = true,    --Need 3 Haki Lengend
+        ["Auto Spawn Rip Indra"] = true,    --Need 3 Haki Lengend
         ["Auto Kill Rip Indra"] = true,     --Third Sea
     },
 }
