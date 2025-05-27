@@ -525,7 +525,7 @@ local function createEffect(char)
     if not char.HumanoidRootPart:FindFirstChild("TweenAura") then
         local aura = Instance.new("ParticleEmitter", char.HumanoidRootPart)
         aura.Name = "TweenAura"
-        aura.Texture = "rbxassetid://243660364" -- thay texture nếu muốn
+        aura.Texture = "rbxassetid://discord.gg/vxezehub"
         aura.Size = NumberSequence.new(2)
         aura.Transparency = NumberSequence.new(0.2)
         aura.Lifetime = NumberRange.new(0.5, 1)
