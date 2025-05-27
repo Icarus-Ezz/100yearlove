@@ -452,6 +452,12 @@ spawn(function()
         end
     end
 end)
+--------------------------------------------------------------------------
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local isTweening = false
+local currentTween = nil
 
 function CheckNearestTeleporter(aI)
     local vcspos = aI.Position
@@ -480,10 +486,12 @@ function CheckNearestTeleporter(aI)
     elseif y == 7449423635 then
         TableLocations = {
             ["Floating Turtle"] = Vector3.new(-12462, 375, -7552),
+            ["Hydra Island"] = Vector3.new(5657.88623046875, 1013.0790405273438, -335.4996337890625),
             ["Mansion"] = Vector3.new(-12462, 375, -7552),
             ["Castle"] = Vector3.new(-5036, 315, -3179),
             ["Dimensional Shift"] = Vector3.new(-2097.3447265625, 4776.24462890625, -15013.4990234375),
             ["Beautiful Pirate"] = Vector3.new(5319, 23, -93),
+            ["Beautiful Room"] = Vector3.new(5314.58203, 22.5364361, -125.942276, 1, 2.14762768e-08, -1.99111154e-13, -2.14762768e-08, 1, -3.0510602e-08, 1.98455903e-13, 3.0510602e-08, 1),
             ["Temple of Time"] = Vector3.new(28286, 14897, 103)
         }
     end
@@ -496,54 +504,99 @@ function CheckNearestTeleporter(aI)
         end
     end
 
-    return chosenTeleport
+    local playerPos = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
+    if minDist <= (vcspos - playerPos).Magnitude then
+        return chosenTeleport
+    end
+end
+
+local function createEffect(char)
+    if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+    if not char:FindFirstChild("TweenHighlight") then
+        local h = Instance.new("Highlight")
+        h.Name = "TweenHighlight"
+        h.FillColor = Color3.new(1, 1, 1)
+        h.FillTransparency = 0.5
+        h.OutlineColor = Color3.new(1, 1, 1)
+        h.OutlineTransparency = 0
+        h.Adornee = char
+        h.Parent = char
+    end
+    if not char.HumanoidRootPart:FindFirstChild("TweenAura") then
+        local aura = Instance.new("ParticleEmitter", char.HumanoidRootPart)
+        aura.Name = "TweenAura"
+        aura.Texture = "rbxassetid://243660364" -- thay texture nếu muốn
+        aura.Size = NumberSequence.new(2)
+        aura.Transparency = NumberSequence.new(0.2)
+        aura.Lifetime = NumberRange.new(0.5, 1)
+        aura.Rate = 60
+        aura.Speed = NumberRange.new(5, 10)
+        aura.SpreadAngle = Vector2.new(360, 360)
+        aura.Color = ColorSequence.new(Color3.new(1, 1, 1))
+    end
+end
+
+local function removeEffect(char)
+    if not char then return end
+    if char:FindFirstChild("TweenHighlight") then char.TweenHighlight:Destroy() end
+    if char:FindFirstChild("HumanoidRootPart") and char.HumanoidRootPart:FindFirstChild("TweenAura") then
+        char.HumanoidRootPart.TweenAura:Destroy()
+    end
 end
 
 function Tween2(targetCFrame)
     pcall(function()
-        local character = game.Players.LocalPlayer.Character
-        if not character then return end
+        local char = LocalPlayer.Character
+        if not char or not char:FindFirstChild("HumanoidRootPart") then return end
 
-        local hrp = character:FindFirstChild("HumanoidRootPart")
-        if not hrp then return end
+        local hrp = char.HumanoidRootPart
 
-        -- Dịch chuyển tới teleport gần nhất
         local telePos = CheckNearestTeleporter(hrp)
-        if telePos then
+        if telePos and (hrp.Position - targetCFrame.Position).Magnitude >= 1500 then
             hrp.CFrame = CFrame.new(telePos + Vector3.new(0, 5, 0))
-            task.wait(0.2)
+            task.wait(0.3)
         end
 
+        createEffect(char)
+
+        -- Tween
+        isTweening = true
         local distance = (targetCFrame.Position - hrp.Position).Magnitude
         local speed = 350
-        local travelTime = distance / speed
+        local duration = distance / speed
 
-        local tweenInfo = TweenInfo.new(travelTime, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut)
-        local tween = game:GetService("TweenService"):Create(hrp, tweenInfo, {CFrame = targetCFrame})
-        _G.CurrentTween = tween
-
-        local connection
-        connection = tween.Completed:Connect(function()
-            EnableNoClipAndAntiGravity()
-            if connection then connection:Disconnect() end
-        end)
+        local info = TweenInfo.new(duration, Enum.EasingStyle.Linear)
+        local tween = TweenService:Create(hrp, info, {CFrame = targetCFrame})
+        currentTween = tween
 
         tween:Play()
+        local startTick = tick()
 
-        local start = tick()
-        while tick() - start < travelTime do
+        -- Kiểm tra dừng thủ công
+        while tick() - startTick < duration and isTweening do
             if getgenv().StopTweenNow then
                 tween:Cancel()
-                _G.CurrentTween = nil
-                return
+                break
             end
             task.wait(0.1)
         end
 
-        _G.CurrentTween = nil
+        removeEffect(char)
+        isTweening = false
+        currentTween = nil
     end)
 end
 
+-- Dừng Tween
+function StopTween2()
+    getgenv().StopTweenNow = true
+    if currentTween then
+        currentTween:Cancel()
+    end
+    removeEffect(LocalPlayer.Character)
+    isTweening = false
+    currentTween = nil
+end
 --------------------------------------------------------------------------------
 local Players            = game:GetService("Players")
 local TweenService       = game:GetService("TweenService")
