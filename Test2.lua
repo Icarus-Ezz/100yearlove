@@ -89,7 +89,7 @@ elseif getgenv().config.Setting["Team"] == "Pirates" then
     end
 end
 
-wait(3)
+wait(5)
 ------------------------------------------------------------------
 --// UI Fps
 local Time = Instance.new("ScreenGui")
