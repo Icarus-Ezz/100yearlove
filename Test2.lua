@@ -1807,6 +1807,7 @@ spawn(function()
                             local humanoidRootPart = v.HumanoidRootPart
 
                             if humanoid and humanoidRootPart and humanoid.Health > 0 then
+				setActivity("Killing Darkbeard")						
                                 repeat
                                     wait(1)
                                     AutoHaki()
@@ -1840,6 +1841,7 @@ spawn(function()
 				if enemies:FindFirstChild("rip_indra True Form") then
 					for _, v in pairs(enemies:GetChildren()) do
 						if ((v.Name == "rip_indra True Form") and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and (v.Humanoid.Health > 0)) then
+							setActivity("Killing Rip Indra")		
 							repeat
 								task.wait(1)
 								AutoHaki()
