@@ -540,198 +540,169 @@ local function CreateDropShadow(parent)
     return shadow
 end
 
-local function CreateMainGui()
-    local screenGui = Instance.new("ScreenGui")
-    screenGui.Name         = "VxezeHubUI"
-    screenGui.ResetOnSpawn = false
-    screenGui.Parent       = game.CoreGui
+function CreateMainGui()
+    local gui = Instance.new("ScreenGui", game:GetService("CoreGui"))
+    gui.Name = "AutoChestGui"
+    gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    gui.ResetOnSpawn = false
 
-    Converted["_MainFrame"] = Instance.new("Frame", screenGui)
-    local main = Converted["_MainFrame"]
-    main.Name             = "MainFrame"
-    main.Size             = UDim2.new(0, 350, 0, 300)
-    main.Position         = UDim2.new(0.5, -175, 0.5, -150)
-    main.BackgroundTransparency = 1
+    -- Main UI
+    local main = Instance.new("Frame", gui)
+    main.Size = UDim2.new(0, 300, 0, 320)
+    main.Position = UDim2.new(0.5, -150, 0.5, -160)
+    main.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    main.BorderSizePixel = 0
+    main.Active = true
+    main.Draggable = true
+    main.Name = "Main"
+    CreateSmoothCorner(main, 16)
+    CreateStroke(main, Color3.fromRGB(255, 255, 255), 1)
 
-    local titleBar = Instance.new("Frame", main)
-    titleBar.Name             = "TitleBar"
-    titleBar.Size = UDim2.new(1, 0, 0, 35)
-    titleBar.Position         = UDim2.new(0, 0, 0, 0)
-    titleBar.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-    CreateSmoothCorner1(titleBar, false, 12)
+    -- Header
+    local header = Instance.new("Frame", main)
+    header.Size = UDim2.new(1, 0, 0, 50)
+    header.Position = UDim2.new(0, 0, 0, 0)
+    header.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    header.BorderSizePixel = 0
+    CreateSmoothCorner(header, 16)
 
-    local logo = Instance.new("ImageLabel", titleBar)
-    logo.Size            = UDim2.new(0, 24, 0, 24)
-    logo.Position        = UDim2.new(0, 10, 0.5, -12)
+    local logo = Instance.new("ImageLabel", header)
+    logo.Size = UDim2.new(0, 36, 0, 36)
+    logo.Position = UDim2.new(0, 8, 0.5, -18)
+    logo.Image = "rbxassetid://7743875464"
     logo.BackgroundTransparency = 1
-    logo.Image           = "rbxassetid://91347148253026"
-    CreateSmoothCorner1(logo, true)
 
-    local titleText = Instance.new("TextLabel", titleBar)
-    titleText.Size            = UDim2.new(1, -100, 1, 0)
-    titleText.Position        = UDim2.new(0, 40, 0, 0)
+    local titleText = Instance.new("TextLabel", header)
+    titleText.Size = UDim2.new(1, -60, 1, 0)
+    titleText.Position = UDim2.new(0, 50, 0, 0)
     titleText.BackgroundTransparency = 1
-    titleText.Font            = Enum.Font.GothamBold
-    titleText.Text            = "Vxeze Hub Auto Chest"
-    titleText.TextColor3      = Color3.fromRGB(255, 255, 255)
-    titleText.TextSize        = 16
-    titleText.TextXAlignment  = Enum.TextXAlignment.Left
+    titleText.Font = Enum.Font.GothamBold
+    titleText.TextColor3 = Color3.fromRGB(255, 255, 255)
+    titleText.TextSize = 18
+    titleText.Text = "⚙️ Vxeze Auto Chest"
+    titleText.TextXAlignment = Enum.TextXAlignment.Left
 
-    local closeBtn = Instance.new("TextButton", titleBar)
-    closeBtn.Size = UDim2.new(0, 30, 0, 30)
-    closeBtn.Position = UDim2.new(1, -40, 0, 5)
-    closeBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    closeBtn.Text = "X"
-    closeBtn.TextColor3 = Color3.fromRGB(231, 76, 60)
-    closeBtn.TextSize = 16
-    CreateSmoothCorner(closeBtn)
-    
-    local minimizeBtn = Instance.new("TextButton", titleBar)
-    minimizeBtn.Size             = UDim2.new(0, 30, 0, 30)
-    minimizeBtn.Position         = UDim2.new(1, -80, 0, 5)
-    minimizeBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    minimizeBtn.Text             = "-"
-    minimizeBtn.TextColor3       = Color3.fromRGB(255, 255, 255)
-    minimizeBtn.TextSize         = 16
-    CreateSmoothCorner(minimizeBtn)
-
-    Converted["_Stats"] = Instance.new("Frame", main)
-    local stats = Converted["_Stats"]
-    stats.Name             = "Stats"
-    stats.Size             = UDim2.new(1, -20, 0, 180)
-    stats.Position         = UDim2.new(0, 10, 0, 50)
-    stats.BackgroundTransparency = 1 
-
-    local miniBg = Instance.new("ImageLabel", mini)
-    miniBg.Size = UDim2.new(1, 0, 1, 0)  
-    miniBg.Position = UDim2.new(0, 0, 0, 0)  
-    miniBg.Image = "rbxassetid://133887806410147"
-    miniBg.BackgroundTransparency = 1
-    miniBg.BorderSizePixel = 0  
-
-    local function CreateStatLabel(y)
-        local lbl = Instance.new("TextLabel", stats)
-        lbl.Size               = UDim2.new(1, -20, 0, 30)
-        lbl.Position           = UDim2.new(0, 10, 0, y)
-        lbl.BackgroundTransparency = 1
-        lbl.Font               = Enum.Font.GothamSemibold
-        lbl.TextColor3         = Color3.fromRGB(255, 255, 255)
-        lbl.TextSize           = 14
-        lbl.TextXAlignment     = Enum.TextXAlignment.Left
-        return lbl
-    end
-
-    Converted["_TimeLabel"]       = CreateStatLabel(10)
-    Converted["_BeliLabel"]       = CreateStatLabel(50)
-    Converted["_EarnedBeliLabel"] = CreateStatLabel(90)
-    Converted["_ChestLabel"]      = CreateStatLabel(130)
-
-    Converted["_Controls"] = Instance.new("Frame", main)
-    local ctrls = Converted["_Controls"]
-    ctrls.Name               = "Controls"
-    ctrls.Size               = UDim2.new(1, -20, 0, 40)
-    ctrls.Position           = UDim2.new(0, 10, 0, 230)
-    ctrls.BackgroundTransparency = 1
-
-    local btnFrame = Instance.new("Frame", main)
-    btnFrame.Size = UDim2.new(1, -20, 0, 55)
-    btnFrame.Position = UDim2.new(0, 10, 1, -65)
-    btnFrame.BackgroundTransparency = 1
-
-    local uiList = Instance.new("UIListLayout", btnFrame)
-    uiList.FillDirection = Enum.FillDirection.Horizontal
-    uiList.HorizontalAlignment = Enum.HorizontalAlignment.Center
-    uiList.VerticalAlignment = Enum.VerticalAlignment.Center
-    uiList.Padding = UDim.new(0, 10)
-
-    local function CreateButton(text, color)
-        local btn = Instance.new("TextButton")
+    -- Button Creator
+    local function CreateButton(name, position, callback, color)
+        local btn = Instance.new("TextButton", main)
         btn.Size = UDim2.new(0, 120, 0, 35)
-        btn.BackgroundColor3 = color
-        btn.Text = text
-        btn.Font = Enum.Font.GothamBold
+        btn.Position = position
+        btn.BackgroundColor3 = color or Color3.fromRGB(60, 60, 60)
         btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        btn.TextSize = 16
+        btn.Text = name
+        btn.Font = Enum.Font.Gotham
+        btn.TextSize = 14
         btn.AutoButtonColor = false
-        btn.ClipsDescendants = true
+        btn.Name = name
+        CreateSmoothCorner(btn, 10)
+        CreateStroke(btn, Color3.fromRGB(255,255,255), 0.7)
 
-        CreateSmoothCorner(btn, false, 10)
-        CreateStroke(btn, color:Lerp(Color3.new(0,0,0), 0.2))
-
-        -- Hover animation
         btn.MouseEnter:Connect(function()
-            TweenService:Create(btn, TweenInfo.new(0.25), {
-                BackgroundColor3 = color:Lerp(Color3.new(1, 1, 1), 0.08)
+            TweenService:Create(btn, TweenInfo.new(0.15), {
+                BackgroundColor3 = btn.BackgroundColor3:Lerp(Color3.new(1, 1, 1), 0.1),
+                Size = UDim2.new(0, 124, 0, 38)
             }):Play()
         end)
         btn.MouseLeave:Connect(function()
-            TweenService:Create(btn, TweenInfo.new(0.25), {
-                BackgroundColor3 = color
+            TweenService:Create(btn, TweenInfo.new(0.15), {
+                BackgroundColor3 = color or Color3.fromRGB(60, 60, 60),
+                Size = UDim2.new(0, 120, 0, 35)
             }):Play()
         end)
 
+        btn.MouseButton1Click:Connect(callback)
         return btn
     end
-    
-    Converted["_StartButton"] = CreateButton("✔️ Start", Color3.fromRGB(46,204,113))
-    Converted["_StartButton"].Parent = btnFrame
 
-    Converted["_StopButton"] = CreateButton("🛑 Stop", Color3.fromRGB(231,76,60))
-    Converted["_StopButton"].Parent = btnFrame
+    -- Buttons
+    CreateButton("Start", UDim2.new(0, 30, 0, 70), function()
+        getgenv().config.ChestFarm.Enabled = true
+    end, Color3.fromRGB(50, 200, 100))
 
-    local mini = Instance.new("Frame", screenGui)
-    mini.Name = "MiniUI"
-    mini.Size = UDim2.new(0, 50, 0, 50)
-    mini.Position = UDim2.new(0.5, -25, 0, 10)
-    mini.BackgroundTransparency = 1
-    
-    local backgroundImage = Instance.new("ImageLabel", mini)
-    backgroundImage.Size = UDim2.new(1, 0, 1, 0)
-    backgroundImage.Position = UDim2.new(0, 0, 0, 0)
-    backgroundImage.Image = "rbxassetid://134510815124527" 
-    backgroundImage.BackgroundTransparency = 1
-    backgroundImage.BorderSizePixel = 0
+    CreateButton("Stop", UDim2.new(0, 160, 0, 70), function()
+        getgenv().config.ChestFarm.Enabled = false
+    end, Color3.fromRGB(200, 50, 50))
+
+    CreateButton("Rejoin", UDim2.new(0, 30, 0, 115), function()
+        game:GetService("TeleportService"):Teleport(game.PlaceId)
+    end)
+
+    CreateButton("Server Hop", UDim2.new(0, 160, 0, 115), function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/Phatdepzaicrystal/RobloxScript/main/Hub/ServerHop.lua"))()
+    end)
+
+    -- Stats Area
+    local stats = Instance.new("Frame", main)
+    stats.Size = UDim2.new(1, -20, 0, 150)
+    stats.Position = UDim2.new(0, 10, 0, 170)
+    stats.BackgroundTransparency = 1
+    stats.Name = "Stats"
+
+    local function CreateStat(name, y)
+        local statBg = Instance.new("Frame", stats)
+        statBg.Size = UDim2.new(1, 0, 0, 28)
+        statBg.Position = UDim2.new(0, 0, 0, y)
+        statBg.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+        statBg.BackgroundTransparency = 0.15
+        CreateSmoothCorner(statBg, 8)
+        CreateStroke(statBg, Color3.fromRGB(255, 255, 255), 0.5)
+
+        local lbl = Instance.new("TextLabel", statBg)
+        lbl.Size = UDim2.new(1, -10, 1, 0)
+        lbl.Position = UDim2.new(0, 5, 0, 0)
+        lbl.BackgroundTransparency = 1
+        lbl.Font = Enum.Font.GothamSemibold
+        lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+        lbl.TextSize = 14
+        lbl.TextXAlignment = Enum.TextXAlignment.Left
+        lbl.Name = name
+        lbl.Text = name .. ": ..."
+        return lbl
+    end
+
+    CreateStat("Beli", 0)
+    CreateStat("Time", 35)
+    CreateStat("Chest", 70)
+
+    -- Mini UI
+    local mini = Instance.new("Frame", gui)
+    mini.Size = UDim2.new(0, 42, 0, 42)
+    mini.Position = UDim2.new(0, 10, 0.5, -21)
+    mini.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    mini.BorderSizePixel = 0
+    mini.Visible = false
+    mini.Name = "Mini"
+    CreateSmoothCorner(mini, 12)
+    CreateStroke(mini, Color3.fromRGB(255, 255, 255), 0.8)
 
     local restoreBtn = Instance.new("ImageButton", mini)
-    restoreBtn.Size             = UDim2.new(1,0,1,0)
-    restoreBtn.BackgroundColor3 = Color3.fromRGB(0,0,0)
-    restoreBtn.Image            = "rbxassetid://91347148253026"
-    CreateSmoothCorner1(restoreBtn, true)
+    restoreBtn.Size = UDim2.new(1, 0, 1, 0)
+    restoreBtn.BackgroundTransparency = 1
+    restoreBtn.Image = "rbxassetid://7743875464"
 
-    local dragging, dragStart, startPos
-    titleBar.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging, dragStart, startPos = true, input.Position, main.Position
-        end
-    end)
-    UserInputService.InputChanged:Connect(function(input)
-        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-            local delta = input.Position - dragStart
-            main.Position = UDim2.new(
-                startPos.X.Scale, startPos.X.Offset + delta.X,
-                startPos.Y.Scale, startPos.Y.Offset + delta.Y
-            )
-        end
-    end)
-    UserInputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = false
-        end
-    end)
-
-    closeBtn.MouseButton1Click:Connect(function()
-        screenGui:Destroy()
-    end)
-    minimizeBtn.MouseButton1Click:Connect(function()
-        main.Visible = false
-        mini.Visible = true
-    end)
     restoreBtn.MouseButton1Click:Connect(function()
         main.Visible = true
         mini.Visible = false
     end)
 
-    return screenGui
+    -- Close Button
+    local closeBtn = Instance.new("TextButton", main)
+    closeBtn.Size = UDim2.new(0, 24, 0, 24)
+    closeBtn.Position = UDim2.new(1, -28, 0, 4)
+    closeBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+    closeBtn.Text = "X"
+    closeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    closeBtn.Font = Enum.Font.GothamBold
+    closeBtn.TextSize = 14
+    CreateSmoothCorner(closeBtn, 6)
+    CreateStroke(closeBtn, Color3.fromRGB(255, 255, 255), 0.7)
+
+    closeBtn.MouseButton1Click:Connect(function()
+        main.Visible = false
+        mini.Visible = true
+    end)
+
+    return gui
 end
 
 local function UpdateTime()
