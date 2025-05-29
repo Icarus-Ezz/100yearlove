@@ -705,67 +705,69 @@ function CreateMainGui()
     return gui
 end
 
-local function UpdateTime()
-    local t = math.floor(workspace.DistributedGameTime + 0.5)
-    local h = math.floor(t/3600)%24
-    local m = math.floor(t/60)%60
-    local s = t%60
-    Converted["_TimeLabel"].Text = string.format("⏳ Time: %02d:%02d:%02d", h, m, s)
-end
-
-local function UpdateStats()
-    local player = Players.LocalPlayer
-    if not player or not player:FindFirstChild("Data") then return end
-
-    local beli = player.Data.Beli.Value
-    if oldBeli == 0 then
-        oldBeli = beli
-    else
-        earnedBeli = beli - oldBeli
-    end
-
-    local chestCount = 0
-    for _, v in ipairs(workspace:GetDescendants()) do
-        if v:IsA("BasePart") and v:FindFirstChild("TouchInterest") and v.Name:lower():find("chest") then
-            chestCount += 1
-        end
-    end
-
-    Converted["_BeliLabel"].Text       = "💵 Beli: " .. FormatNumber(beli)
-    Converted["_EarnedBeliLabel"].Text = "📊 Earned: " .. FormatNumber(earnedBeli)
-    Converted["_ChestLabel"].Text      = "🧰 Chests: " .. chestCount
-end
-
-CreateMainGui()
+local gui = CreateMainGui()
+Converted["MainGui"] = gui
 
 spawn(function()
+    local statsFrame = gui.Main:FindFirstChild("Stats")
+    if not statsFrame then return end
+
+    local beliLabel = statsFrame:FindFirstChild("Beli")
+    local timeLabel = statsFrame:FindFirstChild("Time")
+    local chestLabel = statsFrame:FindFirstChild("Chest")
+
     while true do
-        UpdateTime()
-        UpdateStats()
+        -- Cập nhật thời gian
+        local t = math.floor(workspace.DistributedGameTime + 0.5)
+        local h = math.floor(t / 3600) % 24
+        local m = math.floor(t / 60) % 60
+        local s = t % 60
+        timeLabel.Text = "⏳ Time: " .. string.format("%02d:%02d:%02d", h, m, s)
+
+        -- Cập nhật Beli
+        local player = Players.LocalPlayer
+        if player and player:FindFirstChild("Data") and player.Data:FindFirstChild("Beli") then
+            local beli = player.Data.Beli.Value
+            if oldBeli == 0 then oldBeli = beli end
+            earnedBeli = beli - oldBeli
+            beliLabel.Text = "💵 Beli: " .. FormatNumber(beli) .. " | 📈 Earned: " .. FormatNumber(earnedBeli)
+        end
+
+        -- Đếm số lượng rương
+        local count = 0
+        for _, v in ipairs(workspace:GetDescendants()) do
+            if v:IsA("BasePart") and v:FindFirstChild("TouchInterest") and v.Name:lower():find("chest") then
+                count += 1
+            end
+        end
+        chestLabel.Text = "🧰 Chests: " .. tostring(count)
+
         task.wait(1)
     end
 end)
 
 spawn(function()
-    -- Xử lý Start/Stop Farm nếu cần
     Converted["_StartButton"].MouseButton1Click:Connect(function()
         getgenv().config.ChestFarm["Start Farm Chest"] = true
-	getgenv().AutoHopEnabled = true			
+        getgenv().AutoHopEnabled = true			
         getgenv().config.Setting["No Stuck Chair"] = true
+
         game.StarterGui:SetCore("SendNotification", {
-            Title = "Vxeze Hub Auto Chest",
+            Title = "✅ Vxeze Hub Auto Chest",
             Text = "Auto Chest Started!",
-            Duration = 2
+            Duration = 3
         })
     end)
+
     Converted["_StopButton"].MouseButton1Click:Connect(function()
         getgenv().config.ChestFarm["Start Farm Chest"] = false
-	getgenv().AutoHopEnabled = false			
+        getgenv().AutoHopEnabled = false			
         getgenv().config.Setting["No Stuck Chair"] = false
+
         game.StarterGui:SetCore("SendNotification", {
-            Title = "Vxeze Hub Auto Chest",
+            Title = "🛑 Vxeze Hub Auto Chest",
             Text = "Auto Chest Stopped!",
-            Duration = 2
+            Duration = 3
         })
     end)
 end)
