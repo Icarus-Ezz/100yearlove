@@ -706,42 +706,40 @@ function CreateMainGui()
 end
 
 local gui = CreateMainGui()
-Converted["MainGui"] = gui
 
-spawn(function()
-    local statsFrame = gui.Main:FindFirstChild("Stats")
-    if not statsFrame then return end
+local function UpdateTime()
+    local t = math.floor(workspace.DistributedGameTime + 0.5)
+    local h = math.floor(t / 3600) % 24
+    local m = math.floor(t / 60) % 60
+    local s = t % 60
+    gui.Main.Stats.Time.Text = "⏳ Time: " .. string.format("%02d:%02d:%02d", h, m, s)
+end
 
-    local beliLabel = statsFrame:FindFirstChild("Beli")
-    local timeLabel = statsFrame:FindFirstChild("Time")
-    local chestLabel = statsFrame:FindFirstChild("Chest")
+local function UpdateStats()
+    local player = Players.LocalPlayer
+    if not player or not player:FindFirstChild("Data") then return end
 
+    local beli = player.Data.Beli.Value
+    if oldBeli == 0 then
+        oldBeli = beli
+    end
+    earnedBeli = beli - oldBeli
+
+    local chestCount = 0
+    for _, v in ipairs(workspace:GetDescendants()) do
+        if v:IsA("BasePart") and v:FindFirstChild("TouchInterest") and v.Name:lower():find("chest") then
+            chestCount += 1
+        end
+    end
+
+    gui.Main.Stats.Beli.Text = "💵 Beli: " .. FormatNumber(beli) .. " | 📊 Earned: " .. FormatNumber(earnedBeli)
+    gui.Main.Stats.Chest.Text = "🧰 Chests: " .. chestCount
+end
+
+task.spawn(function()
     while true do
-        -- Cập nhật thời gian
-        local t = math.floor(workspace.DistributedGameTime + 0.5)
-        local h = math.floor(t / 3600) % 24
-        local m = math.floor(t / 60) % 60
-        local s = t % 60
-        timeLabel.Text = "⏳ Time: " .. string.format("%02d:%02d:%02d", h, m, s)
-
-        -- Cập nhật Beli
-        local player = Players.LocalPlayer
-        if player and player:FindFirstChild("Data") and player.Data:FindFirstChild("Beli") then
-            local beli = player.Data.Beli.Value
-            if oldBeli == 0 then oldBeli = beli end
-            earnedBeli = beli - oldBeli
-            beliLabel.Text = "💵 Beli: " .. FormatNumber(beli) .. " | 📈 Earned: " .. FormatNumber(earnedBeli)
-        end
-
-        -- Đếm số lượng rương
-        local count = 0
-        for _, v in ipairs(workspace:GetDescendants()) do
-            if v:IsA("BasePart") and v:FindFirstChild("TouchInterest") and v.Name:lower():find("chest") then
-                count += 1
-            end
-        end
-        chestLabel.Text = "🧰 Chests: " .. tostring(count)
-
+        UpdateTime()
+        UpdateStats()
         task.wait(1)
     end
 end)
