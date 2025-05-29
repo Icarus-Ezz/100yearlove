@@ -614,37 +614,9 @@ function CreateMainGui()
         return btn
     end
 
-    local startBtn = CreateButton("Start", UDim2.new(0, 30, 0, 70), function()
-        getgenv().config.ChestFarm["Start Farm Chest"] = true
-        getgenv().AutoHopEnabled = true
-        getgenv().config.Setting["No Stuck Chair"] = true
-
-        -- Reset lại oldBeli lúc bắt đầu farm để tính tiền mới
-        local player = Players.LocalPlayer
-        if player and player:FindFirstChild("Data") and player.Data:FindFirstChild("Beli") then
-            oldBeli = player.Data.Beli.Value
-            earnedBeli = 0
-        end
-
-        game.StarterGui:SetCore("SendNotification", {
-            Title = "✅ Vxeze Hub Auto Chest",
-            Text = "Auto Chest Started!",
-            Duration = 3
-        })
-    end, Color3.fromRGB(50, 200, 100))
-
-    local stopBtn = CreateButton("Stop", UDim2.new(0, 160, 0, 70), function()
-        getgenv().config.ChestFarm["Start Farm Chest"] = false
-        getgenv().AutoHopEnabled = false
-        getgenv().config.Setting["No Stuck Chair"] = false
-
-        game.StarterGui:SetCore("SendNotification", {
-            Title = "🛑 Vxeze Hub Auto Chest",
-            Text = "Auto Chest Stopped!",
-            Duration = 3
-        })
-    end, Color3.fromRGB(200, 50, 50))
-
+    local startBtn = CreateButton("Start", UDim2.new(0, 30, 0, 70), function() end, Color3.fromRGB(50, 200, 100))
+    local stopBtn = CreateButton("Stop", UDim2.new(0, 160, 0, 70), function() end, Color3.fromRGB(200, 50, 50))
+    
     Converted["_StartButton"] = startBtn
     Converted["_StopButton"] = stopBtn	
 
@@ -655,6 +627,8 @@ function CreateMainGui()
     stats.BackgroundTransparency = 1
     stats.Name = "Stats"
 
+    local StatsLabel = {}
+	
     local function CreateStat(name, y)
         local statBg = Instance.new("Frame", stats)
         statBg.Size = UDim2.new(1, 0, 0, 28)
@@ -718,18 +692,17 @@ function CreateMainGui()
         main.Visible = false
         mini.Visible = true
     end)
-
-    return gui
+    Converted["StatsLabel"] = StatsLabel
+	
+    return Converted
 end
 
-local gui = CreateMainGui()
+local Converted = CreateMainGui()
 
-Converted["_StartButton"] = startBtn
-    Converted["_StopButton"] = stopBtn
 spawn(function()
     Converted["_StartButton"].MouseButton1Click:Connect(function()
         getgenv().config.ChestFarm["Start Farm Chest"] = true
-        getgenv().AutoHopEnabled = true			
+        getgenv().AutoHopEnabled = true
         getgenv().config.Setting["No Stuck Chair"] = true
 
         game.StarterGui:SetCore("SendNotification", {
@@ -741,7 +714,7 @@ spawn(function()
 
     Converted["_StopButton"].MouseButton1Click:Connect(function()
         getgenv().config.ChestFarm["Start Farm Chest"] = false
-        getgenv().AutoHopEnabled = false			
+        getgenv().AutoHopEnabled = false
         getgenv().config.Setting["No Stuck Chair"] = false
 
         game.StarterGui:SetCore("SendNotification", {
@@ -750,6 +723,26 @@ spawn(function()
             Duration = 3
         })
     end)
+end)
+
+spawn(function()
+    while true do
+        if Converted["StatsLabel"] then
+            local beli = game.Players.LocalPlayer.Data.Beli.Value
+            local earned = 123456  -- thay bằng biến real earned
+            local chest = 10  -- thay bằng biến count chest
+            local time = tick() - startTick  -- startTick = os.clock() khi bắt đầu
+
+            local h = math.floor(time / 3600)
+            local m = math.floor((time % 3600) / 60)
+            local s = math.floor(time % 60)
+
+            Converted["StatsLabel"]["Beli"].Text = "💵 Beli: " .. beli
+            Converted["StatsLabel"]["Time"].Text = string.format("⏳ Time: %02d:%02d:%02d", h, m, s)
+            Converted["StatsLabel"]["Chest"].Text = "🧰 Chests: " .. chest
+        end
+        task.wait(1)
+    end
 end)
 
 spawn(function()
