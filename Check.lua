@@ -90,7 +90,7 @@ elseif getgenv().config.Setting["Team"] == "Pirates" then
     end
 end
 
-wait(5)
+wait(3)
 ------------------------------------------------------------------------------------
 spawn(function()
     while wait() do
