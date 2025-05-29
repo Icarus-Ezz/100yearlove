@@ -614,22 +614,39 @@ function CreateMainGui()
         return btn
     end
 
-    -- Buttons
-    CreateButton("Start", UDim2.new(0, 30, 0, 70), function()
-        getgenv().config.ChestFarm.Enabled = true
+    local startBtn = CreateButton("Start", UDim2.new(0, 30, 0, 70), function()
+        getgenv().config.ChestFarm["Start Farm Chest"] = true
+        getgenv().AutoHopEnabled = true
+        getgenv().config.Setting["No Stuck Chair"] = true
+
+        -- Reset lại oldBeli lúc bắt đầu farm để tính tiền mới
+        local player = Players.LocalPlayer
+        if player and player:FindFirstChild("Data") and player.Data:FindFirstChild("Beli") then
+            oldBeli = player.Data.Beli.Value
+            earnedBeli = 0
+        end
+
+        game.StarterGui:SetCore("SendNotification", {
+            Title = "✅ Vxeze Hub Auto Chest",
+            Text = "Auto Chest Started!",
+            Duration = 3
+        })
     end, Color3.fromRGB(50, 200, 100))
 
-    CreateButton("Stop", UDim2.new(0, 160, 0, 70), function()
-        getgenv().config.ChestFarm.Enabled = false
+    local stopBtn = CreateButton("Stop", UDim2.new(0, 160, 0, 70), function()
+        getgenv().config.ChestFarm["Start Farm Chest"] = false
+        getgenv().AutoHopEnabled = false
+        getgenv().config.Setting["No Stuck Chair"] = false
+
+        game.StarterGui:SetCore("SendNotification", {
+            Title = "🛑 Vxeze Hub Auto Chest",
+            Text = "Auto Chest Stopped!",
+            Duration = 3
+        })
     end, Color3.fromRGB(200, 50, 50))
 
-    CreateButton("Rejoin", UDim2.new(0, 30, 0, 115), function()
-        game:GetService("TeleportService"):Teleport(game.PlaceId)
-    end)
-
-    CreateButton("Server Hop", UDim2.new(0, 160, 0, 115), function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/Phatdepzaicrystal/RobloxScript/main/Hub/ServerHop.lua"))()
-    end)
+    Converted["_StartButton"] = startBtn
+    Converted["_StopButton"] = stopBtn	
 
     -- Stats Area
     local stats = Instance.new("Frame", main)
@@ -707,43 +724,8 @@ end
 
 local gui = CreateMainGui()
 
-local function UpdateTime()
-    local t = math.floor(workspace.DistributedGameTime + 0.5)
-    local h = math.floor(t / 3600) % 24
-    local m = math.floor(t / 60) % 60
-    local s = t % 60
-    gui.Main.Stats.Time.Text = "⏳ Time: " .. string.format("%02d:%02d:%02d", h, m, s)
-end
-
-local function UpdateStats()
-    local player = Players.LocalPlayer
-    if not player or not player:FindFirstChild("Data") then return end
-
-    local beli = player.Data.Beli.Value
-    if oldBeli == 0 then
-        oldBeli = beli
-    end
-    earnedBeli = beli - oldBeli
-
-    local chestCount = 0
-    for _, v in ipairs(workspace:GetDescendants()) do
-        if v:IsA("BasePart") and v:FindFirstChild("TouchInterest") and v.Name:lower():find("chest") then
-            chestCount += 1
-        end
-    end
-
-    gui.Main.Stats.Beli.Text = "💵 Beli: " .. FormatNumber(beli) .. " | 📊 Earned: " .. FormatNumber(earnedBeli)
-    gui.Main.Stats.Chest.Text = "🧰 Chests: " .. chestCount
-end
-
-task.spawn(function()
-    while true do
-        UpdateTime()
-        UpdateStats()
-        task.wait(1)
-    end
-end)
-
+Converted["_StartButton"] = startBtn
+    Converted["_StopButton"] = stopBtn
 spawn(function()
     Converted["_StartButton"].MouseButton1Click:Connect(function()
         getgenv().config.ChestFarm["Start Farm Chest"] = true
