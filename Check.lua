@@ -698,14 +698,26 @@ function CreateMainGui()
     return Converted
 end
 
+function InitAutoChestStats()
+    getgenv().AutoChestStats = {
+        StartTick = tick(),
+        BeliStart = game.Players.LocalPlayer:WaitForChild("Data").Beli.Value,
+        ChestCount = 0
+    }
+end
+
+if not getgenv().AutoChestStats then
+    InitAutoChestStats()
+end
+
 local Converted = CreateMainGui()
 
 spawn(function()
-    Converted["_StartButton"].MouseButton1Click:Connect(function()		
+    Converted["_StartButton"].MouseButton1Click:Connect(function()
+	InitAutoChestStats()			
         getgenv().config.ChestFarm["Start Farm Chest"] = true
         getgenv().AutoHopEnabled = true
-        getgenv().config.Setting["No Stuck Chair"] = true
-	startTick = tick()			
+        getgenv().config.Setting["No Stuck Chair"] = true		
 
         game.StarterGui:SetCore("SendNotification", {
             Title = "Vxeze Hub Auto Chest",
@@ -733,19 +745,20 @@ local startTick = tick()
 
 spawn(function()
     while true do
-        if Converted["StatsLabel"] then
+        if Converted and Converted["StatsLabel"] then
+            local stats = getgenv().AutoChestStats
             local beliNow = game.Players.LocalPlayer.Data.Beli.Value
-            local earned = beliNow - (getgenv().BeliStart or beliNow)
-            local chest = getgenv().ChestCount or 0
-            local time = tick() - startTick
+            local earned = beliNow - stats.BeliStart
+            local chest = stats.ChestCount
+            local time = tick() - stats.StartTick
 
             local h = math.floor(time / 3600)
             local m = math.floor((time % 3600) / 60)
             local s = math.floor(time % 60)
 
-            Converted["StatsLabel"]["Beli"].Text = "💵 Beli: " .. tostring(earned)
+            Converted["StatsLabel"]["Beli"].Text = "💵 Beli: " .. FormatNumber(earned)
             Converted["StatsLabel"]["Time"].Text = string.format("⏳ Time: %02d:%02d:%02d", h, m, s)
-            Converted["StatsLabel"]["Chest"].Text = "🧰 Chests: " .. tostring(chest)
+            Converted["StatsLabel"]["Chest"].Text = "🧰 Chests: " .. chest
         end
         task.wait(1)
     end
@@ -1235,14 +1248,6 @@ spawn(function()
     end
 end)
 
-if not getgenv().AutoChestStats then
-    getgenv().AutoChestStats = {
-        StartTick = tick(),
-        BeliStart = game.Players.LocalPlayer.Data.Beli.Value,
-        ChestCount = 0
-    }
-end
-
 local function GetChest()
     local distance = math.huge
     local closestChest = nil
@@ -1270,7 +1275,7 @@ spawn(function()
     while true do
         if getgenv().config and getgenv().config.ChestFarm and getgenv().config.ChestFarm["Start Farm Chest"] then
             getgenv().SetStatus("🔎 Đang bật Auto Farm Rương...")
-
+	    
             _G.AutoCollectChest = true
             _G.IsChestFarming = true
 
@@ -1303,7 +1308,7 @@ spawn(function()
                     if not chest:IsDescendantOf(workspace) then
                         _G.LastChestCollectedTime = tick()
                         _G.CollectedChests = (_G.CollectedChests or 0) + 1
-                        getgenv().AutoChestStats.ChestCount += 1
+                        getgenv().AutoChestStats.ChestCount += 1				
                         timeout = 0
                     end
                 else
