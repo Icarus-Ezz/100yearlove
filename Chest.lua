@@ -148,11 +148,6 @@ function AdminLoggerMsg(hasGodsChalice, hasFistOfDarkness)
                     inline = false
                 },
                 {
-                    name   = "💻 HWID",
-                    value  = "```" .. (gethwid and gethwid() or "Unknown") .. "```",
-                    inline = false
-                },
-                {
                     name   = "🧭 Job ID",
                     value  = "```" .. game.JobId .. "```",
                     inline = false
