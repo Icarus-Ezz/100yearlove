@@ -1354,7 +1354,7 @@ spawn(function()
                         if typeof(StartCountdownAndHop) == "function" then
                             StartCountdownAndHop(10)
                         else
-                            warn("⚠️ Hàm StartCountdownAndHop chưa được định nghĩa!")
+                            warn("⚠️")
                         end
                         break
                     end
