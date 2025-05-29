@@ -1235,6 +1235,14 @@ spawn(function()
     end
 end)
 
+if not getgenv().AutoChestStats then
+    getgenv().AutoChestStats = {
+        StartTick = tick(),
+        BeliStart = game.Players.LocalPlayer.Data.Beli.Value,
+        ChestCount = 0
+    }
+end
+
 local function GetChest()
     local distance = math.huge
     local closestChest = nil
@@ -1256,7 +1264,7 @@ end
 
 spawn(function()
     repeat wait() until game:IsLoaded() and game.Players.LocalPlayer and game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-    
+
     local startTime = tick()
 
     while true do
@@ -1295,6 +1303,7 @@ spawn(function()
                     if not chest:IsDescendantOf(workspace) then
                         _G.LastChestCollectedTime = tick()
                         _G.CollectedChests = (_G.CollectedChests or 0) + 1
+                        getgenv().AutoChestStats.ChestCount += 1
                         timeout = 0
                     end
                 else
@@ -1331,6 +1340,7 @@ spawn(function()
         wait(1)
     end
 end)
+
 spawn(function()
 	pcall(function()
 		while wait() do
