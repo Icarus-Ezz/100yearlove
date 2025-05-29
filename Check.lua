@@ -648,6 +648,7 @@ function CreateMainGui()
         lbl.TextXAlignment = Enum.TextXAlignment.Left
         lbl.Name = name
         lbl.Text = name .. ": ..."
+	StatsLabel[name] = lbl	
         return lbl
     end
 
@@ -700,14 +701,15 @@ end
 local Converted = CreateMainGui()
 
 spawn(function()
-    Converted["_StartButton"].MouseButton1Click:Connect(function()
+    Converted["_StartButton"].MouseButton1Click:Connect(function()		
         getgenv().config.ChestFarm["Start Farm Chest"] = true
         getgenv().AutoHopEnabled = true
         getgenv().config.Setting["No Stuck Chair"] = true
+	startTick = tick()			
 
         game.StarterGui:SetCore("SendNotification", {
-            Title = "✅ Vxeze Hub Auto Chest",
-            Text = "Auto Chest Started!",
+            Title = "Vxeze Hub Auto Chest",
+            Text = "✅Auto Chest Started!",
             Duration = 3
         })
     end)
@@ -718,28 +720,32 @@ spawn(function()
         getgenv().config.Setting["No Stuck Chair"] = false
 
         game.StarterGui:SetCore("SendNotification", {
-            Title = "🛑 Vxeze Hub Auto Chest",
-            Text = "Auto Chest Stopped!",
+            Title = "Vxeze Hub Auto Chest",
+            Text = "🛑Auto Chest Stopped!",
             Duration = 3
         })
     end)
 end)
 
+getgenv().ChestCount = 0
+getgenv().BeliStart = game.Players.LocalPlayer.Data.Beli.Value
+local startTick = tick() 
+
 spawn(function()
     while true do
         if Converted["StatsLabel"] then
-            local beli = game.Players.LocalPlayer.Data.Beli.Value
-            local earned = 123456  -- thay bằng biến real earned
-            local chest = 10  -- thay bằng biến count chest
-            local time = tick() - startTick  -- startTick = os.clock() khi bắt đầu
+            local beliNow = game.Players.LocalPlayer.Data.Beli.Value
+            local earned = beliNow - (getgenv().BeliStart or beliNow)
+            local chest = getgenv().ChestCount or 0
+            local time = tick() - startTick
 
             local h = math.floor(time / 3600)
             local m = math.floor((time % 3600) / 60)
             local s = math.floor(time % 60)
 
-            Converted["StatsLabel"]["Beli"].Text = "💵 Beli: " .. beli
+            Converted["StatsLabel"]["Beli"].Text = "💵 Beli: " .. tostring(earned)
             Converted["StatsLabel"]["Time"].Text = string.format("⏳ Time: %02d:%02d:%02d", h, m, s)
-            Converted["StatsLabel"]["Chest"].Text = "🧰 Chests: " .. chest
+            Converted["StatsLabel"]["Chest"].Text = "🧰 Chests: " .. tostring(chest)
         end
         task.wait(1)
     end
