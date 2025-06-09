@@ -372,10 +372,6 @@ local fruitCodes = {
     ["Dragon Fruit"] = "Dragon-Dragon",
 }
 
-local lastWebhookTime = 0
-local cooldown = 60
-local pendingWebhook = nil
-
 local function sendWebhookNow(fruitName, stored)
     local cfg = getgenv().config
     if not cfg or not cfg.Webhook["Send Webhook"] or cfg.Webhook["Webhook Url"] == "" then return end
@@ -417,20 +413,10 @@ local function sendWebhookNow(fruitName, stored)
     end)
 end
 
-task.spawn(function()
-    while true do
-        task.wait(1)
-        if pendingWebhook and tick() - lastWebhookTime >= cooldown then
-            local data = pendingWebhook
-            pendingWebhook = nil
-            sendWebhookNow(data.fruitName, data.stored)
-        end
-    end
-end)
-
 local function handleFruit(tool)
     if not tool:IsA("Tool") or not fruitCodes[tool.Name] then return end
 
+    print("🥭 Fruit found:", tool.Name)
     local stored = false
 
     local cfg = getgenv().config
