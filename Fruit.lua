@@ -17,7 +17,7 @@ getgenv().config = {
     },
     Webhook = {
 	["Send Webhook"] = true,
-        ["Webhook Url"] = "https://discord.com/api/webhooks/1375693523172458536/aFBj-SRm0-KnbaAROuxjg_DN7KI_5iipuyWgsEUxizht-blEDyvNL4eFQfaUMcgmHrdG",          
+        ["Webhook Url"] = "https://discord.com/api/webhooks/1381577054398713917/YZ8X5SOtdQgNUaWf7xlvaTwanM-Xok2CT1DuREc4Uw3HWha2gVcbsHlCgomrSw81gxmW",          
     },
 }
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Icarus-Ezz/100yearlove/refs/heads/main/Fruit.lua"))()
