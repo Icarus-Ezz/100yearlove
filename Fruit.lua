@@ -20,6 +20,10 @@ getgenv().config = {
         ["Send Webhook"] = true,
         ["Webhook Url"] = "https://discord.com/api/webhooks/1381577054398713917/YZ8X5SOtdQgNUaWf7xlvaTwanM-Xok2CT1DuREc4Uw3HWha2gVcbsHlCgomrSw81gxmW",          
     },
+    Hop = {
+	["Hop Normal Sever"] = true,
+	["Hop Lower Player"] = false,
+    },
 }
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Icarus-Ezz/100yearlove/refs/heads/main/Fruit.lua"))()
 ]]--
@@ -1210,59 +1214,31 @@ end)
 
 --------------------------Hop
 function Hop()
-    local PlaceID = game.PlaceId
-    local AllIDs = {}
-    local foundAnything = ""
-    local actualHour = os.date("!*t").hour
+    local cfg = getgenv().config
+    if not cfg or not cfg.Hop then return end
 
-    function TPReturner()
-        local Site
-        if foundAnything == "" then
-            Site = game.HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100"))
-        else
-            Site = game.HttpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/" .. PlaceID .. "/servers/Public?sortOrder=Asc&limit=100&cursor=" .. foundAnything))
-        end
+    local hopNormal = cfg.Hop["Hop Normal Sever"]
+    local hopLower = cfg.Hop["Hop Lower Player"]
 
-        if Site.nextPageCursor and Site.nextPageCursor ~= "null" and Site.nextPageCursor ~= nil then
-            foundAnything = Site.nextPageCursor
-        end
-
-        for _, v in pairs(Site.data) do
-            local ID = tostring(v.id)
-            local Possible = true
-
-            if tonumber(v.maxPlayers) > tonumber(v.playing) then
-                for _, Existing in pairs(AllIDs) do
-                    if ID == tostring(Existing) then
-                        Possible = false
-                        break
-                    end
-                end
-
-                if Possible then
-                    table.insert(AllIDs, ID)
-                    wait(1)
-                    pcall(function()
-                        game:GetService("TeleportService"):TeleportToPlaceInstance(PlaceID, ID, game.Players.LocalPlayer)
-                    end)
-                    wait(4)
-                    return
-                end
-            end
-        end
+    if hopLower and hopNormal then
+        warn("[⚠️]")
     end
 
-    function Teleport()
-        while true do
-            pcall(function()
-                TPReturner()
-                if foundAnything ~= "" then
-                    TPReturner()
-                end
-            end)
-            wait(5)
-        end
+    if hopLower then
+        local success, err = pcall(function()
+            local module = loadstring(game:HttpGet("https://raw.githubusercontent.com/Icarus-Ezz/100yearlove/refs/heads/main/Hop/SvLow"))()
+            module:Teleport(game.PlaceId)
+        end)
+        if not success then warn("[❌] Error[1]:", err) end
+
+    elseif hopNormal then
+        local success, err = pcall(function()
+            local module = loadstring(game:HttpGet("https://raw.githubusercontent.com/Icarus-Ezz/100yearlove/refs/heads/main/Hop/SvThg"))()
+            module:Teleport(game.PlaceId, "Singapore")
+        end)
+        if not success then warn("[❌] Error[2]:", err) end
     end
+end
 
     Teleport()
 end
