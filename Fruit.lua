@@ -1151,7 +1151,7 @@ spawn(function()
     while wait() do
         if game.PlaceId == 7449423635 and getgenv().config.FruitFarm["Auto Raid Castle"] then
             pcall(function()
-                local CFrameCastleRaid = CFrame.new(-5075.50927734375, 314.5155029296875, -3150.0224609375)
+                local CFrameCastleRaid = CFrame.new(-5056.14794921875, 314.68048095703125, -2985.12255859375)
                 if (CFrameCastleRaid.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= 500 then
                     getgenv().BusyCastle = true
                     for i, v in pairs(workspace.Enemies:GetChildren()) do
