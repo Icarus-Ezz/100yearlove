@@ -1239,6 +1239,3 @@ function Hop()
         if not success then warn("[❌] Error[2]:", err) end
     end
 end
-
-    Teleport()
-end
