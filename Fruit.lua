@@ -417,53 +417,32 @@ task.spawn(function()
     end
 end)
 
-local function queueWebhook(fruitName, stored)
-    pendingWebhook = { name = fruitName, stored = stored }
-end
-
-local function tryStoreFruit(tool)
-    local fruitId = fruitCodes[tool.Name]
-    if not fruitId then return false end
-
-    local cfg = getgenv().config
-    if not cfg or not cfg.FruitFarm["Auto Store Fruit"] then return false end
-
-    local success = pcall(function()
-        ReplicatedStorage.Remotes.CommF_:InvokeServer("StoreFruit", fruitId, tool)
-    end)
-
-    if not success then return false end
-
-    local start = tick()
-    repeat task.wait(0.3) until not (tool.Parent and tool.Parent:IsDescendantOf(player)) or tick() - start > 5
-
-    return not (tool.Parent and tool.Parent:IsDescendantOf(player))
-end
-
-local function onFruitDetected(tool)
+local function handleFruit(tool)
     if not tool:IsA("Tool") or not fruitCodes[tool.Name] then return end
 
-    print("🍇 Detected fruit:", tool.Name)
+    local stored = false
 
-    local stored = tryStoreFruit(tool)
-    print(stored and "✅ Stored" or "❌ Not stored", ":", tool.Name)
+    local cfg = getgenv().config
+    if cfg and cfg.FruitFarm["Auto Store Fruit"] then
+        task.wait(1)
+        pcall(function()
+            ReplicatedStorage.Remotes.CommF_:InvokeServer("StoreFruit", fruitCodes[tool.Name], tool)
+        end)
+        local start = tick()
+        repeat task.wait(0.3) until not (tool.Parent == backpack or tool.Parent == player.Character) or tick() - start > 5
+        stored = not (tool.Parent == backpack or tool.Parent == player.Character)
+    end
 
-    queueWebhook(tool.Name, stored)
+    sendWebhookNow(tool.Name, stored)
 end
 
-local function watchCharacter(char)
-    char.ChildAdded:Connect(onFruitDetected)
-end
-
+backpack.ChildAdded:Connect(handleFruit)
 if player.Character then
-    watchCharacter(player.Character)
+    player.Character.ChildAdded:Connect(handleFruit)
 end
-player.CharacterAdded:Connect(watchCharacter)
-
--- Kiểm tra trong balo khi khởi động
-for _, item in ipairs(backpack:GetChildren()) do
-    onFruitDetected(item)
-end
+player.CharacterAdded:Connect(function(char)
+    char.ChildAdded:Connect(handleFruit)
+end)
 --------------------------------------------Ui Hop
 function StartCountdownAndHop(countdownTime)
     local stopHopping = false
