@@ -35,60 +35,70 @@ end
 
 wait(3)
 
---// UI Fps
-local Time = Instance.new("ScreenGui")
-local Time1 = Instance.new("Frame")
-local UICorner214 = Instance.new("UICorner")
-local Texttime = Instance.new("TextLabel")
-local Frame = Instance.new("UIStroke")
+local Players = game:GetService("Players")
+local CoreGui = game:GetService("CoreGui")
 
-Time.Name = "Time"
-Time.Parent = game.CoreGui
-Time.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+-- Tạo GUI
+local gui = Instance.new("ScreenGui")
+gui.Name = "Time"
+gui.ResetOnSpawn = false
+gui.Parent = CoreGui
 
-Time1.Name = "Time1"
-Time1.Parent = Time
-Time1.AnchorPoint = Vector2.new(0.53, 0.5)
-Time1.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-Time1.BorderSizePixel = 0
-Time1.Position = UDim2.new(0.72, 0, -0.12, 0)
-Time1.Size = UDim2.new(0, 335, 0, 22)
+local frame = Instance.new("Frame")
+frame.Name = "Time1"
+frame.Parent = gui
+frame.AnchorPoint = Vector2.new(0.5, 0)
+frame.Position = UDim2.new(0.72, 0, 0.02, 0)
+frame.Size = UDim2.new(0, 400, 0, 22)
+frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+frame.BorderSizePixel = 0
 
-UICorner214.CornerRadius = UDim.new(0, 4)
-UICorner214.Parent = Time1
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 4)
+corner.Parent = frame
 
-Frame.Thickness = 1
-Frame.Name = ""
-Frame.Parent = Time1
-Frame.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-Frame.LineJoinMode = Enum.LineJoinMode.Round
-Frame.Color = Color3.fromRGB(255, 255, 255)
-Frame.Transparency = 0
+local stroke = Instance.new("UIStroke")
+stroke.Thickness = 1
+stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+stroke.LineJoinMode = Enum.LineJoinMode.Round
+stroke.Color = Color3.fromRGB(255, 255, 255)
+stroke.Transparency = 0
+stroke.Parent = frame
 
-Texttime.Name = "Texttime"
-Texttime.Parent = Time1
-Texttime.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Texttime.BackgroundTransparency = 1
-Texttime.Position = UDim2.new(0, 0, 0, 0)
-Texttime.Size = UDim2.new(1, 0, 1, 0)
-Texttime.Font = Enum.Font.Ubuntu
-Texttime.Text = ""
-Texttime.TextColor3 = Color3.fromRGB(255, 255, 255)
-Texttime.TextSize = 12
-Texttime.TextXAlignment = Enum.TextXAlignment.Center
+local textLabel = Instance.new("TextLabel")
+textLabel.Name = "Texttime"
+textLabel.Parent = frame
+textLabel.Size = UDim2.new(1, 0, 1, 0)
+textLabel.BackgroundTransparency = 1
+textLabel.Font = Enum.Font.Ubuntu
+textLabel.TextSize = 12
+textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+textLabel.TextXAlignment = Enum.TextXAlignment.Center
 
+-- Biến toàn cục
 getgenv().currentActivity = "Idle"
+local serverStartTime = tick()
 
 function setActivity(text)
     getgenv().currentActivity = text
 end
 
-spawn(function()
-    while task.wait(0.1) do
+-- Hàm format thời gian
+local function formatTime(seconds)
+    local m = math.floor(seconds / 60)
+    local s = math.floor(seconds % 60)
+    return string.format("%02d:%02d", m, s)
+end
+
+-- Cập nhật thông tin hiển thị
+task.spawn(function()
+    while task.wait(0.2) do
         pcall(function()
-            local fps = string.format("FPS: %d", workspace:GetRealPhysicsFPS())
+            local fps = math.floor(workspace:GetRealPhysicsFPS())
             local activity = getgenv().currentActivity or "Idle"
-            Texttime.Text = string.format("Vxeze Hub - Auto Fruit | %s | %s", fps, activity)
+            local timeInServer = formatTime(tick() - serverStartTime)
+
+            textLabel.Text = string.format("🍎 Vxeze Hub - Auto Fruit | FPS: %d | %s | Time: %s", fps, activity, timeInServer)
         end)
     end
 end)
@@ -705,6 +715,7 @@ local function TweenToAllFruits()
     for i, fruit in ipairs(fruits) do
         if fruit and fruit.Parent and fruit:FindFirstChild("Handle") then
             local cframe = fruit.Handle.CFrame * CFrame.new(0, 2, 0)
+	    setActivity("Nhặt Trái")		
             Tween2(cframe)
 
             local start = tick()
