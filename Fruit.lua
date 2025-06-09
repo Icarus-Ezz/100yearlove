@@ -34,6 +34,64 @@ elseif getgenv().config.Setting["Team"] == "Pirates" then
 end
 
 wait(3)
+
+--// UI Fps
+local Time = Instance.new("ScreenGui")
+local Time1 = Instance.new("Frame")
+local UICorner214 = Instance.new("UICorner")
+local Texttime = Instance.new("TextLabel")
+local Frame = Instance.new("UIStroke")
+
+Time.Name = "Time"
+Time.Parent = game.CoreGui
+Time.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+Time1.Name = "Time1"
+Time1.Parent = Time
+Time1.AnchorPoint = Vector2.new(0.53, 0.5)
+Time1.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Time1.BorderSizePixel = 0
+Time1.Position = UDim2.new(0.72, 0, -0.12, 0)
+Time1.Size = UDim2.new(0, 335, 0, 22)
+
+UICorner214.CornerRadius = UDim.new(0, 4)
+UICorner214.Parent = Time1
+
+Frame.Thickness = 1
+Frame.Name = ""
+Frame.Parent = Time1
+Frame.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+Frame.LineJoinMode = Enum.LineJoinMode.Round
+Frame.Color = Color3.fromRGB(255, 255, 255)
+Frame.Transparency = 0
+
+Texttime.Name = "Texttime"
+Texttime.Parent = Time1
+Texttime.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Texttime.BackgroundTransparency = 1
+Texttime.Position = UDim2.new(0, 0, 0, 0)
+Texttime.Size = UDim2.new(1, 0, 1, 0)
+Texttime.Font = Enum.Font.Ubuntu
+Texttime.Text = ""
+Texttime.TextColor3 = Color3.fromRGB(255, 255, 255)
+Texttime.TextSize = 12
+Texttime.TextXAlignment = Enum.TextXAlignment.Center
+
+getgenv().currentActivity = "Idle"
+
+function setActivity(text)
+    getgenv().currentActivity = text
+end
+
+spawn(function()
+    while task.wait(0.1) do
+        pcall(function()
+            local fps = string.format("FPS: %d", workspace:GetRealPhysicsFPS())
+            local activity = getgenv().currentActivity or "Idle"
+            Texttime.Text = string.format("Vxeze Hub - Auto Fruit | %s | %s", fps, activity)
+        end)
+    end
+end)
 ------------------------------------------------------------------------------------
 spawn(function()
     while wait() do
@@ -216,64 +274,6 @@ local function Tween2(targetCFrame)
         warn("[Tween2 Error]:", err)
     end
 end
-
---// UI Fps
-local Time = Instance.new("ScreenGui")
-local Time1 = Instance.new("Frame")
-local UICorner214 = Instance.new("UICorner")
-local Texttime = Instance.new("TextLabel")
-local Frame = Instance.new("UIStroke")
-
-Time.Name = "Time"
-Time.Parent = game.CoreGui
-Time.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
-Time1.Name = "Time1"
-Time1.Parent = Time
-Time1.AnchorPoint = Vector2.new(0.53, 0.5)
-Time1.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-Time1.BorderSizePixel = 0
-Time1.Position = UDim2.new(0.72, 0, -0.12, 0)
-Time1.Size = UDim2.new(0, 335, 0, 22)
-
-UICorner214.CornerRadius = UDim.new(0, 4)
-UICorner214.Parent = Time1
-
-Frame.Thickness = 1
-Frame.Name = ""
-Frame.Parent = Time1
-Frame.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-Frame.LineJoinMode = Enum.LineJoinMode.Round
-Frame.Color = Color3.fromRGB(255, 255, 255)
-Frame.Transparency = 0
-
-Texttime.Name = "Texttime"
-Texttime.Parent = Time1
-Texttime.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-Texttime.BackgroundTransparency = 1
-Texttime.Position = UDim2.new(0, 0, 0, 0)
-Texttime.Size = UDim2.new(1, 0, 1, 0)
-Texttime.Font = Enum.Font.Ubuntu
-Texttime.Text = ""
-Texttime.TextColor3 = Color3.fromRGB(255, 255, 255)
-Texttime.TextSize = 12
-Texttime.TextXAlignment = Enum.TextXAlignment.Center
-
-getgenv().currentActivity = "Idle"
-
-function setActivity(text)
-    getgenv().currentActivity = text
-end
-
-spawn(function()
-    while task.wait(0.1) do
-        pcall(function()
-            local fps = string.format("FPS: %d", workspace:GetRealPhysicsFPS())
-            local activity = getgenv().currentActivity or "Idle"
-            Texttime.Text = string.format("Vxeze Hub - Auto Fruit | %s | %s", fps, activity)
-        end)
-    end
-end)
 --------------------------------------------------------------------------
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
