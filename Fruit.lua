@@ -619,8 +619,8 @@ function StartCountdownAndHop(countdownTime)
     CountdownLabel.Text = "Vxeze Hopping..."
 
     game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Vxeze Hub",
-        Text = "Vxeze is hopping server...",
+        Title = "Hop New Sever",
+        Text = "Vxeze Notification",
         Duration = 4
     })
 
