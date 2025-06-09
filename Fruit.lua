@@ -7,6 +7,7 @@ getgenv().config = {
         ["Black Screen"] = false,
         ["Auto Rejoin"] = true,
         ["No Stuck Chair"] = true,
+	["No Clip"] = true,
     },
     FruitFarm = {
         ["Farm Fruit"] = true,
@@ -134,6 +135,34 @@ spawn(function()
        end
    end
 end)
+
+local function setupNoClip()
+    local cfg = getgenv().config
+    if not cfg or not cfg.Setting or type(cfg.Setting["No Clip"]) ~= "boolean" then return end
+
+    if getgenv().NoClipConnection then
+        getgenv().NoClipConnection:Disconnect()
+        getgenv().NoClipConnection = nil
+    end
+
+    if cfg.Setting["No Clip"] then
+        getgenv().NoClipConnection = game:GetService("RunService").Stepped:Connect(function()
+            for _, p in ipairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+                if p:IsA("BasePart") then
+                    p.CanCollide = false
+                end
+            end
+        end)
+    else
+        for _, p in ipairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+            if p:IsA("BasePart") then
+                p.CanCollide = true
+            end
+        end
+    end
+end
+
+setupNoClip()
 
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
