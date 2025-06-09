@@ -4,9 +4,9 @@ getgenv().config = {
         ["Team"] = "Marines",         --Pirates\Marines
         ["Boots FPS"] = false,         
         ["White Screen"] = false,
-	["Black Screen"] = false,
+        ["Black Screen"] = false,
         ["Auto Rejoin"] = true,
-	["No Stuck Chair"] = true,
+        ["No Stuck Chair"] = true,
     },
     FruitFarm = {
         ["Farm Fruit"] = true,
@@ -16,7 +16,7 @@ getgenv().config = {
         ["Auto Store Fruit"] = true,
     },
     Webhook = {
-	["Send Webhook"] = true,
+        ["Send Webhook"] = true,
         ["Webhook Url"] = "https://discord.com/api/webhooks/1381577054398713917/YZ8X5SOtdQgNUaWf7xlvaTwanM-Xok2CT1DuREc4Uw3HWha2gVcbsHlCgomrSw81gxmW",          
     },
 }
