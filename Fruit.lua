@@ -15,8 +15,8 @@ getgenv().config = {
         ["Auto Store Fruit"] = true,
     },
     Webhook = {
+	["Send Webhook"] = true,
         ["Webhook Url"] = "https://discord.com/api/webhooks/1375693523172458536/aFBj-SRm0-KnbaAROuxjg_DN7KI_5iipuyWgsEUxizht-blEDyvNL4eFQfaUMcgmHrdG",          
-        ["Send Webhook"] = true,
     },
 }
 loadstring(game:HttpGet("https://raw.githubusercontent.com/Icarus-Ezz/100yearlove/refs/heads/main/Fruit.lua"))()
