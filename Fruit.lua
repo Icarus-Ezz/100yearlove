@@ -1120,7 +1120,7 @@ spawn(function()
 
                         EquipWeapon(_G.SelectWeapon)
                         AutoHaki()
-                        topos(v.HumanoidRootPart.CFrame * CFrame.new(posX, posY, posZ))
+                        Tween2(v.HumanoidRootPart.CFrame * CFrame.new(posX, posY, posZ))
                         v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
                         v.HumanoidRootPart.Transparency = 1
                         v.Humanoid.JumpPower = 0
@@ -1135,7 +1135,7 @@ spawn(function()
                 end
             elseif game.ReplicatedStorage:FindFirstChild("Core") then
                 repeat
-                    topos(CFrame.new(448.46756, 199.356781, -441.389252))
+                    Tween2(CFrame.new(448.46756, 199.356781, -441.389252))
                     wait()
                 until not getgenv().config.FruitFarm["Auto Factory"] or 
                        (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - Vector3.new(448.46756, 199.356781, -441.389252)).Magnitude <= 10
@@ -1163,7 +1163,7 @@ spawn(function()
                                     EquipWeapon(_G.SelectWeapon)
                                     v.HumanoidRootPart.CanCollide = false
                                     v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
-                                    topos(v.HumanoidRootPart.CFrame * CFrame.new(posX, posY, posZ))
+                                    Tween2(v.HumanoidRootPart.CFrame * CFrame.new(posX, posY, posZ))
 				    sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)							
                                 until v.Humanoid.Health <= 0 or not v.Parent or not getgenv().config.FruitFarm["Auto Raid Castle"]
                             end
@@ -1172,7 +1172,7 @@ spawn(function()
                     getgenv().BusyCastle = false
                 else
                     getgenv().BusyCastle = false
-                    topos(CFrameCastleRaid)
+                    Tween2(CFrameCastleRaid)
                 end
             end)
         end
