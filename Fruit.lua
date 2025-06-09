@@ -35,70 +35,52 @@ end
 
 wait(3)
 
-local Players = game:GetService("Players")
-local CoreGui = game:GetService("CoreGui")
-
--- Tạo GUI
-local gui = Instance.new("ScreenGui")
-gui.Name = "Time"
-gui.ResetOnSpawn = false
-gui.Parent = CoreGui
-
-local frame = Instance.new("Frame")
-frame.Name = "Time1"
-frame.Parent = gui
-frame.AnchorPoint = Vector2.new(0.5, 0)
-frame.Position = UDim2.new(0.72, 0, 0.02, 0)
-frame.Size = UDim2.new(0, 400, 0, 22)
-frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-frame.BorderSizePixel = 0
-
-local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 4)
-corner.Parent = frame
-
-local stroke = Instance.new("UIStroke")
-stroke.Thickness = 1
-stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-stroke.LineJoinMode = Enum.LineJoinMode.Round
-stroke.Color = Color3.fromRGB(255, 255, 255)
-stroke.Transparency = 0
-stroke.Parent = frame
-
-local textLabel = Instance.new("TextLabel")
-textLabel.Name = "Texttime"
-textLabel.Parent = frame
-textLabel.Size = UDim2.new(1, 0, 1, 0)
-textLabel.BackgroundTransparency = 1
-textLabel.Font = Enum.Font.Ubuntu
-textLabel.TextSize = 12
-textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-textLabel.TextXAlignment = Enum.TextXAlignment.Center
-
--- Biến toàn cục
-getgenv().currentActivity = "Idle"
-local serverStartTime = tick()
-
-function setActivity(text)
-    getgenv().currentActivity = text
-end
-
--- Hàm format thời gian
-local function formatTime(seconds)
-    local m = math.floor(seconds / 60)
-    local s = math.floor(seconds % 60)
-    return string.format("%02d:%02d", m, s)
-end
-
--- Cập nhật thông tin hiển thị
-task.spawn(function()
-    while task.wait(0.2) do
+--// UI Fps
+local Time = Instance.new("ScreenGui")
+local Time1 = Instance.new("Frame")
+local UICorner214 = Instance.new("UICorner")
+local Texttime = Instance.new("TextLabel")
+local Frame = Instance.new("UIStroke")
+Time.Name = "Time"
+Time.Parent = game.CoreGui
+Time.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+Time1.Name = "Time1"
+Time1.Parent = Time
+Time1.AnchorPoint = Vector2.new(0.53, 0.5)
+Time1.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+Time1.BorderSizePixel = 0
+Time1.Position = UDim2.new(0.72, 0, -0.12, 0)
+Time1.Size = UDim2.new(0, 335, 0, 22)
+UICorner214.CornerRadius = UDim.new(0, 4)
+UICorner214.Parent = Time1
+Frame.Thickness = 1
+Frame.Name = ""
+Frame.Parent = Time1
+Frame.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+Frame.LineJoinMode = Enum.LineJoinMode.Round
+Frame.Color = Color3.fromRGB(255, 255, 255)
+Frame.Transparency = 0
+Texttime.Name = "Texttime"
+Texttime.Parent = Time1
+Texttime.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Texttime.BackgroundTransparency = 1
+Texttime.Position = UDim2.new(0, 0, 0, 0)
+Texttime.Size = UDim2.new(1, 0, 1, 0)
+Texttime.Font = Enum.Font.Ubuntu
+Texttime.Text = ""
+Texttime.TextColor3 = Color3.fromRGB(255, 255, 255)
+Texttime.TextSize = 12
+Texttime.TextXAlignment = Enum.TextXAlignment.Center
+spawn(function()
+    while wait(0.1) do
         pcall(function()
-            local fps = math.floor(workspace:GetRealPhysicsFPS())
-            local activity = getgenv().currentActivity or "Idle"
-            local timeInServer = formatTime(tick() - serverStartTime)
-
-            textLabel.Text = string.format("🍎 Vxeze Hub - Auto Fruit | FPS: %d | %s | Time: %s", fps, activity, timeInServer)
+            local scripttime = game.Workspace.DistributedGameTime
+            local seconds = scripttime % 60
+            local minutes = math.floor(scripttime / 60 % 60)
+            local hours = math.floor(scripttime / 3600)
+            local fps = string.format("FPS: %d", workspace:GetRealPhysicsFPS())
+            local tempo = string.format(" |  %.0f Hour's , %.0f Minute , %.0f Second", hours, minutes, seconds)
+            Texttime.Text = string.format("🍎Vxeze Hub-Auto Fruit | %s %s", fps, tempo)
         end)
     end
 end)
