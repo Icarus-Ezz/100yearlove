@@ -5,7 +5,7 @@ getgenv().config = {
         ["Boots FPS"] = false,         
         ["White Screen"] = false,
         ["Black Screen"] = false,
-        ["Auto Rejoin"] = true,
+        ["Auto Rejoin On Kick"] = true,
         ["No Stuck Chair"] = true,
 	["No Clip"] = true,
     },
@@ -118,9 +118,9 @@ end)
 
 spawn(function()
     while wait() do
-        if getgenv().config.Setting["Auto Rejoin"] then
-            if not getgenv().config.Setting["Auto Rejoin"] then 
-                getgenv().config.Setting["Auto Rejoin"] = game:GetService("CoreGui").RobloxPromptGui.promptOverlay.ChildAdded:Connect(function(child)
+        if getgenv().config.Setting["Auto Rejoin On Kick"] then
+            if not getgenv().config.Setting["Auto Rejoin On Kick"] then 
+                getgenv().config.Setting["Auto Rejoin On Kick"] = game:GetService("CoreGui").RobloxPromptGui.promptOverlay.ChildAdded:Connect(function(child)
                     if child.Name == 'ErrorPrompt' and child:FindFirstChild('MessageArea') and child.MessageArea:FindFirstChild("ErrorFrame") then
                         game:GetService("TeleportService"):Teleport(game.PlaceId)
                     end
