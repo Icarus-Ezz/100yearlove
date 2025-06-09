@@ -635,7 +635,7 @@ function StartCountdownAndHop(countdownTime)
     for i = countdownTime, 1, -1 do
         if stopHopping then return end
         CountdownLabel.Text = "Hopping Server: " .. tostring(i) .. "s"
-        ProgressBar:TweenSize(UDim2.new((countdownTime - i + 1) / countdownTime, 0, 1, 0), "Out", "Linear", 1, true)
+        ProgressBar:TweenSize(UDim2.new(i / countdownTime, 0, 1, 0), "Out", "Linear", 1, true) 
         task.wait(1)
     end
 
